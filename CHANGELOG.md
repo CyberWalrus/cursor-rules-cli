@@ -1,5 +1,54 @@
 # Changelog
 
+## [0.1.7] - 2025-11-02
+
+<small>02.11.2025 04:19</small>
+
+### Added
+
+- **Схемы валидации параметров команд**
+    - Добавлены Zod-схемы для валидации параметров CLI команд
+    - Обеспечена типобезопасность и валидация входных данных
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/9b35f311ddd7431c8174810c15d4fb1ff1292603" target="_blank">9b35f31</a>
+
+- **Модуль утилит helpers**
+    - Добавлена функция проверки пустых строк для валидации входных данных
+    - Создан фасад модуля для единообразного экспорта утилит
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/f3d3d76b30737f4e3a85e416947a4eb9c91c1fc4" target="_blank">f3d3d76</a>
+
+- **Функции для работы с файлами и директориями**
+    - Добавлены функции хеширования файлов и сканирования директорий
+    - Улучшена поддержка вычисления разницы между версиями правил
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/031fb09ed99b7f928b90e2b9d884eb3770f2b0aa" target="_blank">031fb09</a>
+
+- **Фасад модели и обновление типов**
+    - Добавлен фасад model/index.ts для централизованного экспорта
+    - Обновлены типы для улучшения типобезопасности
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/ccb9402ed146eec83ea1e6551c5af6cb7572622d" target="_blank">ccb9402</a>
+
+### Changed
+
+- **Рефакторинг модулей file-operations и version-manager**
+    - Упрощена логика работы с файлами и версиями
+    - Улучшена читаемость и поддерживаемость кода
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/8847101b8aaaaa468d1da9d2573d5f8608feb0ef" target="_blank">8847101</a>
+
+- **Упрощение calculate-diff**
+    - Рефакторинг модуля вычисления разницы с использованием новых утилит
+    - Улучшена производительность и структура кода
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/dd7a8d0918a565cdbd880b089d12cf7663a51031" target="_blank">dd7a8d0</a>
+
+- **Обновление CLI команд**
+    - Интеграция новых схем валидации параметров во все CLI команды
+    - Улучшена обработка ошибок и валидация входных данных
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/a95c24c5c76a51736c051aa4daaec3b0da728031" target="_blank">a95c24c</a>
+
+- **Обновление E2E тестов**
+    - Переименованы хелперы для большей ясности (copy-fixtures → copy-rules-fixtures)
+    - Добавлен хелпер create-version-file для создания версионных файлов в тестах
+    - Улучшена структура вспомогательных функций для тестирования
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/0a724fcf6f2f71dc4eb4400be135bc45904c6fea" target="_blank">0a724fc</a>
+
 ## [0.1.6] - 2025-11-01
 
 <small>01.11.2025 23:54</small>
