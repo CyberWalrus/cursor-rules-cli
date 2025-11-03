@@ -30,15 +30,14 @@ export async function calculateDiff(packageDir: string, targetDir: string): Prom
 
                 // Находим новые и измененные файлы
                 sourceMap.forEach((sourceHash, relativePath) => {
-                    const fullPath = join(ruleDir, relativePath);
                     const targetHash = targetMap.get(relativePath);
 
-                    if (targetHash === null || targetHash === undefined) {
+                    if (targetHash === undefined) {
                         // Файл существует в source, но не в target - добавить
-                        toAdd.push(fullPath);
+                        toAdd.push(join(ruleDir, relativePath));
                     } else if (sourceHash !== targetHash) {
                         // Файл изменился - обновить
-                        toUpdate.push(fullPath);
+                        toUpdate.push(join(ruleDir, relativePath));
                     }
                 });
 
@@ -46,11 +45,10 @@ export async function calculateDiff(packageDir: string, targetDir: string): Prom
                 targetMap.forEach((_, relativePath) => {
                     if (!sourceMap.has(relativePath)) {
                         // Файл существует в target, но не в source - удалить
-                        const fullPath = join(ruleDir, relativePath);
-                        toDelete.push(fullPath);
+                        toDelete.push(join(ruleDir, relativePath));
                     }
                 });
-            } catch (error) {
+            } catch (error: unknown) {
                 // Если директория не существует, логируем и продолжаем
                 console.error(`Failed to scan directory ${ruleDir}:`, error);
             }
