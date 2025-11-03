@@ -1,20 +1,22 @@
 {
     "name": "cursor-rules-cli",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "description": "CLI tool for managing .cursor rules in projects",
     "bin": {
-        "cursor-rules-cli": "./dist/cli.js"
+        "cursor-rules-cli": "./dist/cli.js",
+        "crules": "./dist/cli.js"
     },
     "type": "module",
+    "_comment": "For AI: when you need to verify code is not broken, run 'yarn lint'",
     "scripts": {
         "build": "tsup",
         "start": "node --import tsx src/cli.ts",
-        "test": "cross-env NODE_ENV=test vitest --run",
-        "test:unit": "cross-env NODE_ENV=test vitest --run --exclude '**/*.e2e.test.ts'",
-        "test:e2e": "cross-env NODE_ENV=test TEST_TYPE=e2e vitest --run",
-        "test:coverage": "cross-env NODE_ENV=test vitest --coverage",
-        "typecheck": "tsc --noEmit",
-        "lint": "yarn eslint --fix --report-unused-disable-directives-severity off src && yarn typecheck"
+        "lint": "air lint:eslint lint:ts lint:knip lint:test-unit lint:test-e2e",
+        "lint:test-unit": "cross-env NODE_ENV=test TZ=Europe/Moscow vitest --run --exclude '**/*.e2e.test.ts'",
+        "lint:test-e2e": "yarn build &&cross-env NODE_ENV=test TZ=Europe/Moscow TEST_TYPE=e2e vitest --run",
+        "lint:ts": "tsc --noEmit",
+        "lint:eslint": "yarn eslint --fix --report-unused-disable-directives-severity off src",
+        "lint:knip": "knip --no-progress --include exports,files"
     },
     "repository": {
         "type": "git",
@@ -38,8 +40,10 @@
     },
     "devDependencies": {
         "@types/node": "24.9.2",
+        "ai-friendly-runner": "0.1.2",
         "cross-env": "10.1.0",
         "eslint-walrus-config": "1.1.0",
+        "knip": "5.67.1",
         "tsup": "8.5.0",
         "tsx": "4.20.6",
         "typescript": "5.9.3",

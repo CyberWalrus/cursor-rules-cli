@@ -1,0 +1,19 @@
+{
+    "$schema": "https://unpkg.com/knip@latest/schema.json",
+    "project": [
+        "src/**/*.ts"
+    ],
+    "ignore": [
+        "src/**/*.test.ts",
+        "src/**/__tests__/**",
+        "src/test-setup.ts",
+        "src/lib/diff-calculator/index.ts",
+        "src/lib/version-manager/index.ts"
+    ],
+    "ignoreDependencies": [
+        "eslint-walrus-config"
+    ],
+    "ignoreBinaries": [
+        "eslint"
+    ]
+}
