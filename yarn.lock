@@ -1173,13 +1173,10 @@ acorn@^8.15.0:
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.15.0.tgz"
   integrity sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==
 
-ai-friendly-runner@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/ai-friendly-runner/-/ai-friendly-runner-0.1.2.tgz#5521bba9fb1ca406e3499352b6aa32cb3742e217"
-  integrity sha512-tEBzucrvZeByv6SKS7b3Sr+CAeZe4RjHFzhxImgGIJ8nVwnahBqaEqNg7lc4Ey0EaU/YEVRxg6CZm/BBqTVy6Q==
-  dependencies:
-    p-limit "^6.1.0"
-    picocolors "^1.1.1"
+ai-friendly-runner@0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/ai-friendly-runner/-/ai-friendly-runner-0.4.0.tgz#58f9d6266e4a720b6b86e90a15911fd580000dcb"
+  integrity sha512-seYRiDdrE5EKAEYxVnwCwg7u4ASOGtVLEFqT2uXQfQadvf817p8b/+e8f38rexBbQ5NRF12PIz9noqaxIsEHAA==
 
 ajv@^6.12.4:
   version "6.12.6"
@@ -3668,13 +3665,6 @@ p-limit@^3.0.2:
   dependencies:
     yocto-queue "^0.1.0"
 
-p-limit@^6.1.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-6.2.0.tgz#c254d22ba6aeef441a3564c5e6c2f2da59268a0f"
-  integrity sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA==
-  dependencies:
-    yocto-queue "^1.1.1"
-
 p-locate@^5.0.0:
   version "5.0.0"
   resolved "https://registry.npmjs.org/p-locate/-/p-locate-5.0.0.tgz"
@@ -4760,11 +4750,6 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
-
-yocto-queue@^1.1.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.2.1.tgz#36d7c4739f775b3cbc28e6136e21aa057adec418"
-  integrity sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==
 
 "zod-validation-error@^3.0.3 || ^4.0.0":
   version "4.0.2"
