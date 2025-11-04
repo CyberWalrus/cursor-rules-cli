@@ -43,3 +43,9 @@ export type VersionDiff = {
 
 /** Карта путей файлов и их хешей */
 export type FileHashMap = Map<string, string>;
+
+/** Параметры для функции проверки и обновления */
+export type CheckAndUpdateOptions = {
+    /** Пропустить автоматическое обновление */
+    isSkipUpdate?: boolean;
+};

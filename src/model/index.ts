@@ -8,4 +8,11 @@ export {
     updateCommandParamsSchema,
 } from './schemas/command-params';
 export { type VersionData } from './schemas/main';
-export type { CommandType, RulesConfig, VersionComparison, VersionDiff, VersionInfo } from './types/main';
+export type {
+    CheckAndUpdateOptions,
+    CommandType,
+    RulesConfig,
+    VersionComparison,
+    VersionDiff,
+    VersionInfo,
+} from './types/main';
