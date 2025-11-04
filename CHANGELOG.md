@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.2.1] - 2025-11-04
+
+<small>04.11.2025 05:57</small>
+
+### Docs
+
+- **Улучшение документации по кросс-платформенному тестированию**
+    - Добавлена секция TIER 8: Cross-Platform Testing с правилами работы с путями в тестах
+    - Добавлены рекомендации по использованию `path.join()` и нормализации путей для Windows, macOS и Linux
+    - Обновлен список Common Mistakes в compact версии правил тестирования
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/63d946cd09b1a90eea48df7dac931f4cab402c56" target="_blank">63d946c</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/5c97090694fd054e1cf64c83f5b8b89d9dbbb968" target="_blank">5c97090</a>
+
+### Changed
+
+- **Улучшение кросс-платформенной совместимости тестов**
+    - Обновлены тесты для функций работы с файлами с использованием `path.join()` вместо строковой конкатенации
+    - Улучшена совместимость тестов с различными операционными системами
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/4c909c0ef8a62c8f2a4735cbecafa294cfc92704" target="_blank">4c909c0</a>
+
+- **Исправление скрипта линтинга**
+    - Исправлены кавычки в скрипте линтинга в package.json для корректного выполнения команд
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/9ac6221d5f507dd9887d4720008dc25f1ea6f471" target="_blank">9ac6221</a>
+
 ## [0.1.9] - 2025-11-04
 
 <small>04.11.2025 04:01</small>
