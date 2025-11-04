@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import type { VersionInfo } from '../../../model/types/main';
 import { copyRulesToTarget, deleteRulesFromTarget, readVersionFile, writeVersionFile } from '../index';
 
@@ -87,7 +89,7 @@ describe('file-operations', () => {
 
             expect(result).toEqual(versionInfo);
             expect(mockPathExists).toHaveBeenCalled();
-            expect(mockReadFile).toHaveBeenCalledWith(expect.stringContaining('.cursor/rules-version.json'), 'utf-8');
+            expect(mockReadFile).toHaveBeenCalledWith(join('/target', '.cursor', 'rules-version.json'), 'utf-8');
         });
 
         it('должен возвращать null если файл не существует', async () => {
@@ -114,9 +116,9 @@ describe('file-operations', () => {
 
             await writeVersionFile('/target', versionInfo);
 
-            expect(mockMkdir).toHaveBeenCalledWith('/target/.cursor', { recursive: true });
+            expect(mockMkdir).toHaveBeenCalledWith(join('/target', '.cursor'), { recursive: true });
             expect(mockWriteFile).toHaveBeenCalledWith(
-                expect.stringContaining('.cursor/rules-version.json'),
+                join('/target', '.cursor', 'rules-version.json'),
                 JSON.stringify(versionInfo, null, 2),
                 'utf-8',
             );
