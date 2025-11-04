@@ -44,6 +44,7 @@ Read full reference: `.cursor/docs/testing.md` for advanced patterns.
 2. TypeScript error → use `vi.mocked(fn)`
 3. Mocks leak → add `vi.clearAllMocks()` in `beforeEach`
 4. Real timers → use `vi.useFakeTimers()`
+5. Hardcoded paths → use `path.join()` instead of string concatenation, normalize paths for comparisons
 
 **Completion:** 100% coverage for new code, mocks typed and cleaned, behavior tested.
 
