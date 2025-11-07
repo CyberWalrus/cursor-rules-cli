@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://json.schemastore.org/cursor-rules-config-1.0.0.json",
+  "$id": "https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/.cursor/cursor-rules-config-1.0.0.schema.json",
   "title": "Cursor Rules Configuration",
   "description": "Configuration file for cursor-rules CLI tool",
   "type": "object",
@@ -22,39 +22,54 @@
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Configuration format version (semver)",
-      "examples": ["1.0.0"]
+      "examples": [
+        "1.0.0"
+      ]
     },
     "installedAt": {
       "type": "string",
       "format": "date-time",
       "description": "Installation timestamp (ISO 8601)",
-      "examples": ["2025-11-07T10:00:00.000Z"]
+      "examples": [
+        "2025-11-07T10:00:00.000Z"
+      ]
     },
     "updatedAt": {
       "type": "string",
       "format": "date-time",
       "description": "Last update timestamp (ISO 8601)",
-      "examples": ["2025-11-07T12:30:00.000Z"]
+      "examples": [
+        "2025-11-07T12:30:00.000Z"
+      ]
     },
     "source": {
       "type": "string",
       "minLength": 1,
       "description": "Source package name",
-      "examples": ["cursor-rules"]
+      "examples": [
+        "cursor-rules"
+      ]
     },
     "version": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Installed rules version (semver)",
-      "examples": ["1.2.3"]
+      "examples": [
+        "1.2.3"
+      ]
     },
     "settings": {
       "type": "object",
-      "required": ["language"],
+      "required": [
+        "language"
+      ],
       "properties": {
         "language": {
           "type": "string",
-          "enum": ["ru", "en"],
+          "enum": [
+            "ru",
+            "en"
+          ],
           "description": "CLI output language"
         }
       },
@@ -66,13 +81,20 @@
       "description": "Rule sets to install/update",
       "items": {
         "type": "object",
-        "required": ["id", "update"],
+        "required": [
+          "id",
+          "update"
+        ],
         "properties": {
           "id": {
             "type": "string",
             "minLength": 1,
             "description": "Rule set identifier",
-            "examples": ["base", "typescript", "go"]
+            "examples": [
+              "base",
+              "typescript",
+              "go"
+            ]
           },
           "update": {
             "type": "boolean",
@@ -82,7 +104,9 @@
             "type": "string",
             "pattern": "^\\d+\\.\\d+\\.\\d+$",
             "description": "Fixed version for this rule set (optional)",
-            "examples": ["1.0.0"]
+            "examples": [
+              "1.0.0"
+            ]
           }
         },
         "additionalProperties": false
@@ -107,13 +131,18 @@
       "description": "YAML frontmatter overrides for specific files",
       "items": {
         "type": "object",
-        "required": ["file", "yamlOverrides"],
+        "required": [
+          "file",
+          "yamlOverrides"
+        ],
         "properties": {
           "file": {
             "type": "string",
             "minLength": 1,
             "description": "File path relative to .cursor/",
-            "examples": ["rules/code-standards.mdc"]
+            "examples": [
+              "rules/code-standards.mdc"
+            ]
           },
           "yamlOverrides": {
             "type": "object",
@@ -134,6 +163,3 @@
   },
   "additionalProperties": false
 }
-
-
-
