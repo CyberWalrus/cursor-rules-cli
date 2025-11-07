@@ -15,7 +15,9 @@ export default defineConfig({
         };
     },
     format: ['esm'],
+    noExternal: ['micromatch'],
     outDir: 'dist',
+    platform: 'node',
     sourcemap: false,
     target: 'node20',
 });
