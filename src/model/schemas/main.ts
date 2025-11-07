@@ -18,6 +18,7 @@ export const fileOverrideSchema = z.object({
 
 /** Схема валидации конфигурации правил */
 export const rulesConfigSchema = z.object({
+    $schema: z.string().url().optional(),
     configVersion: z.string().regex(/^\d+\.\d+\.\d+$/, 'Config version must be in semver format (x.y.z)'),
     fileOverrides: z.array(fileOverrideSchema).optional(),
     ignoreList: z.array(z.string()).optional(),

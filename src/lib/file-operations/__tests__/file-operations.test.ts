@@ -174,9 +174,13 @@ describe('file-operations', () => {
             await writeConfigFile(targetDir, config);
 
             expect(mockMkdir).toHaveBeenCalledWith(join(targetDir, '.cursor'), { recursive: true });
+            const expectedConfig = {
+                $schema: `https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/.cursor/cursor-rules-config-${config.configVersion}.schema.json`,
+                ...config,
+            };
             expect(mockWriteFile).toHaveBeenCalledWith(
                 join(targetDir, '.cursor', 'cursor-rules-config.json'),
-                JSON.stringify(config, null, 2),
+                JSON.stringify(expectedConfig, null, 2),
                 'utf-8',
             );
         });

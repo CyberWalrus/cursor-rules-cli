@@ -16,7 +16,11 @@ export async function writeConfigFile(targetDir: string, config: RulesConfig): P
 
     const cursorDir = join(targetDir, '.cursor');
     const configFilePath = join(cursorDir, VERSION_FILE_NAME);
-    const content = JSON.stringify(config, null, 2);
+    const configWithSchema = {
+        $schema: `https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/.cursor/cursor-rules-config-${config.configVersion}.schema.json`,
+        ...config,
+    };
+    const content = JSON.stringify(configWithSchema, null, 2);
 
     try {
         await mkdir(cursorDir, { recursive: true });
