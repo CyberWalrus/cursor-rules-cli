@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getTargetDir } from '../get-target-dir';
 import { runCli } from '../index';
 
 const mockRunMain = vi.hoisted(() => vi.fn());
 const mockInitCommand = vi.hoisted(() => vi.fn());
 const mockUpdateCommand = vi.hoisted(() => vi.fn());
 const mockReplaceAllCommand = vi.hoisted(() => vi.fn());
+const mockEnsureLatestVersion = vi.hoisted(() => vi.fn());
 
 vi.mock('citty', () => ({
     defineCommand: vi.fn((config) => config),
@@ -24,14 +26,18 @@ vi.mock('../../commands/replace-all/index', () => ({
     replaceAllCommand: mockReplaceAllCommand,
 }));
 
+vi.mock('../ensure-latest-version', () => ({
+    ensureLatestVersion: mockEnsureLatestVersion,
+}));
+
 describe('runCli', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockEnsureLatestVersion.mockResolvedValue(undefined);
+        mockRunMain.mockResolvedValue(undefined);
     });
 
     it('должен запускать CLI через runMain', async () => {
-        mockRunMain.mockResolvedValue(undefined);
-
         await runCli();
 
         expect(mockRunMain).toHaveBeenCalledTimes(1);
@@ -39,8 +45,6 @@ describe('runCli', () => {
     });
 
     it('должен передавать корректную структуру команд', async () => {
-        mockRunMain.mockResolvedValue(undefined);
-
         await runCli();
 
         const mainConfig = mockRunMain.mock.calls[0][0] as Record<string, unknown>;
@@ -57,8 +61,6 @@ describe('runCli', () => {
     });
 
     it('должен включать команду init с корректными метаданными', async () => {
-        mockRunMain.mockResolvedValue(undefined);
-
         await runCli();
 
         const mainConfig = mockRunMain.mock.calls[0][0] as Record<string, unknown>;
@@ -72,8 +74,6 @@ describe('runCli', () => {
     });
 
     it('должен включать команду update с корректными метаданными', async () => {
-        mockRunMain.mockResolvedValue(undefined);
-
         await runCli();
 
         const mainConfig = mockRunMain.mock.calls[0][0] as Record<string, unknown>;
@@ -87,8 +87,6 @@ describe('runCli', () => {
     });
 
     it('должен включать команду replace-all с корректными метаданными', async () => {
-        mockRunMain.mockResolvedValue(undefined);
-
         await runCli();
 
         const mainConfig = mockRunMain.mock.calls[0][0] as Record<string, unknown>;
@@ -110,13 +108,25 @@ describe('runCli', () => {
 
         await expect(runCli()).rejects.toThrow('Command execution failed');
     });
+
+    it('должен обрабатывать ошибки при проверке обновлений', async () => {
+        const error = new Error('Update check failed');
+        mockEnsureLatestVersion.mockRejectedValue(error);
+
+        await runCli();
+
+        expect(mockEnsureLatestVersion).toHaveBeenCalledTimes(1);
+        expect(mockRunMain).toHaveBeenCalledTimes(1);
+    });
 });
 
 describe('getTargetDir', () => {
     it('должен возвращать текущую рабочую директорию через process.cwd()', () => {
-        const originalCwd = process.cwd();
+        const result = getTargetDir();
+        const expectedCwd = process.cwd();
 
-        expect(typeof originalCwd).toBe('string');
-        expect(originalCwd.length).toBeGreaterThan(0);
+        expect(result).toBe(expectedCwd);
+        expect(typeof result).toBe('string');
+        expect(result.length).toBeGreaterThan(0);
     });
 });

@@ -12,9 +12,10 @@ alwaysApply: true
 
 Before ANY tool call:
 
-1. Check: Is this the first message?
-2. If YES → announce mode FIRST
-3. If NO → proceed to mode change detection
+1. Ask yourself: "Have I already responded to the user in this chat?"
+   - NO (this is my first response) → announce mode FIRST (MANDATORY, BLOCKING)
+   - YES (I already responded before) → proceed to mode change detection
+2. FORBIDDEN: Tool execution before mode announcement in first response
 
 **SELF-CHECK (execute before first action):**
 
@@ -27,11 +28,19 @@ FORBIDDEN: Tool execution before mode announcement in first message
 
 **EXECUTE BEFORE ANY ACTION:**
 
-1. Check conversation history
-2. IF first message (no history) → announce mode (MANDATORY)
-3. IF subsequent message → determine current mode from system_reminder
-4. IF subsequent message → check MODE CHANGED triggers
+1. Ask: "Have I responded in this chat before?"
+2. IF NO (first response) → announce mode (MANDATORY)
+3. IF YES (subsequent response) → determine current mode from system_reminder
+4. IF YES (subsequent response) → check MODE CHANGED triggers
 5. IF triggered → announce protocol | OTHERWISE → skip announcement, proceed
+
+**MANDATORY PRE-FLIGHT CHECK (before ANY tool call):**
+
+- [ ] Asked: "Have I responded in this chat before?"
+- [ ] If NO → mode announced? (BLOCKING - must be YES before tool call)
+- [ ] If YES → mode change check completed?
+
+❌ ANY unchecked → STOP, complete check first
 
 **PROTOCOL (EXECUTE ONLY IF MODE CHANGED):**
 
@@ -63,8 +72,8 @@ FORBIDDEN: Tool execution before mode announcement in first message
 
 Before executing ANY tool (read_file, run_terminal_cmd, grep, search_replace, write, codebase_search, list_dir, glob_file_search, etc.):
 
-- First message → MUST announce mode → STOP IMMEDIATELY if not announced
-- Subsequent message → Verify mode comparison completed → Handle announcement (if changed) or skip (if unchanged)
+- First response (never responded before) → MUST announce mode → STOP IMMEDIATELY if not announced
+- Subsequent response (already responded) → Verify mode comparison completed → Handle announcement (if changed) or skip (if unchanged)
 
 FORBIDDEN: Tool execution without mode check | Announcement when mode unchanged | Skip announcement when mode changed
 
@@ -108,11 +117,18 @@ VIOLATION CONSEQUENCE: Protocol breach = task failure
 [read_file call without mode announcement]
 ```
 
-❌ Violation (real case from production):
+❌ Violation (real case #1):
 
 ```
 User: "запусти команду линтера и исправь ошибки"
 [run_terminal_cmd executed without mode announcement]
+```
+
+❌ Violation (real case #2):
+
+```
+User: "провалидируй файл"
+[read_file + mcp_mcp-validator_validate executed without mode announcement]
 ```
 
 **Should be:**
@@ -120,7 +136,7 @@ User: "запусти команду линтера и исправь ошибк
 ```
 → AGENT MODE detected
 → Following 07-agent-mode-workflow.mdc as primary instructions
-[run_terminal_cmd executed after announcement]
+[read_file executed after announcement]
 ```
 
 </chat_mode_router>
