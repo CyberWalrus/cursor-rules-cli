@@ -1,12 +1,52 @@
-import { cp } from 'node:fs/promises';
-import { join } from 'node:path';
+import { cp, mkdir, readdir } from 'node:fs/promises';
+import { dirname, join, relative } from 'node:path';
 
+import type { FileOverride } from '../../model';
 import { RULES_DIRS } from '../../model';
 import { isEmptyString } from '../helpers';
+import { applyYamlOverrides } from './apply-yaml-overrides';
 import { pathExists } from './path-exists';
+import { shouldIgnoreFile } from './should-ignore-file';
+
+/** Копирует файл из источника в цель */
+async function copyFile(sourcePath: string, targetPath: string): Promise<void> {
+    const targetDir = dirname(targetPath);
+
+    await mkdir(targetDir, { recursive: true });
+    await cp(sourcePath, targetPath, { force: true });
+}
+
+/** Рекурсивно копирует файлы из директории */
+async function copyDirectoryRecursive(
+    sourceDir: string,
+    targetDir: string,
+    baseDir: string,
+    ignoreList: string[],
+): Promise<void> {
+    const entries = await readdir(sourceDir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const sourcePath = join(sourceDir, entry.name);
+        const relativePath = relative(baseDir, sourcePath).replace(/\\/g, '/');
+        const targetPath = join(targetDir, entry.name);
+
+        if (entry.isDirectory()) {
+            await copyDirectoryRecursive(sourcePath, targetPath, baseDir, ignoreList);
+        } else if (entry.isFile()) {
+            if (!shouldIgnoreFile(relativePath, ignoreList)) {
+                await copyFile(sourcePath, targetPath);
+            }
+        }
+    }
+}
 
 /** Копирует правила из пакета в целевую директорию */
-export async function copyRulesToTarget(packageDir: string, targetDir: string): Promise<void> {
+export async function copyRulesToTarget(
+    packageDir: string,
+    targetDir: string,
+    ignoreList: string[] = [],
+    fileOverrides: FileOverride[] = [],
+): Promise<void> {
     if (isEmptyString(packageDir)) {
         throw new Error('packageDir is required');
     }
@@ -24,10 +64,18 @@ export async function copyRulesToTarget(packageDir: string, targetDir: string): 
                 return;
             }
 
-            await cp(sourcePath, targetPath, {
-                force: true,
-                recursive: true,
-            });
+            await copyDirectoryRecursive(sourcePath, targetPath, sourcePath, ignoreList);
+        }),
+    );
+
+    await Promise.all(
+        fileOverrides.map(async (override) => {
+            const overridePath = join(targetDir, '.cursor', override.file);
+            const overrideExists = await pathExists(overridePath);
+
+            if (overrideExists) {
+                await applyYamlOverrides(overridePath, override.yamlOverrides);
+            }
         }),
     );
 }
