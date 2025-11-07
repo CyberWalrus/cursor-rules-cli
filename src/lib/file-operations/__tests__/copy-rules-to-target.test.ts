@@ -1,8 +1,13 @@
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { FileOverride } from '../../../model';
 import { RULES_DIRS } from '../../../model';
 import { copyRulesToTarget } from '../copy-rules-to-target';
+
+function getTestPath(...segments: string[]): string {
+    return join(tmpdir(), 'cursor-rules-test', ...segments);
+}
 
 const { mockCp, mockMkdir, mockPathExists, mockReaddir, mockApplyYamlOverrides, mockShouldIgnoreFile } = vi.hoisted(
     () => ({
@@ -45,7 +50,10 @@ describe('copyRulesToTarget', () => {
         mockMkdir.mockResolvedValue(undefined);
         mockCp.mockResolvedValue(undefined);
 
-        await copyRulesToTarget('/package', '/target');
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir);
 
         expect(mockPathExists).toHaveBeenCalled();
         expect(mockReaddir).toHaveBeenCalled();
@@ -54,7 +62,10 @@ describe('copyRulesToTarget', () => {
     it('должен пропускать несуществующие директории', async () => {
         mockPathExists.mockResolvedValue(false);
 
-        await copyRulesToTarget('/package', '/target');
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir);
 
         expect(mockPathExists).toHaveBeenCalled();
         expect(mockReaddir).not.toHaveBeenCalled();
@@ -69,7 +80,10 @@ describe('copyRulesToTarget', () => {
         mockCp.mockResolvedValue(undefined);
         mockShouldIgnoreFile.mockImplementation((path: string) => path.includes('ignored.mdc'));
 
-        await copyRulesToTarget('/package', '/target', ['ignored.mdc']);
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir, ['ignored.mdc']);
 
         const expectedCalls = RULES_DIRS.length;
         expect(mockCp).toHaveBeenCalledTimes(expectedCalls);
@@ -95,9 +109,12 @@ describe('copyRulesToTarget', () => {
             },
         ];
 
-        await copyRulesToTarget('/package', '/target', [], fileOverrides);
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
 
-        expect(mockApplyYamlOverrides).toHaveBeenCalledWith(join('/target', '.cursor', 'rules/file1.mdc'), {
+        await copyRulesToTarget(packageDir, targetDir, [], fileOverrides);
+
+        expect(mockApplyYamlOverrides).toHaveBeenCalledWith(join(targetDir, '.cursor', 'rules/file1.mdc'), {
             alwaysApply: true,
         });
     });
@@ -121,7 +138,10 @@ describe('copyRulesToTarget', () => {
             },
         ];
 
-        await copyRulesToTarget('/package', '/target', [], fileOverrides);
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir, [], fileOverrides);
 
         expect(mockApplyYamlOverrides).not.toHaveBeenCalled();
     });
@@ -138,16 +158,23 @@ describe('copyRulesToTarget', () => {
         mockMkdir.mockResolvedValue(undefined);
         mockCp.mockResolvedValue(undefined);
 
-        await copyRulesToTarget('/package', '/target');
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir);
 
         expect(mockReaddir).toHaveBeenCalledTimes(4);
     });
 
     it('должен выбрасывать ошибку если packageDir пустой', async () => {
-        await expect(copyRulesToTarget('', '/target')).rejects.toThrow('packageDir is required');
+        const targetDir = getTestPath('target');
+
+        await expect(copyRulesToTarget('', targetDir)).rejects.toThrow('packageDir is required');
     });
 
     it('должен выбрасывать ошибку если targetDir пустой', async () => {
-        await expect(copyRulesToTarget('/package', '')).rejects.toThrow('targetDir is required');
+        const packageDir = getTestPath('package');
+
+        await expect(copyRulesToTarget(packageDir, '')).rejects.toThrow('targetDir is required');
     });
 });

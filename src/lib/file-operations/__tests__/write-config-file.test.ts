@@ -1,7 +1,12 @@
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { RulesConfig } from '../../../model';
 import { writeConfigFile } from '../write-config-file';
+
+function getTestPath(...segments: string[]): string {
+    return join(tmpdir(), 'cursor-rules-test', ...segments);
+}
 
 const { mockMkdir, mockWriteFile } = vi.hoisted(() => ({
     mockMkdir: vi.fn(),
@@ -39,11 +44,13 @@ describe('writeConfigFile', () => {
         mockMkdir.mockResolvedValue(undefined);
         mockWriteFile.mockResolvedValue(undefined);
 
-        await writeConfigFile('/target', config);
+        const targetDir = getTestPath('target');
 
-        expect(mockMkdir).toHaveBeenCalledWith(join('/target', '.cursor'), { recursive: true });
+        await writeConfigFile(targetDir, config);
+
+        expect(mockMkdir).toHaveBeenCalledWith(join(targetDir, '.cursor'), { recursive: true });
         expect(mockWriteFile).toHaveBeenCalledWith(
-            join('/target', '.cursor', 'cursor-rules-config.json'),
+            join(targetDir, '.cursor', 'cursor-rules-config.json'),
             JSON.stringify(config, null, 2),
             'utf-8',
         );
@@ -71,11 +78,15 @@ describe('writeConfigFile', () => {
     });
 
     it('должен выбрасывать ошибку если config null', async () => {
-        await expect(writeConfigFile('/target', null as unknown as RulesConfig)).rejects.toThrow('config is required');
+        const targetDir = getTestPath('target');
+
+        await expect(writeConfigFile(targetDir, null as unknown as RulesConfig)).rejects.toThrow('config is required');
     });
 
     it('должен выбрасывать ошибку если config undefined', async () => {
-        await expect(writeConfigFile('/target', undefined as unknown as RulesConfig)).rejects.toThrow(
+        const targetDir = getTestPath('target');
+
+        await expect(writeConfigFile(targetDir, undefined as unknown as RulesConfig)).rejects.toThrow(
             'config is required',
         );
     });
@@ -101,6 +112,8 @@ describe('writeConfigFile', () => {
         mockMkdir.mockResolvedValue(undefined);
         mockWriteFile.mockRejectedValue(new Error('Write failed'));
 
-        await expect(writeConfigFile('/target', config)).rejects.toThrow('Failed to write config file');
+        const targetDir = getTestPath('target');
+
+        await expect(writeConfigFile(targetDir, config)).rejects.toThrow('Failed to write config file');
     });
 });

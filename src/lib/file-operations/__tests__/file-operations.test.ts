@@ -1,7 +1,12 @@
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { RulesConfig } from '../../../model';
 import { copyRulesToTarget, deleteRulesFromTarget, readConfigFile, writeConfigFile } from '../index';
+
+function getTestPath(...segments: string[]): string {
+    return join(tmpdir(), 'cursor-rules-test', ...segments);
+}
 
 const { mockCp, mockAccess, mockMkdir, mockReadFile, mockRm, mockWriteFile, mockPathExists, mockReaddir } = vi.hoisted(
     () => ({
@@ -51,7 +56,10 @@ describe('file-operations', () => {
             mockMkdir.mockResolvedValue(undefined);
             mockCp.mockResolvedValue(undefined);
 
-            await copyRulesToTarget('/package', '/target');
+            const packageDir = getTestPath('package');
+            const targetDir = getTestPath('target');
+
+            await copyRulesToTarget(packageDir, targetDir);
 
             expect(mockPathExists).toHaveBeenCalled();
             expect(mockReaddir).toHaveBeenCalled();
@@ -60,7 +68,10 @@ describe('file-operations', () => {
         it('должен пропускать несуществующие директории', async () => {
             mockPathExists.mockResolvedValue(false);
 
-            await copyRulesToTarget('/package', '/target');
+            const packageDir = getTestPath('package');
+            const targetDir = getTestPath('target');
+
+            await copyRulesToTarget(packageDir, targetDir);
 
             expect(mockPathExists).toHaveBeenCalled();
             expect(mockReaddir).not.toHaveBeenCalled();
@@ -72,7 +83,9 @@ describe('file-operations', () => {
             mockPathExists.mockResolvedValue(true);
             mockRm.mockResolvedValue(undefined);
 
-            await deleteRulesFromTarget('/target');
+            const targetDir = getTestPath('target');
+
+            await deleteRulesFromTarget(targetDir);
 
             expect(mockPathExists).toHaveBeenCalled();
             expect(mockRm).toHaveBeenCalled();
@@ -81,7 +94,9 @@ describe('file-operations', () => {
         it('должен пропускать несуществующие директории', async () => {
             mockPathExists.mockResolvedValue(false);
 
-            await deleteRulesFromTarget('/target');
+            const targetDir = getTestPath('target');
+
+            await deleteRulesFromTarget(targetDir);
 
             expect(mockPathExists).toHaveBeenCalled();
             expect(mockRm).not.toHaveBeenCalled();
@@ -110,17 +125,21 @@ describe('file-operations', () => {
             mockPathExists.mockResolvedValue(true);
             mockReadFile.mockResolvedValue(JSON.stringify(config));
 
-            const result = await readConfigFile('/target');
+            const targetDir = getTestPath('target');
+
+            const result = await readConfigFile(targetDir);
 
             expect(result).toEqual(config);
             expect(mockPathExists).toHaveBeenCalled();
-            expect(mockReadFile).toHaveBeenCalledWith(join('/target', '.cursor', 'cursor-rules-config.json'), 'utf-8');
+            expect(mockReadFile).toHaveBeenCalledWith(join(targetDir, '.cursor', 'cursor-rules-config.json'), 'utf-8');
         });
 
         it('должен возвращать null если файл не существует', async () => {
             mockPathExists.mockResolvedValue(false);
 
-            const result = await readConfigFile('/target');
+            const targetDir = getTestPath('target');
+
+            const result = await readConfigFile(targetDir);
 
             expect(result).toBeNull();
             expect(mockPathExists).toHaveBeenCalled();
@@ -150,11 +169,13 @@ describe('file-operations', () => {
             mockMkdir.mockResolvedValue(undefined);
             mockWriteFile.mockResolvedValue(undefined);
 
-            await writeConfigFile('/target', config);
+            const targetDir = getTestPath('target');
 
-            expect(mockMkdir).toHaveBeenCalledWith(join('/target', '.cursor'), { recursive: true });
+            await writeConfigFile(targetDir, config);
+
+            expect(mockMkdir).toHaveBeenCalledWith(join(targetDir, '.cursor'), { recursive: true });
             expect(mockWriteFile).toHaveBeenCalledWith(
-                join('/target', '.cursor', 'cursor-rules-config.json'),
+                join(targetDir, '.cursor', 'cursor-rules-config.json'),
                 JSON.stringify(config, null, 2),
                 'utf-8',
             );

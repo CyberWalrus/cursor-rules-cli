@@ -1,7 +1,12 @@
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { RulesConfig } from '../../../model';
 import { readConfigFile } from '../read-config-file';
+
+function getTestPath(...segments: string[]): string {
+    return join(tmpdir(), 'cursor-rules-test', ...segments);
+}
 
 const { mockReadFile, mockPathExists } = vi.hoisted(() => ({
     mockPathExists: vi.fn(),
@@ -42,17 +47,21 @@ describe('readConfigFile', () => {
         mockPathExists.mockResolvedValue(true);
         mockReadFile.mockResolvedValue(JSON.stringify(config));
 
-        const result = await readConfigFile('/target');
+        const targetDir = getTestPath('target');
+
+        const result = await readConfigFile(targetDir);
 
         expect(result).toEqual(config);
         expect(mockPathExists).toHaveBeenCalled();
-        expect(mockReadFile).toHaveBeenCalledWith(join('/target', '.cursor', 'cursor-rules-config.json'), 'utf-8');
+        expect(mockReadFile).toHaveBeenCalledWith(join(targetDir, '.cursor', 'cursor-rules-config.json'), 'utf-8');
     });
 
     it('должен возвращать null если файл не существует', async () => {
         mockPathExists.mockResolvedValue(false);
 
-        const result = await readConfigFile('/target');
+        const targetDir = getTestPath('target');
+
+        const result = await readConfigFile(targetDir);
 
         expect(result).toBeNull();
         expect(mockPathExists).toHaveBeenCalled();
@@ -63,7 +72,9 @@ describe('readConfigFile', () => {
         mockPathExists.mockResolvedValue(true);
         mockReadFile.mockResolvedValue('invalid json');
 
-        const result = await readConfigFile('/target');
+        const targetDir = getTestPath('target');
+
+        const result = await readConfigFile(targetDir);
 
         expect(result).toBeNull();
     });
@@ -76,7 +87,9 @@ describe('readConfigFile', () => {
         mockPathExists.mockResolvedValue(true);
         mockReadFile.mockResolvedValue(JSON.stringify(invalidConfig));
 
-        const result = await readConfigFile('/target');
+        const targetDir = getTestPath('target');
+
+        const result = await readConfigFile(targetDir);
 
         expect(result).toBeNull();
     });

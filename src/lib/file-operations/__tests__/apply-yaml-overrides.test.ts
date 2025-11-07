@@ -1,6 +1,12 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { applyYamlOverrides } from '../apply-yaml-overrides';
+
+function getTestPath(...segments: string[]): string {
+    return join(tmpdir(), 'cursor-rules-test', ...segments);
+}
 
 const { mockReadFile, mockWriteFile } = vi.hoisted(() => ({
     mockReadFile: vi.fn(),
@@ -12,10 +18,7 @@ vi.mock('node:fs/promises', () => ({
     writeFile: mockWriteFile,
 }));
 
-vi.mock('gray-matter', async () =>
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    vi.importActual('gray-matter'),
-);
+vi.mock('gray-matter', async () => vi.importActual('gray-matter'));
 
 describe('applyYamlOverrides', () => {
     beforeEach(() => {
@@ -35,12 +38,14 @@ Content here
         mockReadFile.mockResolvedValue(originalContent);
         mockWriteFile.mockResolvedValue(undefined);
 
-        await applyYamlOverrides('/path/to/file.mdc', {
+        const testFilePath = getTestPath('path', 'to', 'file.mdc');
+
+        await applyYamlOverrides(testFilePath, {
             alwaysApply: true,
             priority: 10,
         });
 
-        expect(mockReadFile).toHaveBeenCalledWith('/path/to/file.mdc', 'utf-8');
+        expect(mockReadFile).toHaveBeenCalledWith(testFilePath, 'utf-8');
         expect(mockWriteFile).toHaveBeenCalled();
 
         const writtenContent = mockWriteFile.mock.calls[0]?.[1] as string;
@@ -62,7 +67,9 @@ Content here
         mockReadFile.mockResolvedValue(originalContent);
         mockWriteFile.mockResolvedValue(undefined);
 
-        await applyYamlOverrides('/path/to/file.mdc', {
+        const testFilePath = getTestPath('path', 'to', 'file.mdc');
+
+        await applyYamlOverrides(testFilePath, {
             alwaysApply: true,
         });
 
@@ -84,7 +91,9 @@ More content
         mockReadFile.mockResolvedValue(originalContent);
         mockWriteFile.mockResolvedValue(undefined);
 
-        await applyYamlOverrides('/path/to/file.mdc', {
+        const testFilePath = getTestPath('path', 'to', 'file.mdc');
+
+        await applyYamlOverrides(testFilePath, {
             alwaysApply: true,
         });
 
@@ -100,7 +109,9 @@ More content
         mockReadFile.mockResolvedValue(originalContent);
         mockWriteFile.mockResolvedValue(undefined);
 
-        await applyYamlOverrides('/path/to/file.mdc', {
+        const testFilePath = getTestPath('path', 'to', 'file.mdc');
+
+        await applyYamlOverrides(testFilePath, {
             alwaysApply: true,
         });
 
