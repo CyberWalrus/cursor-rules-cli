@@ -1,6 +1,7 @@
 import type { CheckAndUpdateOptions } from '../../model';
 import { compareVersions } from './compare-versions';
 import { getNpmVersion } from './get-npm-version';
+import { respawnProcess } from './respawn-process';
 import { updatePackage } from './update-package';
 
 /** Проверяет версию пакета и обновляет до последней версии при необходимости */
@@ -30,6 +31,10 @@ export async function checkAndUpdatePackage(
         }
 
         await updatePackage(packageName);
+
+        if (options?.isRespawn !== false) {
+            respawnProcess();
+        }
 
         return true;
     } catch (error) {

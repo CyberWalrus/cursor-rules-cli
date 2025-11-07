@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { checkAndUpdatePackage } from '../check-and-update';
 import { compareVersions } from '../compare-versions';
 import { getNpmVersion } from '../get-npm-version';
+import { respawnProcess } from '../respawn-process';
 import { updatePackage } from '../update-package';
 
 vi.mock('../get-npm-version');
 vi.mock('../update-package');
 vi.mock('../compare-versions');
+vi.mock('../respawn-process');
 
 const mockGetNpmVersion = vi.mocked(getNpmVersion);
 const mockUpdatePackage = vi.mocked(updatePackage);
 const mockCompareVersions = vi.mocked(compareVersions);
+const mockRespawnProcess = vi.mocked(respawnProcess);
 
 describe('checkAndUpdatePackage', () => {
     beforeEach(() => {
@@ -109,5 +112,62 @@ describe('checkAndUpdatePackage', () => {
         await expect(checkAndUpdatePackage('test-package', '1.0.0')).rejects.toThrow(
             'Failed to check and update package: Update failed',
         );
+    });
+
+    it('должен вызывать respawnProcess после успешного обновления', async () => {
+        mockGetNpmVersion.mockResolvedValue('2.0.0');
+        mockCompareVersions.mockReturnValue({
+            changeType: 'major',
+            current: '1.0.0',
+            target: '2.0.0',
+        });
+        mockUpdatePackage.mockResolvedValue(undefined);
+        mockRespawnProcess.mockReturnValue(undefined);
+
+        await checkAndUpdatePackage('test-package', '1.0.0');
+
+        expect(mockRespawnProcess).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен НЕ вызывать respawnProcess если isRespawn установлен в false', async () => {
+        mockGetNpmVersion.mockResolvedValue('2.0.0');
+        mockCompareVersions.mockReturnValue({
+            changeType: 'major',
+            current: '1.0.0',
+            target: '2.0.0',
+        });
+        mockUpdatePackage.mockResolvedValue(undefined);
+
+        await checkAndUpdatePackage('test-package', '1.0.0', { isRespawn: false });
+
+        expect(mockRespawnProcess).not.toHaveBeenCalled();
+    });
+
+    it('должен вызывать respawnProcess если isRespawn явно установлен в true', async () => {
+        mockGetNpmVersion.mockResolvedValue('2.0.0');
+        mockCompareVersions.mockReturnValue({
+            changeType: 'major',
+            current: '1.0.0',
+            target: '2.0.0',
+        });
+        mockUpdatePackage.mockResolvedValue(undefined);
+        mockRespawnProcess.mockReturnValue(undefined);
+
+        await checkAndUpdatePackage('test-package', '1.0.0', { isRespawn: true });
+
+        expect(mockRespawnProcess).toHaveBeenCalledTimes(1);
+    });
+
+    it('должен НЕ вызывать respawnProcess если обновление не требуется', async () => {
+        mockGetNpmVersion.mockResolvedValue('1.0.0');
+        mockCompareVersions.mockReturnValue({
+            changeType: 'none',
+            current: '1.0.0',
+            target: '1.0.0',
+        });
+
+        await checkAndUpdatePackage('test-package', '1.0.0');
+
+        expect(mockRespawnProcess).not.toHaveBeenCalled();
     });
 });

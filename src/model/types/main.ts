@@ -69,6 +69,8 @@ export type FileHashMap = Map<string, string>;
 
 /** Параметры для функции проверки и обновления */
 export type CheckAndUpdateOptions = {
+    /** Перезапускать процесс после обновления (по умолчанию: true) */
+    isRespawn?: boolean;
     /** Пропустить автоматическое обновление */
     isSkipUpdate?: boolean;
 };
