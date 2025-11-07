@@ -2,9 +2,10 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { isEmptyString } from '../../../lib/helpers';
-import type { VersionInfo } from '../../../model/types/main';
+import type { RulesConfig } from '../../../model';
+import { VERSION_FILE_NAME } from '../../../model';
 
-/** Создает файл .cursor/rules-version.json */
+/** Создает файл .cursor/cursor-rules-config.json */
 export async function createVersionFile(targetDir: string, version: string): Promise<void> {
     if (isEmptyString(targetDir)) {
         throw new Error('targetDir is required');
@@ -13,18 +14,32 @@ export async function createVersionFile(targetDir: string, version: string): Pro
         throw new Error('version is required');
     }
 
-    const versionInfo: VersionInfo = {
-        installedAt: new Date().toISOString(),
+    const currentTimestamp = new Date().toISOString();
+    const config: RulesConfig = {
+        configVersion: '1.0.0',
+        fileOverrides: [],
+        ignoreList: [],
+        installedAt: currentTimestamp,
+        ruleSets: [
+            {
+                id: 'base',
+                update: true,
+            },
+        ],
+        settings: {
+            language: 'ru',
+        },
         source: 'cursor-rules',
+        updatedAt: currentTimestamp,
         version,
     };
 
     const cursorDir = join(targetDir, '.cursor');
-    const versionFilePath = join(cursorDir, 'rules-version.json');
+    const configFilePath = join(cursorDir, VERSION_FILE_NAME);
     try {
         await mkdir(cursorDir, { recursive: true });
-        await writeFile(versionFilePath, JSON.stringify(versionInfo, null, 2), 'utf-8');
+        await writeFile(configFilePath, JSON.stringify(config, null, 2), 'utf-8');
     } catch (error) {
-        throw new Error(`Failed to write version file: ${String(error)}`);
+        throw new Error(`Failed to write config file: ${String(error)}`);
     }
 }

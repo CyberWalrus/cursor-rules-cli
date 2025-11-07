@@ -5,7 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { initCommand } from '../../cli/commands/init/index';
 import { replaceAllCommand } from '../../cli/commands/replace-all/index';
 import { updateCommand } from '../../cli/commands/update/index';
-import type { VersionInfo } from '../../model/types/main';
+import type { RulesConfig } from '../../model';
+import { VERSION_FILE_NAME } from '../../model';
 import { tempDir } from './helpers/temp-dir';
 
 describe('Full Cycle E2E', () => {
@@ -24,17 +25,19 @@ describe('Full Cycle E2E', () => {
         await initCommand(packageDir, tempDirPath);
 
         const cursorDir = join(tempDirPath, '.cursor');
-        const versionFilePath = join(cursorDir, 'rules-version.json');
+        const configFilePath = join(cursorDir, VERSION_FILE_NAME);
 
         await expect(access(cursorDir, constants.F_OK)).resolves.toBeUndefined();
-        await expect(access(versionFilePath, constants.F_OK)).resolves.toBeUndefined();
+        await expect(access(configFilePath, constants.F_OK)).resolves.toBeUndefined();
 
-        const versionAfterInit = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        expect(versionAfterInit).toHaveProperty('version');
-        expect(versionAfterInit).toHaveProperty('installedAt');
-        expect(versionAfterInit).toHaveProperty('source', 'cursor-rules');
+        const configAfterInit = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        expect(configAfterInit).toHaveProperty('version');
+        expect(configAfterInit).toHaveProperty('installedAt');
+        expect(configAfterInit).toHaveProperty('updatedAt');
+        expect(configAfterInit).toHaveProperty('source', 'cursor-rules');
+        expect(configAfterInit).toHaveProperty('configVersion', '1.0.0');
 
-        const timestampAfterInit = new Date(versionAfterInit.installedAt).getTime();
+        const timestampAfterInit = new Date(configAfterInit.installedAt).getTime();
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
@@ -42,9 +45,9 @@ describe('Full Cycle E2E', () => {
 
         await updateCommand(packageDir, tempDirPath);
 
-        const versionAfterUpdate = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
+        const configAfterUpdate = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
 
-        expect(versionAfterUpdate.version).toBe(versionAfterInit.version);
+        expect(configAfterUpdate.version).toBe(configAfterInit.version);
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
@@ -52,44 +55,46 @@ describe('Full Cycle E2E', () => {
 
         await replaceAllCommand(packageDir, tempDirPath);
 
-        const versionAfterReplace = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampAfterReplace = new Date(versionAfterReplace.installedAt).getTime();
+        const configAfterReplace = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampAfterReplace = new Date(configAfterReplace.updatedAt).getTime();
 
-        expect(versionAfterReplace.version).toBe(versionAfterInit.version);
+        expect(configAfterReplace.version).toBe(configAfterInit.version);
         expect(timestampAfterReplace).toBeGreaterThan(timestampAfterInit);
 
         await expect(access(cursorDir, constants.F_OK)).resolves.toBeUndefined();
-        await expect(access(versionFilePath, constants.F_OK)).resolves.toBeUndefined();
+        await expect(access(configFilePath, constants.F_OK)).resolves.toBeUndefined();
     });
 
-    it('должен корректно обновлять timestamp на каждом шаге', async () => {
+    it('должен корректно обновлять updatedAt на каждом шаге', async () => {
         const tempDir2: string = await tempDir.create();
 
         await initCommand(packageDir, tempDir2);
-        const versionFilePath: string = join(tempDir2, '.cursor', 'rules-version.json');
+        const configFilePath: string = join(tempDir2, '.cursor', VERSION_FILE_NAME);
 
-        const versionAfterInit = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampInit = new Date(versionAfterInit.installedAt).getTime();
+        const configAfterInit = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampInit = new Date(configAfterInit.installedAt).getTime();
+        const timestampUpdatedInit = new Date(configAfterInit.updatedAt).getTime();
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
         });
 
         await updateCommand(packageDir, tempDir2);
-        const versionAfterUpdate = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampUpdate = new Date(versionAfterUpdate.installedAt).getTime();
+        const configAfterUpdate = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampUpdatedUpdate = new Date(configAfterUpdate.updatedAt).getTime();
 
-        expect(timestampUpdate).toBe(timestampInit);
+        expect(timestampUpdatedUpdate).toBe(timestampUpdatedInit);
+        expect(configAfterUpdate.installedAt).toBe(configAfterInit.installedAt);
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
         });
 
         await replaceAllCommand(packageDir, tempDir2);
-        const versionAfterReplace = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampReplace = new Date(versionAfterReplace.installedAt).getTime();
+        const configAfterReplace = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampUpdatedReplace = new Date(configAfterReplace.updatedAt).getTime();
 
-        expect(timestampReplace).toBeGreaterThan(timestampUpdate);
+        expect(timestampUpdatedReplace).toBeGreaterThan(timestampUpdatedUpdate);
 
         await tempDir.cleanup(tempDir2);
     });
@@ -104,12 +109,12 @@ describe('Full Cycle E2E', () => {
         const cursorRulesDir: string = join(tempDir3, '.cursor', 'rules');
         const cursorDocsDir: string = join(tempDir3, '.cursor', 'docs');
         const cursorCommandsDir: string = join(tempDir3, '.cursor', 'commands');
-        const versionFilePath: string = join(tempDir3, '.cursor', 'rules-version.json');
+        const configFilePath: string = join(tempDir3, '.cursor', VERSION_FILE_NAME);
 
         await expect(access(cursorRulesDir, constants.F_OK)).resolves.toBeUndefined();
         await expect(access(cursorDocsDir, constants.F_OK)).resolves.toBeUndefined();
         await expect(access(cursorCommandsDir, constants.F_OK)).resolves.toBeUndefined();
-        await expect(access(versionFilePath, constants.F_OK)).resolves.toBeUndefined();
+        await expect(access(configFilePath, constants.F_OK)).resolves.toBeUndefined();
 
         await tempDir.cleanup(tempDir3);
     });

@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { initCommand } from '../../cli/commands/init/index';
 import { replaceAllCommand } from '../../cli/commands/replace-all/index';
-import type { VersionInfo } from '../../model/types/main';
+import type { RulesConfig } from '../../model';
+import { VERSION_FILE_NAME } from '../../model';
 import { createVersionFile } from './helpers/create-version-file';
 import { tempDir } from './helpers/temp-dir';
 
@@ -23,8 +24,8 @@ describe('Replace-All Command E2E', () => {
     it('должен успешно выполнять полную замену существующих правил', async () => {
         await initCommand(packageDir, tempDirPathPath);
 
-        const versionFilePathBefore = join(tempDirPathPath, '.cursor', 'rules-version.json');
-        const contentBefore = JSON.parse(await readFile(versionFilePathBefore, 'utf-8')) as VersionInfo;
+        const configFilePathBefore = join(tempDirPathPath, '.cursor', VERSION_FILE_NAME);
+        const contentBefore = JSON.parse(await readFile(configFilePathBefore, 'utf-8')) as RulesConfig;
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
@@ -32,23 +33,21 @@ describe('Replace-All Command E2E', () => {
 
         await replaceAllCommand(packageDir, tempDirPathPath);
 
-        const versionFilePathAfter = join(tempDirPathPath, '.cursor', 'rules-version.json');
-        const contentAfter = JSON.parse(await readFile(versionFilePathAfter, 'utf-8')) as VersionInfo;
+        const configFilePathAfter = join(tempDirPathPath, '.cursor', VERSION_FILE_NAME);
+        const contentAfter = JSON.parse(await readFile(configFilePathAfter, 'utf-8')) as RulesConfig;
 
         expect(contentAfter.version).toBe(contentBefore.version);
-        expect(new Date(contentAfter.installedAt).getTime()).toBeGreaterThan(
-            new Date(contentBefore.installedAt).getTime(),
-        );
+        expect(new Date(contentAfter.updatedAt).getTime()).toBeGreaterThan(new Date(contentBefore.updatedAt).getTime());
     });
 
     it('должен успешно выполнять замену даже если правила не инициализированы', async () => {
         await replaceAllCommand(packageDir, tempDirPathPath);
 
         const cursorDir = join(tempDirPathPath, '.cursor');
-        const versionFilePath = join(cursorDir, 'rules-version.json');
+        const configFilePath = join(cursorDir, VERSION_FILE_NAME);
 
         await expect(access(cursorDir, constants.F_OK)).resolves.toBeUndefined();
-        await expect(access(versionFilePath, constants.F_OK)).resolves.toBeUndefined();
+        await expect(access(configFilePath, constants.F_OK)).resolves.toBeUndefined();
     });
 
     it('должен выбрасывать ошибку если package директория недоступна', async () => {
@@ -57,17 +56,19 @@ describe('Replace-All Command E2E', () => {
         await expect(replaceAllCommand(nonExistentDir, tempDirPathPath)).rejects.toThrow();
     });
 
-    it('должен создавать новый version файл после замены', async () => {
+    it('должен создавать новый config файл после замены', async () => {
         await createVersionFile(tempDirPathPath, '0.0.1');
 
         await replaceAllCommand(packageDir, tempDirPathPath);
 
-        const versionFilePath = join(tempDirPathPath, '.cursor', 'rules-version.json');
-        const content = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
+        const configFilePath = join(tempDirPathPath, '.cursor', VERSION_FILE_NAME);
+        const content = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
 
         expect(content).toHaveProperty('version');
         expect(content).toHaveProperty('installedAt');
+        expect(content).toHaveProperty('updatedAt');
         expect(content).toHaveProperty('source', 'cursor-rules');
+        expect(content).toHaveProperty('configVersion', '1.0.0');
         expect(content.version).not.toBe('0.0.1');
     });
 
@@ -79,12 +80,12 @@ describe('Replace-All Command E2E', () => {
         await expect(access(cursorDir, constants.F_OK)).resolves.toBeUndefined();
     });
 
-    it('должен обновлять timestamp при замене', async () => {
+    it('должен обновлять updatedAt при замене', async () => {
         await createVersionFile(tempDirPathPath, '0.0.1');
 
-        const versionFilePath = join(tempDirPathPath, '.cursor', 'rules-version.json');
-        const contentBefore = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampBefore = new Date(contentBefore.installedAt).getTime();
+        const configFilePath = join(tempDirPathPath, '.cursor', VERSION_FILE_NAME);
+        const contentBefore = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampBefore = new Date(contentBefore.updatedAt).getTime();
 
         await new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 10);
@@ -92,8 +93,8 @@ describe('Replace-All Command E2E', () => {
 
         await replaceAllCommand(packageDir, tempDirPathPath);
 
-        const contentAfter = JSON.parse(await readFile(versionFilePath, 'utf-8')) as VersionInfo;
-        const timestampAfter = new Date(contentAfter.installedAt).getTime();
+        const contentAfter = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
+        const timestampAfter = new Date(contentAfter.updatedAt).getTime();
 
         expect(timestampAfter).toBeGreaterThan(timestampBefore);
     });

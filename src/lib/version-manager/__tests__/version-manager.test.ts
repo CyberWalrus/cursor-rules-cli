@@ -1,4 +1,4 @@
-import { readVersionFile } from '../../file-operations/read-version-file';
+import { readConfigFile } from '../../file-operations/read-config-file';
 import { compareVersions } from '../compare-versions';
 import { getCurrentVersion } from '../get-current-version';
 import { getPackageVersion } from '../get-package-version';
@@ -11,9 +11,9 @@ vi.mock('node:fs/promises', () => ({
     readFile: mockReadFile,
 }));
 
-vi.mock('../../file-operations/read-version-file');
+vi.mock('../../file-operations/read-config-file');
 
-const mockReadVersionFile = vi.mocked(readVersionFile);
+const mockReadConfigFile = vi.mocked(readConfigFile);
 
 describe('version-manager', () => {
     beforeEach(() => {
@@ -22,20 +22,31 @@ describe('version-manager', () => {
 
     describe('getCurrentVersion', () => {
         it('должен возвращать версию если файл существует', async () => {
-            mockReadVersionFile.mockResolvedValue({
+            mockReadConfigFile.mockResolvedValue({
+                configVersion: '1.0.0',
                 installedAt: '2025-11-01T12:00:00.000Z',
+                ruleSets: [
+                    {
+                        id: 'base',
+                        update: true,
+                    },
+                ],
+                settings: {
+                    language: 'ru',
+                },
                 source: 'cursor-rules',
+                updatedAt: '2025-11-01T12:00:00.000Z',
                 version: '1.0.0',
             });
 
             const version = await getCurrentVersion('/target');
 
             expect(version).toBe('1.0.0');
-            expect(mockReadVersionFile).toHaveBeenCalledWith('/target');
+            expect(mockReadConfigFile).toHaveBeenCalledWith('/target');
         });
 
         it('должен возвращать null если файл не существует', async () => {
-            mockReadVersionFile.mockResolvedValue(null);
+            mockReadConfigFile.mockResolvedValue(null);
 
             const version = await getCurrentVersion('/target');
 

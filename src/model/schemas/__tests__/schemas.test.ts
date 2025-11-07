@@ -1,17 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { initCommandParamsSchema, replaceAllCommandParamsSchema, updateCommandParamsSchema } from '../command-params';
-import { versionSchema } from '../main';
+import { fileOverrideSchema, rulesConfigSchema, ruleSetSchema } from '../main';
 
-describe('versionSchema', () => {
-    it('должен успешно валидировать корректные данные версии', () => {
+describe('ruleSetSchema', () => {
+    it('должен успешно валидировать корректные данные набора правил', () => {
         const validData = {
-            installedAt: '2025-11-01T12:00:00.000Z',
-            source: 'cursor-rules',
-            version: '1.0.0',
+            id: 'base',
+            update: true,
         };
 
-        const result = versionSchema.safeParse(validData);
+        const result = ruleSetSchema.safeParse(validData);
 
         expect(result.success).toBe(true);
         if (result.success) {
@@ -19,48 +18,152 @@ describe('versionSchema', () => {
         }
     });
 
-    it('должен отклонять невалидный формат версии', () => {
+    it('должен успешно валидировать набор правил с fixedVersion', () => {
+        const validData = {
+            fixedVersion: '1.0.0',
+            id: 'base',
+            update: true,
+        };
+
+        const result = ruleSetSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+    });
+
+    it('должен отклонять пустой id', () => {
         const invalidData = {
+            id: '',
+            update: true,
+        };
+
+        const result = ruleSetSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+
+    it('должен отклонять невалидный формат fixedVersion', () => {
+        const invalidData = {
+            fixedVersion: '1.0',
+            id: 'base',
+            update: true,
+        };
+
+        const result = ruleSetSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+});
+
+describe('fileOverrideSchema', () => {
+    it('должен успешно валидировать корректные данные переопределения', () => {
+        const validData = {
+            file: 'rules/file.mdc',
+            yamlOverrides: {
+                alwaysApply: true,
+            },
+        };
+
+        const result = fileOverrideSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+    });
+
+    it('должен отклонять пустой file', () => {
+        const invalidData = {
+            file: '',
+            yamlOverrides: {},
+        };
+
+        const result = fileOverrideSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+});
+
+describe('rulesConfigSchema', () => {
+    it('должен успешно валидировать корректные данные конфигурации', () => {
+        const validData = {
+            configVersion: '1.0.0',
             installedAt: '2025-11-01T12:00:00.000Z',
+            ruleSets: [
+                {
+                    id: 'base',
+                    update: true,
+                },
+            ],
+            settings: {
+                language: 'ru',
+            },
             source: 'cursor-rules',
-            version: '1.0',
-        };
-
-        const result = versionSchema.safeParse(invalidData);
-
-        expect(result.success).toBe(false);
-    });
-
-    it('должен отклонять невалидный формат даты', () => {
-        const invalidData = {
-            installedAt: 'invalid-date',
-            source: 'cursor-rules',
+            updatedAt: '2025-11-01T12:00:00.000Z',
             version: '1.0.0',
         };
 
-        const result = versionSchema.safeParse(invalidData);
+        const result = rulesConfigSchema.safeParse(validData);
 
-        expect(result.success).toBe(false);
+        expect(result.success).toBe(true);
     });
 
-    it('должен отклонять пустой source', () => {
+    it('должен отклонять невалидный формат configVersion', () => {
         const invalidData = {
+            configVersion: '1.0',
             installedAt: '2025-11-01T12:00:00.000Z',
-            source: '',
+            ruleSets: [
+                {
+                    id: 'base',
+                    update: true,
+                },
+            ],
+            settings: {
+                language: 'ru',
+            },
+            source: 'cursor-rules',
+            updatedAt: '2025-11-01T12:00:00.000Z',
             version: '1.0.0',
         };
 
-        const result = versionSchema.safeParse(invalidData);
+        const result = rulesConfigSchema.safeParse(invalidData);
 
         expect(result.success).toBe(false);
     });
 
-    it('должен отклонять отсутствующие поля', () => {
+    it('должен отклонять невалидный язык', () => {
         const invalidData = {
+            configVersion: '1.0.0',
+            installedAt: '2025-11-01T12:00:00.000Z',
+            ruleSets: [
+                {
+                    id: 'base',
+                    update: true,
+                },
+            ],
+            settings: {
+                language: 'de',
+            },
+            source: 'cursor-rules',
+            updatedAt: '2025-11-01T12:00:00.000Z',
             version: '1.0.0',
         };
 
-        const result = versionSchema.safeParse(invalidData);
+        const result = rulesConfigSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+
+    it('должен отклонять пустой массив ruleSets', () => {
+        const invalidData = {
+            configVersion: '1.0.0',
+            installedAt: '2025-11-01T12:00:00.000Z',
+            ruleSets: [],
+            settings: {
+                language: 'ru',
+            },
+            source: 'cursor-rules',
+            updatedAt: '2025-11-01T12:00:00.000Z',
+            version: '1.0.0',
+        };
+
+        const result = rulesConfigSchema.safeParse(invalidData);
 
         expect(result.success).toBe(false);
     });

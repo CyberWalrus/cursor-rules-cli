@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { initCommand } from '../../cli/commands/init/index';
+import { VERSION_FILE_NAME } from '../../model';
 import { createVersionFile } from './helpers/create-version-file';
 import { tempDir } from './helpers/temp-dir';
 
@@ -32,12 +33,12 @@ describe('Init Command E2E', () => {
         await expect(initCommand(nonExistentDir, tempDirPath)).rejects.toThrow();
     });
 
-    it('должен создавать .cursor/rules-version.json файл', async () => {
+    it('должен создавать .cursor/cursor-rules-config.json файл', async () => {
         await initCommand(packageDir, tempDirPath);
 
-        const versionFilePath = join(tempDirPath, '.cursor', 'rules-version.json');
+        const configFilePath = join(tempDirPath, '.cursor', VERSION_FILE_NAME);
 
-        await expect(access(versionFilePath, constants.F_OK)).resolves.toBeUndefined();
+        await expect(access(configFilePath, constants.F_OK)).resolves.toBeUndefined();
     });
 
     it('должен копировать .cursor директорию', async () => {
