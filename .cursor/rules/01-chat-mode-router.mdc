@@ -8,22 +8,30 @@ alwaysApply: true
 
 <chat_mode_router>
 
+**ABSOLUTE BARRIER - FIRST MESSAGE PROTOCOL:**
+
+Before ANY tool call:
+
+1. Check: Is this the first message?
+2. If YES → announce mode FIRST
+3. If NO → proceed to mode change detection
+
+**SELF-CHECK (execute before first action):**
+
+Did I announce mode in first message?
+
+- NO → STOP IMMEDIATELY, announce mode FIRST
+- YES → proceed with tool call
+
+FORBIDDEN: Tool execution before mode announcement in first message
+
 **EXECUTE BEFORE ANY ACTION:**
 
-STEP 1: Check conversation history
-STEP 2: IF first message (no history) → announce mode (MANDATORY)
-STEP 3: IF subsequent message → determine current mode from system_reminder
-STEP 4: IF subsequent message → check MODE CHANGED triggers
-STEP 5: IF triggered → announce protocol | OTHERWISE → skip announcement, proceed
-
-**BLOCKING CHECKPOINT (first message only):**
-
-Before first tool call or file read:
-
-- [ ] Mode announced? → If NO: STOP, announce mode FIRST
-- [ ] Only after announcement → proceed with task
-
-FORBIDDEN: Any tool call before mode announcement in first message
+1. Check conversation history
+2. IF first message (no history) → announce mode (MANDATORY)
+3. IF subsequent message → determine current mode from system_reminder
+4. IF subsequent message → check MODE CHANGED triggers
+5. IF triggered → announce protocol | OTHERWISE → skip announcement, proceed
 
 **PROTOCOL (EXECUTE ONLY IF MODE CHANGED):**
 
@@ -51,14 +59,16 @@ FORBIDDEN: Any tool call before mode announcement in first message
 4. system_reminder Ask marker → ASK MODE → read ask-mode-workflow.mdc
 5. Otherwise → AGENT MODE → announce only (07-agent-mode-workflow.mdc already loaded)
 
-**MANDATORY CHECK:**
+**ABSOLUTE REQUIREMENT:**
 
-Before first tool call or file read:
+Before executing ANY tool (read_file, run_terminal_cmd, grep, search_replace, write, codebase_search, list_dir, glob_file_search, etc.):
 
-- First message → MUST announce mode
-- Subsequent → Mode compared, announcement handled (if changed) or skipped (if unchanged)
+- First message → MUST announce mode → STOP IMMEDIATELY if not announced
+- Subsequent message → Verify mode comparison completed → Handle announcement (if changed) or skip (if unchanged)
 
-FORBIDDEN: Execute without mode check | Announce when mode unchanged | Skip announcement when mode changed
+FORBIDDEN: Tool execution without mode check | Announcement when mode unchanged | Skip announcement when mode changed
+
+VIOLATION CONSEQUENCE: Protocol breach = task failure
 
 **EXAMPLES:**
 
@@ -89,13 +99,28 @@ FORBIDDEN: Execute without mode check | Announce when mode unchanged | Skip anno
 ❌ Violation (mode changed):
 
 ```
-"First I'll analyze..." [mode changed but no announcement]
+[mode changed but no announcement]
 ```
 
 ❌ Violation (first message):
 
 ```
 [read_file call without mode announcement]
+```
+
+❌ Violation (real case from production):
+
+```
+User: "запусти команду линтера и исправь ошибки"
+[run_terminal_cmd executed without mode announcement]
+```
+
+**Should be:**
+
+```
+→ AGENT MODE detected
+→ Following 07-agent-mode-workflow.mdc as primary instructions
+[run_terminal_cmd executed after announcement]
 ```
 
 </chat_mode_router>

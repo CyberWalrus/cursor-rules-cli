@@ -1,5 +1,71 @@
 # Changelog
 
+## [0.3.0] - 2025-11-07
+
+### Breaking Changes
+
+- **Новый формат конфигурации правил**
+    - Файл `.cursor/rules-version.json` заменен на `.cursor/cursor-rules-config.json`
+    - Добавлена поддержка расширенной конфигурации с настройками, наборами правил, списком игнорирования и переопределениями файлов
+    - Формат больше не совместим со старыми версиями — требуется повторная инициализация через `cursor-rules-cli init`
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+### Added
+
+- **Расширенная конфигурация правил**
+    - Добавлен новый формат конфигурации `cursor-rules-config.json` с поддержкой:
+        - Настройки языка вывода (`settings.language`: `"ru"` или `"en"`)
+        - Наборы правил (`ruleSets`) с возможностью управления обновлениями
+        - Список игнорирования файлов (`ignoreList`) с поддержкой glob-паттернов
+        - Переопределения YAML frontmatter для конкретных файлов (`fileOverrides`)
+    - Добавлена JSON Schema для валидации конфигурации (`.cursor/cursor-rules-config-1.0.0.schema.json`)
+    - Автоматическая публикация JSON Schema в SchemaStore.org через CI/CD
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+- **Новые функции для работы с файлами**
+    - Добавлена функция `shouldIgnoreFile` для проверки файлов по списку игнорирования с поддержкой glob-паттернов
+    - Добавлена функция `applyYamlOverrides` для применения переопределений YAML frontmatter с merge-стратегией
+    - Обновлена функция `copyRulesToTarget` для поддержки `ignoreList` и `fileOverrides`
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+- **Зависимости**
+    - Добавлена зависимость `micromatch` (v4.0.8) для работы с glob-паттернами
+    - Добавлена зависимость `gray-matter` (v4.0.3) для парсинга YAML frontmatter
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+- **CI/CD**
+    - Добавлен workflow `.github/workflows/publish-schema.yml` для автоматической публикации JSON Schema в SchemaStore.org
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+### Changed
+
+- **Обновление CLI команд**
+    - Команда `init` создает новый формат конфигурации с настройками по умолчанию
+    - Команда `update` фильтрует наборы правил по флагу `update` и применяет `ignoreList`/`fileOverrides`
+    - Команда `replace-all` сохраняет существующую конфигурацию или создает новую при отсутствии
+    - Все команды обновляют поле `updatedAt` при изменении правил
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+- **Рефакторинг модулей**
+    - Переименованы функции `readVersionFile` → `readConfigFile` и `writeVersionFile` → `writeConfigFile`
+    - Обновлены типы: `VersionInfo` заменен на `RulesConfig` с расширенной структурой
+    - Обновлены схемы валидации: добавлены `rulesConfigSchema`, `ruleSetSchema`, `fileOverrideSchema`
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+- **Тесты**
+    - Обновлены все unit и E2E тесты для работы с новым форматом конфигурации
+    - Добавлены тесты для новых функций `shouldIgnoreFile` и `applyYamlOverrides`
+    - Обновлены тесты CLI команд для проверки работы с `ruleSets`, `ignoreList` и `fileOverrides`
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
+### Removed
+
+- **Удалена поддержка старого формата**
+    - Удален тип `VersionInfo` и схема `versionSchema`
+    - Удалены функции `readVersionFile` и `writeVersionFile`
+    - Старый формат `.cursor/rules-version.json` больше не поддерживается
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/TODO" target="_blank">TODO</a>
+
 ## [0.2.1] - 2025-11-04
 
 <small>04.11.2025 05:57</small>

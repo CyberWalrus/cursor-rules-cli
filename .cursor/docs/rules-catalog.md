@@ -65,32 +65,27 @@ alwaysApply: false
     - **Relative Path:** `.cursor/rules/critique-workflow.mdc`
     - **When to read:** For tasks requiring review, feedback, or quality assessment of code, concepts, or technical ideas.
 
-12. **detailed-plan-creator.mdc**
-    - **Description:** Algorithm workflow for creating detailed implementation plans for complex tasks. Comprehensive planning with architecture design, module structure definition, and step-by-step implementation roadmap. Creates plans via Cursor's create_plan tool with todos and dependencies.
-    - **Relative Path:** `.cursor/rules/detailed-plan-creator.mdc`
-    - **When to read:** When planning complex features that require careful decomposition, architecture design, multiple components, or phased execution with validation gates.
-
-13. **code-workflow.mdc**
+12. **code-workflow.mdc**
     - **Description:** Algorithm workflow for advanced planning mode with architecture validation. Structured preparation workflow with quality gate enforcement before plan creation. Includes XML architecture validation through MCP with ≥85 score requirement.
     - **Relative Path:** `.cursor/rules/code-workflow.mdc`
     - **When to read:** When planning complex projects requiring architecture validation and systematic preparation.
 
-14. **jira-task-creator.mdc**
+13. **jira-task-creator.mdc**
     - **Description:** Algorithm workflow for interactive JIRA task creation with requirements gathering, solution validation (web search + Context7), and wiki markup generation. Outputs copy-ready JIRA task description in Cursor plan.
     - **Relative Path:** `.cursor/rules/jira-task-creator.mdc`
     - **When to read:** When creating JIRA tasks that are actionable and ready for copy-paste, including for breaking down larger initiatives into JIRA-sized work items.
 
-15. **plan-mode-dispatcher.mdc**
+14. **plan-mode-dispatcher.mdc**
     - **Description:** Combo prompt (algorithm + reference) for Plan Mode task classification and workflow routing. Meta-classifier for lightning-fast activity type determination with classification table and immediate workflow file reading.
     - **Relative Path:** `.cursor/rules/plan-mode-dispatcher.mdc`
     - **When to read:** Automatically applied (alwaysApply: true) in Plan Mode, triggers activity type classification and corresponding workflow routing.
 
-16. **prompt-workflow.mdc**
+15. **prompt-workflow.mdc**
     - **Description:** Combo prompt (algorithm + reference) for prompt engineering. Creates production-ready AI prompts with XML structuring, YAML metadata, and MCP validation (score ≥85). Supports algorithm/reference/combo/compact/command types.
     - **Relative Path:** `.cursor/rules/prompt-workflow.mdc`
     - **When to read:** When the task involves creating, improving, editing, or validating AI prompts.
 
-17. **ui-workflow.mdc**
+16. **ui-workflow.mdc**
     - **Description:** Algorithm workflow for UI planning with browser validation using Playwright MCP tools. Identifies visual problems through browser inspection, clarifies user requirements interactively, creates detailed plans with browser verification checkpoints. Uses package.json and package-ai-docs.md for launch instructions.
     - **Relative Path:** `.cursor/rules/ui-workflow.mdc`
     - **When to read:** When fixing visual/UI problems, validating design implementation, checking responsive layouts, or planning UI improvements through browser-based analysis.
