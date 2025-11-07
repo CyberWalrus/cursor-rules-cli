@@ -1,6 +1,6 @@
 {
     "name": "cursor-rules-cli",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "CLI tool for managing .cursor rules in projects",
     "bin": {
         "cursor-rules-cli": "./dist/cli.js",
@@ -40,7 +40,7 @@
     },
     "devDependencies": {
         "@types/node": "24.9.2",
-        "ai-friendly-runner": "0.4.0",
+        "ai-friendly-runner": "0.4.2",
         "cross-env": "10.1.0",
         "eslint-walrus-config": "1.1.0",
         "knip": "5.67.1",
