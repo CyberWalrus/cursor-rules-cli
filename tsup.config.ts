@@ -1,3 +1,4 @@
+import { builtinModules } from 'node:module';
 import { defineConfig } from 'tsup';
 
 /** Конфигурация сборки tsup для CLI-инструмента cursor-rules */
@@ -14,8 +15,9 @@ export default defineConfig({
             },
         };
     },
-    format: ['esm'],
-    noExternal: ['micromatch'],
+    external: [...builtinModules, ...builtinModules.map((m) => `node:${m}`)],
+    format: ['cjs'],
+    noExternal: ['citty', 'gray-matter', 'micromatch', 'picocolors', 'zod'],
     outDir: 'dist',
     platform: 'node',
     sourcemap: false,

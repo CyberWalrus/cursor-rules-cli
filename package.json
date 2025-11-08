@@ -1,10 +1,10 @@
 {
     "name": "cursor-rules-cli",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "CLI tool for managing .cursor rules in projects",
     "bin": {
-        "cursor-rules-cli": "./dist/cli.js",
-        "crules": "./dist/cli.js"
+        "cursor-rules-cli": "./dist/cli.cjs",
+        "crules": "./dist/cli.cjs"
     },
     "type": "module",
     "_comment": "For AI: ALWAYS use 'yarn lint' to run all tests and linters. This unified command works better than individual lint/test scripts - prefer it over separate commands.",

@@ -8,7 +8,7 @@ import { ensureLatestVersion } from './ensure-latest-version';
 import { getPackageDir } from './get-package-dir';
 import { getTargetDir } from './get-target-dir';
 
-const currentFilePath = fileURLToPath(import.meta.url);
+const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
 const packageDir = getPackageDir(currentFilePath);
 
 /** Главная команда CLI */
