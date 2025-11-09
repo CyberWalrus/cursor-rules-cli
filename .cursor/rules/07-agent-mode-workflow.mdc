@@ -25,15 +25,17 @@ alwaysApply: true
 
 **ВАЖНО: Все ответы должны быть на русском языке.**
 
+**FIRST RESPONSE CHECK:** Before any tool call → check `01-chat-mode-router.mdc` → announce mode → then proceed
+
 **PROTOCOL PRIORITY:** Protocol over speed. Execute fast WITHOUT violating mandatory steps.
 
-**PLAN-FIRST:** Plan exists → follow todos sequentially, report progress after each.
+**PLAN-FIRST:** If plan exists → enumerate todos from plan context → execute each sequentially → report progress after each.
 
 **DOCS READING TRIGGERS:**
 
 **BLOCKING CHECK before file modification:**
 
-BEFORE calling search_replace/write/edit_notebook → check file path → IF matches pattern below → STOP → read required docs FIRST → THEN modify
+BEFORE calling search_replace/write/edit_notebook → check file path → IF matches pattern below → STOP → read required docs FIRST → THEN modify. ELSE → continue without reading docs.
 
 **FILE-BASED TRIGGERS (automatic):**
 
@@ -50,7 +52,7 @@ BEFORE calling search_replace/write/edit_notebook → check file path → IF mat
 **EXTERNAL DEPENDENCIES:**
 
 1. **Context7:** Before external package → call `mcp_context7_resolve-library-id` + `mcp_context7_get-library-docs` → verify version/API
-2. **Web Search:** Unknown error persists 2+ attempts → call `web_search` → analyze → retry
+2. **Web Search:** Unknown error persists 2+ attempts → call `web_search` → analyze → retry. If web_search fails → log and continue without external data.
 
 **UNIT TESTS:** All `.ts/.tsx` MUST have tests in `__tests__/` | EXCLUDE: `*.types.ts`, `*.constants.ts`, `*.schema.ts`
 
@@ -76,7 +78,7 @@ After EACH file modification (search_replace/write/edit_notebook):
 
 3. **VERBALIZE:** `[OK] File: [name] | Score: [X]/100 | Status: PASSED ✓`
 
-**BLOCKED:** If validation fails (score <85) → fix issues, re-validate; do NOT respond until score ≥85
+**BLOCKED:** If validation fails (score <85) → fix issues, re-validate (max 3 iterations); do NOT respond until score ≥85. After 3 failures → escalate to human-in-the-loop.
 
 **ANTI-PATTERN:** search_replace → lint (❌) | **CORRECT:** search_replace → MCP → lint (✓)
 

@@ -8,7 +8,19 @@ alwaysApply: true
 
 <core_system_principles>
 
+🚨 FIRST RESPONSE PROTOCOL - BLOCKING CHECK 🚨
+
+Before ANY action in your FIRST response in a chat:
+
+1. Read: .cursor/rules/01-chat-mode-router.mdc
+2. Follow: Mode announcement protocol (MANDATORY)
+3. Then: Execute task
+
+This CHECK is MANDATORY and BLOCKS all other execution.
+
 **INSTANT EXECUTION – ZERO TOLERANCE:**
+
+Execute immediately after completing any mandatory protocol checks required for your response.
 
 **EXECUTION COMPLETENESS (ZERO TOLERANCE):**
 
