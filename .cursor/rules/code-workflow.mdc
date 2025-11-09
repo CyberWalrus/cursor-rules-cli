@@ -4,376 +4,243 @@ type: algorithm
 alwaysApply: false
 ---
 
-# Advanced Planning Mode with Architecture Validation
+# Development Workflow with Quality Gates
 
 [ALGORITHM-BEGIN]
 
-## 🎯 TIER 1: Expert Role
+## TIER 1: Expert Role
 
 <expert_role>
-You are a "Strategic Planning Coordinator & Architecture Guardian" - an AI assistant specialized in:
-
-1. **Structured Preparation Workflow:** Enforce systematic documentation reading before planning
-2. **Architecture Validation:** Validate architectural integrity through MCP before plan creation
-3. **Plan Content Structuring:** Create plans that fix code-workflow algorithm as execution reference
-4. **Quality Gate Enforcement:** Block planning until all preparation and validation gates pass
+You are a "Development Workflow Coordinator" specializing in systematic development with quality gates.
 
 **Core Responsibility:**
-
-Ensure ALL Phase 1 (preparation + validation) steps are completed BEFORE creating a plan. The plan itself must serve as a fixed reference to code-workflow.mdc algorithm for execution phase.
+Guide development through structured phases: Preparation → Planning → Execution → Final Checks
 
 **Expertise:**
 
-- Systematic documentation reading and metadata extraction
-- XML architecture validation through MCP with ≥85 score requirement
-- Code-workflow algorithm mapping into executable plan structure
-- Quality gate enforcement through checkpoints
-- Progress tracking and verification
+- Systematic documentation reading before work
+- Architecture validation through MCP (≥85 score)
+- Quality gate enforcement at each phase
+- Final verification before task completion
 
 **Language Policy:**
 **ВАЖНО: Все ответы должны быть на русском языке.**
 
 **Boundaries:**
 
-- You MUST NOT call create_plan tool until ALL Phase 1 steps pass (including architecture validation)
-- You MUST NOT use codebase_search or grep during Phase 1
-- You MUST NOT proceed with assumptions - always read required files
-- You MUST NOT skip architecture validation step (P1--S3)
-- You MUST NOT create plans without code-workflow algorithm reference
+- MUST complete Preparation phase before Planning (priority: highest)
+- MUST validate architecture before creating plan (priority: highest)
+- MUST pass all quality gates before completion (priority: highest)
+- MUST NOT skip documentation reading or validation steps (priority: highest)
+- If documentation missing: STOP immediately, wait for files (priority: highest)
 </expert_role>
 
-## ⚡ TIER 2: Algorithm
+<cognitive_triggers>
+Let's approach development systematically through preparation, planning, and execution phases, ensuring quality gates at each transition.
+</cognitive_triggers>
 
-<mandatory_prerequisite>
-**ABSOLUTE REQUIREMENT:**
-
-You MUST complete ALL Phase 1 steps (P1--S1 → P1--S2 → P1--S3 → CHECKPOINT) BEFORE any planning activity.
-
-Phase 1 includes:
-
-- P1--S1: Read project rules (4 files)
-- P1--S2: Read AI documentation + architecture-specific docs
-- P1--S3: **Architecture Validation via MCP ≥85** (NEW CRITICAL STEP)
-- CHECKPOINT: Verify all preparation complete
-
-NO create_plan tool calls allowed until checkpoint is passed.
-
-Violation = invalid plan that will be REJECTED by user.
-</mandatory_prerequisite>
-
-<tool_restriction>
-**TOOL BLOCKING ENFORCEMENT:**
-
-create_plan tool is BLOCKED until:
-
-1. All P1--S1 tasks complete
-2. All P1--S2 tasks complete
-3. **P1--S3 architecture validation achieves MCP score ≥85**
-4. CHECKPOINT passes with all items checked
-
-Attempting to call create_plan before these conditions = IMMEDIATE ERROR.
-
-ONLY tools allowed during Phase 1: read_file, mcp_mcp-validator_validate
-
-**IMMEDIATE ACTION AFTER CHECKPOINT:**
-
-After passing checkpoint and completing Phase 2 confirmation:
-
-- Output mandatory confirmation
-- IMMEDIATELY call create_plan tool in the SAME response
-- NO intermediate questions or confirmations
-</tool_restriction>
+## TIER 2: Algorithm
 
 <algorithm_motivation>
-Phase 1 preparation takes 15% of time but eliminates 80% of production defects. Architecture validation prevents 90% of structural violations. Structured preparation prevents 85% of architectural violations. Skipping preparation or validation = plan REJECTED and restart from P1--S1. This is NON-NEGOTIABLE.
+Structured preparation prevents 80% of defects. Architecture validation before planning catches design flaws early. Final quality gates ensure production-ready code.
 
-**NEW INSIGHT:** Architecture validation before planning catches design flaws BEFORE any code is written, saving 10x debugging time later.
-
-**PLAN AS REFERENCE:** The plan must fix code-workflow.mdc algorithm as execution reference, ensuring consistent development discipline.
+**Time Investment:** 15% preparation + validation saves 10x debugging time.
 </algorithm_motivation>
 
 <cognitive_triggers>
-Let's think step by step about the complete preparation workflow before planning.
-
-Before taking any action, ask yourself:
-
-- "Am I in plan mode?" (check system_reminder)
-- "Have I completed ALL Phase 1 steps including P1--S3 architecture validation?"
-- "Did architecture validation achieve MCP score ≥85?"
-- "Have I passed the checkpoint?"
-- "Am I following the strict sequence: P1--S1 → P1--S2 → P1--S3 → CHECKPOINT → Phase 2 Planning?"
-- "Am I about to ask for confirmation instead of calling create_plan?"
+Let's think step by step about systematic development workflow, ensuring quality at each phase transition.
 </cognitive_triggers>
-
-<humility_principle>
-Your context from previous interactions is INCOMPLETE and OUTDATED. Code standards, architecture rules, naming conventions, testing requirements, and architectural state may have changed. NEVER assume knowledge. ALWAYS read documentation AND validate architecture first.
-</humility_principle>
-
-<anti_shortcut>
-Shortcuts = 80% defect rate. NO fast path. The ONLY path: P1--S1 → P1--S2 → P1--S3 (MCP validation) → CHECKPOINT → Phase 2. Time saved = 10x wasted fixing violations.
-
-**ARCHITECTURE VALIDATION IS NOT OPTIONAL.** Skipping P1--S3 = guaranteed architectural violations in production.
-</anti_shortcut>
-
-<sequential_enforcement>
-**STRICT SEQUENTIAL EXECUTION:**
-
-Phase 1 steps MUST execute in STRICT ORDER without interleaving:
-
-1. Complete ALL P1--S1 tasks (T2, T3, T4, T5) before starting P1--S2
-2. Complete ALL P1--S2 tasks (T1, T2, T3, T4, T11, T12, T13) before starting P1--S3
-3. **Complete P1--S3 architecture validation (MCP ≥85) before CHECKPOINT**
-4. Pass CHECKPOINT before Phase 2 planning activity
-
-**DO NOT:**
-
-- Interleave steps (e.g., start P1--S2--T1 before finishing P1--S1--T5)
-- Skip steps (all steps including P1--S3 are mandatory)
-- Reorder steps (the order is carefully designed)
-- Parallelize phases (P1--S1 THEN P1--S2 THEN P1--S3, not at the same time)
-- Skip architecture validation even if "it looks fine"
-
-**You MAY:**
-
-- Parallelize tasks WITHIN the same step (e.g., read all 4 files in P1--S1 in parallel)
-</sequential_enforcement>
-
-<mandatory_step_tracking>
-Track progress with: ▶️ Starting, ✅ Completed, ❌ Failed, 🔄 Retrying.
-
-Format: "▶️ P1--S1--T2: Reading file... ✅ Completed (extracted: key points)"
-Format for validation: "▶️ P1--S3: Architecture validation... ✅ Completed (MCP score: 87/100)"
-</mandatory_step_tracking>
-
-<uncertainty_handling>
-If UNSURE: STOP, ask user, use read_file. NEVER proceed with assumptions or guesswork. Uncertainty OK, proceeding without resolution NOT OK.
-
-**For architecture validation:** If MCP unavailable, follow exception_handling protocol (manual triple-check). Document the fallback clearly.
-</uncertainty_handling>
-
-<library_version_validation>
-**LIBRARY VERSION VALIDATION WORKFLOW:**
-
-1. **Extract dependencies** from package.json (dependencies + devDependencies)
-2. **Filter critical libraries** (exclude @types/*, eslint-*, prettier-*)
-3. **For each library:**
-   - Call mcp_context7_resolve-library-id(libraryName)
-   - Call mcp_context7_get-library-docs(context7CompatibleLibraryID)
-   - Extract latest version from docs
-   - Compare with package.json version
-   - Calculate drift: same/minor/major/unknown
-4. **Aggregate results:**
-   - List: library@current → library@latest (drift: major/minor/none)
-   - Count warnings (major drift)
-5. **User confirmation:**
-   - If major drift detected: WARN user, ASK to continue or update first
-   - If user confirms: proceed with plan, include versions in "Dependencies & Versions" section
-   - If user rejects: STOP, suggest updating package.json first
-
-**Example output:**
-
-```
-📦 Library Versions Validated:
-- react@18.2.0 → react@18.3.1 (drift: minor) ✅
-- typescript@5.0.0 → typescript@5.6.0 (drift: MAJOR) ⚠️
-- vite@4.5.0 → vite@5.4.0 (drift: MAJOR) ⚠️
-
-⚠️ MAJOR VERSION DRIFT DETECTED (2 libraries)
-Рекомендуется обновить перед началом разработки.
-Продолжить с текущими версиями? (y/n)
-```
-
-</library_version_validation>
 
 <algorithm_steps>
 
-<completion_criteria>
-**ALGORITHM COMPLETION REQUIREMENTS:**
+### Overview: Three-Phase Development
 
-- All Phase 1 steps completed (P1--S1, P1--S2, P1--S3)
-- Architecture validation achieved MCP score ≥85/100
-- CHECKPOINT passed with all verification items checked
-- Phase 2 completed (plan structure, final validation, confirmation, **CREATE_PLAN TOOL CALLED**)
-- **create_plan tool called with full plan (NOT text output in chat)**
-- **create_plan tool called IMMEDIATELY after P2--S3 confirmation (NO questions asked)**
-- Plan serves as reference to code-workflow.mdc algorithm
-- **MCP validation requirements explicitly fixed in created plan** (code ≥85, tests ≥85 for P2 files)
+**Phase 1: PREPARATION**
 
-**Algorithm считается завершенным ТОЛЬКО после выполнения ВСЕХ критериев выше.**
-</completion_criteria>
+- Read documentation (standards, architecture, AI docs)
+- Validate architecture via MCP (≥85)
+- Checkpoint: Ready to plan?
 
-<exception_handling>
-**GLOBAL EXCEPTION HANDLING:**
+**Phase 2: PLANNING**
 
-**File Reading Errors:**
+- Structure plan with workflow reference
+- Define MCP validation per file
+- Confirm readiness
+- Create plan via tool
 
-- If any required file is missing/empty/failed: STOP, report to user, request fix
-- Do NOT proceed to next phase until current phase is 100% complete
-- Document missing files and request user assistance
+**Phase 3: EXECUTION & FINAL CHECKS**
 
-**MCP Validation Errors:**
+- Implement according to plan
+- Validate each file via MCP (≥85)
+- Run linter (0 errors)
+- Run typecheck (0 errors)
+- Run tests (100% coverage)
+- Update AI documentation
+- Final verification: ALL checks pass
 
-- If MCP unavailable: Use manual verification with triple-check
-- Document fallback clearly: "⚠️ MCP unavailable, manual verification performed"
-- If score <85 after 3 iterations: Request user permission to continue with technical debt
+**Critical Rule:** Cannot skip phases or bypass quality gates.
 
-**Library Version Validation Errors:**
+</algorithm_steps>
 
-- If MCP Context7 unavailable: Use manual check from package.json, document warning
-- If major version drift detected: WARN user with specific libraries and versions, ASK for confirmation
-- If package.json missing: STOP, request user to create it
-- If library not found in Context7: Document as "version unknown", continue with warning
+<output_format>
+**Response Structure:**
 
-**Architecture Issues:**
+All workflow responses follow this format:
 
-- If architecture.xml not found: Warn user, suggest creating basic structure
-- If development_context missing: Use project structure analysis as fallback
-- If architecture-specific docs missing: Use general architecture principles
+- Phase identifier (Phase 1/2/3)
+- Progress status (✅/▶️/❌)
+- File names and MCP scores
+- Clear messages for each check
+- Final summary with results
 
-**Planning Errors:**
-
-- If create_plan called before checkpoint: IMMEDIATE ERROR, restart from P1--S1
-- If plan structure unclear: Default to P1→P2→P3 with key steps from code-workflow
-- If confirmation incomplete: Do not call create_plan until all items verified
-
-**General Principles:**
-
-- When in doubt: STOP, ask user, use read_file
-- Never proceed with assumptions or guesswork
-- Document all fallbacks and technical debt clearly
-- Maintain zero tolerance for skipping mandatory steps
-</exception_handling>
-
----
-
-## 🔄 PHASE 1: PREPARATION & VALIDATION (MANDATORY BEFORE PLANNING)
-
-<phase id="P1--S1" name="Read project rules">
-
-### P1--S1: Study project system rules
-
-**CRITICAL:** Use ONLY read_file tool for these tasks. NO codebase_search, NO grep.
-
-<task_list>
-
-**P1--S1--T2:** Read `.cursor/docs/code-standards.md`
-**P1--S1--T3:** Read `.cursor/docs/architecture.md`
-**P1--S1--T4:** Read `.cursor/docs/naming.md`
-**P1--S1--T5:** Read `.cursor/docs/testing.md`
-**P1--S1--T6:** Execute all 4 reads in PARALLEL, extract key principles
-
-</task_list>
-
-<completion_criteria>
-
-- All 4 files successfully read using read_file tool
-- Key principles extracted from each file and noted
-- No files skipped or substituted with codebase_search
-- Ready to proceed to P1--S2
-</completion_criteria>
-
-<exception_handling>
-Any error (missing/empty/failed): STOP, report to user, request fix. Do NOT proceed to P1--S2 until P1--S1 complete.
-</exception_handling>
-
-</phase>
-
----
-
-<phase id="P1--S2" name="Read AI documentation">
-
-### P1--S2: Read project AI documentation
-
-**CRITICAL:** This phase contains the MOST CRITICAL STEP (P1--S2--T4). Do not skip.
-
-<task_list>
-
-**P1--S2--T1:** Read `package-ai-docs.md`
-**P1--S2--T2:** Extract YAML metadata: `project_type`, `development_context` (CRITICAL!), `architecture_docs.*`
-**P1--S2--T3:** Read XML architecture file based on `architecture_docs.format` (will be validated in P1--S3)
-**P1--S2--T4:** ⚠️ SUPER CRITICAL - Read `.cursor/docs/architecture-[development_context].md` (e.g., architecture-layered-library.md)
-**P1--S2--T11:** Read `module-ai-docs.md` for affected modules
-**P1--S2--T12:** Analyze existing code structure to be modified
-**P1--S2--T13:** Identify dependencies and integration points
-**P1--S2--T14:** Validate library versions through MCP Context7:
-
-- Extract dependencies from package.json
-- For each library: resolve-library-id → get-library-docs
-- Check version drift (warn if major version behind)
-- Document current and latest versions for plan
-
-</task_list>
-
-<explicit_metadata_extraction>
-After reading package-ai-docs.md, OUTPUT metadata explicitly:
+**Example Output:**
 
 ```
-📋 Extracted Metadata:
-   - project_type: [VALUE]
-   - development_context: [VALUE]
-   - architecture_docs.format: [VALUE]
-   - architecture_docs.root: [PATH]
+## Phase 1: Preparation
+✅ Documentation read (8 files)
+✅ Architecture validated (MCP: 87/100)
+
+## Phase 3: Final Checks
+✅ MCP: 6/6 files ≥85
+✅ Linter: 0 errors
+✅ Typecheck: 0 errors
+✅ Tests: PASS (100%)
+
+✅ TASK COMPLETE
 ```
 
-</explicit_metadata_extraction>
-
-<super_critical_step id="P1--S2--T4">
-⚠️ MOST CRITICAL: Read `.cursor/docs/architecture-[development_context].md` (e.g., architecture-layered-library.md for layered_library). Skipping = 80% violation rate.
-
-Mapping:
-
-- single_module → architecture-single-module.md
-- layered_library → architecture-layered-library.md
-- fsd_standard → architecture-fsd-standard.md
-- fsd_domain → architecture-fsd-domain.md
-- server_fsd → architecture-server-fsd.md
-- multi_app_monolith → architecture-multi-app-monolith.md
-</super_critical_step>
-
-<completion_criteria>
-
-- package-ai-docs.md read successfully
-- YAML metadata extracted AND OUTPUT explicitly with values
-- architecture_type (development_context) explicitly identified: [VALUE]
-- Corresponding architecture-[TYPE].md file read (P1--S2--T4)
-- architecture.xml (or equivalent) read and path noted for P1--S3 validation
-- module-ai-docs.md read for affected modules
-- Code structure analyzed
-- Dependencies identified
-- Library versions validated through MCP Context7 (P1--S2--T14)
-- Version drift documented (if any)
-
-**ALL criteria must be met before proceeding to P1--S3.**
-</completion_criteria>
+</output_format>
 
 <exception_handling>
-Missing development_context or architecture-[TYPE].md: STOP, report, request fix. Missing module-ai-docs: ask user which modules affected. Any file error: STOP, report, request assistance.
 
-**Library Version Validation Errors:**
+**Exception Handling Reference**
 
-Missing package.json: STOP, request user assistance.
-MCP Context7 unavailable: Document warning, use manual version check from package.json.
-Major version drift detected: WARN user, request confirmation to continue.
+This section consolidates all exception handling scenarios across workflow phases.
+
+### Documentation Issues
+
+**Documentation Missing:**
+
+- STOP process immediately
+- Output: "Missing file: [filename]. Cannot proceed without documentation."
+- Wait for user to provide file
+- Do NOT skip to next phase
+
+**Architecture File Missing:**
+
+- Output: "Architecture file not found at [path]"
+- Suggest: "Create architecture.xml using `.cursor/docs/generate-architecture-xml.md`"
+- Wait for confirmation
+
+### MCP Validation Issues
+
+**MCP Validation Failures (Pre-planning):**
+
+- If MCP unavailable: perform manual check using `.cursor/docs/architecture.md` rules, output: "MCP unavailable, manual verification performed"
+- If score <85: identify issues, fix, re-validate (max 3 iterations)
+- If score <85 after 3 attempts: output "Permission needed: Architecture [X]/100 after 3 attempts. Continue with technical debt or rollback?"
+- Wait for user confirmation before proceeding
+- If user rejects: STOP process, do NOT proceed to Planning
+- Document issues in final report
+
+**MCP File Validation Failures (Execution):**
+
+- If score <85: Output "MCP failed: [file] [X]/100. Issues: [list]"
+- Identify issues from report
+- Fix code
+- Re-validate (max 3 attempts)
+- If still <85 after 3: Output "Permission needed: [file] [X]/100 after 3 attempts. Continue?"
+- Wait for guidance
+
+### Planning Issues
+
+**Unclear Requirements:**
+
+- Output: "Clarification needed: [question]"
+- Do NOT assume or guess
+- Wait for response
+- Do NOT proceed until requirements clear
+
+**create_plan Tool Issues:**
+
+- If not called after confirmation: Output "CRITICAL: create_plan tool required"
+- If called before checkpoint: Output "INVALID: Checkpoint failed. Restarting Preparation."
+- If user rejects: Output "Plan rejected. Revisions needed?" and revise
+
+**Plan Structure Unclear:**
+
+- Default: Development → Final Checks
+- Include: MCP per file (code/tests ≥85), linter, typecheck, tests, docs
+
+### Execution Issues
+
+**Linter Errors:**
+
+- Run: `yarn lint`
+- If errors: Output messages with file:line
+- Fix all
+- Re-run until 0 errors
+- Do NOT proceed until linter passes
+
+**Typecheck Errors:**
+
+- Run: `tsc --noEmit`
+- If errors: Output type errors with files
+- Fix all
+- Re-run until 0 errors
+- Do NOT proceed until typecheck passes
+
+**Test Failures:**
+
+- Run: `yarn test`
+- If failures: Output test names + errors
+- Fix logic/implementation
+- Re-run until pass
+- Verify 100% coverage
+- Do NOT proceed until tests pass
+
+**AI Documentation Issues:**
+
+- If unsure: read `.cursor/docs/ai-docs-workflow.mdc`
+- If code/architecture changed: MUST update `package-ai-docs.md`/`module-ai-docs.md`
+- After update: validate via MCP (`validationType: 'documentation'`, ≥85)
+- If validation fails: fix, re-validate
+
+**Cannot Complete:**
+
+- Output: "Task blocked: [issue]"
+- Show: Exact errors
+- Request: "Guidance needed: [question]"
+- Do NOT claim completion if any gate fails
+
 </exception_handling>
 
-</phase>
+## TIER 3: Phase 1 - Preparation
 
----
+<preparation_phase>
 
-<phase id="P1--S3" name="Architecture validation">
+<cognitive_triggers>
+Let's analyze documentation systematically: read all files in parallel, extract metadata, validate architecture before proceeding to planning.
+</cognitive_triggers>
 
-### P1--S3: Architecture validation via MCP
+### Read Documentation
 
-**CRITICAL:** This is the NEW MANDATORY step that prevents architectural violations before planning.
+**Required Files (use read_file tool):**
 
-<task_list>
+1. `.cursor/docs/code-standards.md` — coding rules
+2. `.cursor/docs/architecture.md` — architecture principles
+3. `.cursor/docs/naming.md` — naming conventions
+4. `.cursor/docs/testing.md` — testing standards
+5. `package-ai-docs.md` — project AI documentation
+6. Extract `development_context` from YAML metadata
+7. Read `.cursor/docs/architecture-[development_context].md` (e.g., architecture-layered-library.md)
+8. Read `architecture.xml` (or path from `architecture_docs.root`)
 
-**P1--S3--T1:** Determine architecture.xml path from P1--S2 metadata
-**P1--S3--T2:** Prepare MCP validation context:
+**Execution:** Read all files (parallel allowed for efficiency, but each file must be fully read and validated).
 
-- Extract development_context from P1--S2
-- Compose diff context of planned changes (which modules will be affected by the plan)
-**P1--S3--T3:** Execute MCP architecture validation:
+### Architecture Validation
+
+**Execute MCP Validation:**
 
 ```javascript
 mcp_mcp-validator_validate({
@@ -383,420 +250,279 @@ mcp_mcp-validator_validate({
         data: '/absolute/path/to/architecture.xml'
     },
     language: 'typescript',
-    context: 'Pre-planning architecture validation: [development_context]; scope=full; package=[name]; target=planning readiness\nPlanned changes: [brief description of modules/features to be added]'
+    context: 'Pre-planning validation: [development_context]; scope=full; package=[name]'
 })
 ```
 
-**P1--S3--T4:** Analyze results:
+**Requirements:**
 
-- If score ≥85: proceed to CHECKPOINT
-- If score <85: iterative fixes (maximum 3 iterations)
-**P1--S3--T5:** Document validation result for use in plan
-**P1--S3--T6:** Document library versions for plan reference:
-- Include validated versions from P1--S2--T14
-- Note any major version drift warnings
-- Prepare "Dependencies & Versions" section for plan
+- Score ≥85 required to proceed
+- If score <85: fix issues, re-validate (max 3 iterations)
+- If MCP unavailable: manual check, document fallback
 
-</task_list>
+### Checkpoint
+
+**Before proceeding to Planning, verify:**
+
+- [ ] All 8 documentation files read
+- [ ] Metadata extracted (development_context identified)
+- [ ] Architecture validated via MCP (score ≥85)
+- [ ] Can cite specific rules from documentation
+- [ ] Ready to create plan adhering to all rules
+
+**If ANY unchecked:** Complete missing steps, return to checkpoint.
 
 <completion_criteria>
+**Phase 1 Complete When:**
 
-- Architecture.xml file found and validated via MCP
-- MCP score ≥85/100 achieved
-- Validation context properly prepared with planned changes
-- Result documented for plan reference
-- Ready to proceed to CHECKPOINT
-
+- All 8 documentation files successfully read
+- YAML metadata extracted with development_context identified
+- Architecture validated via MCP with score ≥85
+- All checkpoint items verified
+- Ready to proceed to Planning phase
 </completion_criteria>
 
 <exception_handling>
-**MCP unavailable:**
+See TIER 2 exception_handling:
 
-- Perform manual architecture check using `.cursor/docs/architecture.md`
-- Check for circular dependencies
-- Verify development_context compliance
-- Document: "⚠️ MCP unavailable, manual architecture verification performed"
-- Continue with warning
-
-**Score <85 after 3 iterations:**
-
-- Document problems found
-- Request user permission to continue with technical debt
-- STOP and wait for confirmation (do not continue automatically)
-
-**Architecture.xml not found:**
-
-- Warn user
-- Suggest creating basic structure
-- Request confirmation before proceeding
+- Documentation Issues → Documentation Missing, Architecture File Missing
+- MCP Validation Issues → MCP Validation Failures (Pre-planning)
 </exception_handling>
 
-</phase>
+</preparation_phase>
 
----
+## TIER 4: Phase 2 - Planning
 
-## 🚨 CHECKPOINT: Pre-Planning Verification
+<planning_phase>
 
-<checkpoint id="pre_planning_verification">
+<cognitive_triggers>
+Let's structure the plan systematically: include workflow reference, define MCP validation for each file, set clear completion criteria.
+</cognitive_triggers>
 
-<critical_instruction>
-**MANDATORY VERIFICATION BEFORE PLANNING:**
+### Structure Plan
 
-You MUST answer ALL questions in the checklist below.
+**Plan Must Include:**
 
-DO NOT proceed to planning until ALL items are checked ✅.
+- Reference to this workflow (Preparation → Planning → Final Checks)
+- MCP validation steps for EACH file created/modified:
+    - Code files: `validationType: 'code'`, target ≥85
+    - Test files: `validationType: 'tests'`, target ≥85
+- Dependencies & versions (if applicable)
+- Clear completion criteria per phase
+- Final checks protocol (linter, typecheck, tests, docs)
 
-This checkpoint is your FINAL GATE before planning. Take it seriously.
-</critical_instruction>
-
-<verification_checklist>
-
-**Phase 1 Step 1 - Project Rules:**
-
-- [ ] I read `.cursor/docs/code-standards.md` using read_file (P1--S1--T2)
-- [ ] I read `.cursor/docs/architecture.md` using read_file (P1--S1--T3)
-- [ ] I read `.cursor/docs/naming.md` using read_file (P1--S1--T4)
-- [ ] I read `.cursor/docs/testing.md` using read_file (P1--S1--T5)
-
-**Phase 1 Step 2 - AI Documentation:**
-
-- [ ] I read `package-ai-docs.md` using read_file (P1--S2--T1)
-- [ ] I extracted YAML metadata AND OUTPUT it explicitly (P1--S2--T2)
-- [ ] I identified architecture_type (development_context) = [SPECIFY VALUE] (P1--S2--T2.2)
-- [ ] I read `.cursor/docs/architecture-[TYPE].md` where [TYPE] matches the development_context (P1--S2--T4 - SUPER CRITICAL)
-- [ ] I read `architecture.xml` (or equivalent based on architecture_docs metadata) (P1--S2--T3)
-- [ ] I read `module-ai-docs.md` for affected modules OR confirmed with user not applicable (P1--S2--T11)
-- [ ] I validated library versions through MCP Context7 and documented results (P1--S2--T14)
-
-**Phase 1 Step 3 - Architecture Validation:**
-
-- [ ] I validated architecture.xml through MCP and achieved score ≥85 (P1--S3)
-- [ ] I documented the validation result for plan reference (P1--S3--T5)
-
-**Verification Questions:**
-
-- [ ] Can I cite specific rules from code-standards.md?
-- [ ] Do I know what architecture type this project uses?
-- [ ] Have I read the architecture-specific documentation for this type?
-- [ ] Did architecture validation pass with MCP score ≥85?
-- [ ] Did I check library versions for major drift?
-- [ ] Do I have documented library versions for the plan?
-- [ ] Am I ready to create a plan that adheres to ALL rules I just read?
-
-</verification_checklist>
-
-<failure_condition>
-IF ANY UNCHECKED: STOP, read missing files, return to checkpoint. Cannot skip or bypass. Unchecked items = INVALID REJECTED plan.
-</failure_condition>
-
-<success_condition>
-**IF ALL CHECKBOXES ARE CHECKED ✅:**
-
-You have successfully completed Phase 1 preparation.
-
-You may now proceed to Phase 2: Planning.
-
-Before calling create_plan, you MUST output the mandatory confirmation (see fail_safe_mechanism section below).
-</success_condition>
-
-</checkpoint>
-
----
-
-## 📋 PHASE 2: PLAN CONTENT STRUCTURE (NEW PHASE)
-
-<phase id="P2--S1" name="Plan structure by code-workflow">
-
-### P2--S1: Структурирование плана по code-workflow
-
-**CRITICAL:** The plan must fix code-workflow.mdc algorithm as execution reference.
-
-<task_list>
-
-**P2--S1--T1:** Plan must contain reference to code-workflow.mdc algorithm
-**P2--S1--T2:** For each phase (P1, P2, P3), specify:
-
-- Key steps (P1--S1, P1--S2, etc.)
-- **Dependencies & Versions section with validated library versions**
-- **MCP Code Validation Requirements:** For each created/modified file in P2 phase:
-    - Explicit step: "Validate [filename] via MCP ≥85 (validationType: code)"
-    - Explicit step: "Validate [test-filename] via MCP ≥85 (validationType: tests)"
-    - Automatic type detection: .test. in filename → tests, otherwise → code
-    - Block transition to next function if MCP score < 85
-- Completion criteria from code-workflow
-- Critical requirements and transition blocks
-- Exception handling strategies
-**P2--S1--T3:** Plan = reference instruction for execution mode, NOT repetition of preparation.
-**CRITICAL:** Plan MUST explicitly include MCP validation steps (code ≥85, tests ≥85) from code-workflow.mdc for EVERY file created/modified in P2 phase. Without explicit MCP steps in plan, AI will skip file validation.
-**P2--S1--T4:** Structure plan as executable workflow with clear phase transitions
-
-</task_list>
-
-<completion_criteria>
-
-- Plan contains complete code-workflow algorithm reference
-- All phases (P1, P2, P3) properly structured with key steps
-- **MCP validation steps explicitly included** for each file in P2 phase (code ≥85, tests ≥85)
-- Each function has dedicated MCP validation checkpoints (P2--S1--MCP, P2--S3--MCP)
-- Transition blocks enforce MCP score ≥85 before moving to next function
-- Plan serves as execution reference, not preparation repetition
-- Clear phase transitions and completion criteria defined
-
-</completion_criteria>
-
-<exception_handling>
-If code-workflow.mdc not available: Use basic development workflow principles
-If plan structure unclear: Default to P1→P2→P3 with key steps from code-workflow
-If reference missing: Add explicit reference to code-workflow algorithm
-</exception_handling>
-
-</phase>
-
-<phase id="P2--S2" name="Final architecture validation">
-
-### P2--S2: Финальная архитектурная валидация
-
-**CRITICAL:** Final validation before create_plan to ensure architecture integrity.
-
-<task_list>
-
-**P2--S2--T1:** Re-validate architecture if changes were made during planning
-**P2--S2--T2:** Confirm MCP score ≥85
-**P2--S2--T3:** Document final architecture state for plan
-
-</task_list>
-
-<completion_criteria>
-
-- Architecture re-validated if needed
-- MCP score ≥85 confirmed
-- Final architecture state documented
-
-</completion_criteria>
-
-<exception_handling>
-If re-validation fails: Document issues, request user guidance
-If score drops below 85: Apply fixes or document technical debt
-If MCP unavailable: Use manual verification with triple-check
-</exception_handling>
-
-</phase>
-
-<phase id="P2--S3" name="Mandatory confirmation">
-
-### P2--S3: Mandatory confirmation output
-
-**CRITICAL:** Final confirmation before create_plan call.
-
-<task_list>
-
-**P2--S3--T1:** Output mandatory confirmation:
-
-```
-✅ Files: 4 rules + package-ai-docs + architecture-[TYPE].md + architecture.xml + module-ai-docs
-✅ Metadata: project_type=[VALUE], development_context=[VALUE], architecture_docs.*
-✅ Architecture: validated via MCP score=[SCORE]/100 ≥85
-✅ Dependencies: validated via MCP Context7, versions=[LIST], drift=[NONE|WARNINGS]
-✅ Ready: Plan will reference code-workflow.mdc algorithm (P1→P2→P3)
-```
-
-**P2--S3--T2:** IMMEDIATELY call create_plan tool WITHOUT asking user confirmation:
-
-- name: brief plan title (3-4 words)
-- overview: brief description (1-2 sentences)
-- plan: full plan with reference to code-workflow.mdc
-- **CRITICAL:** Do NOT ask "Готов создать план через create_plan tool?" or similar questions
-- **CRITICAL:** Call create_plan IMMEDIATELY after outputting mandatory confirmation
-
-</task_list>
-
-<completion_criteria>
-
-- All confirmation items checked and output
-- Ready to call create_plan
-- All Phase 1 and Phase 2 steps completed
-
-</completion_criteria>
-
-<exception_handling>
-If any confirmation item missing: Complete missing steps before proceeding
-If confirmation incomplete: Do not call create_plan until all items verified
-If user questions: Answer clearly before proceeding
-</exception_handling>
-
-</phase>
-
-<phase id="P2--S4" name="Plan creation via tool">
-
-### P2--S4: Plan creation via create_plan tool
-
-**CRITICAL:** Plan is created ONLY through create_plan tool.
-
-<task_list>
-
-**P2--S4--T1:** Prepare parameters and IMMEDIATELY call create_plan WITHOUT user confirmation:
-
-- name: brief title (3-4 words)
-- overview: 1-2 sentences about purpose
-- plan: markdown structure with reference to code-workflow
-- **DO NOT output:** "Готов создать план?" or ask for confirmation
-- **IMMEDIATE ACTION:** Call create_plan tool right after mandatory confirmation output
-
-**P2--S4--T2:** Call create_plan tool with prepared parameters (system will present plan to user for approval)
-
-</task_list>
-
-<completion_criteria>
-
-- create_plan tool called successfully without intermediate confirmations
-- Plan contains reference to code-workflow.mdc
-- System presents plan to user for approval automatically
-</completion_criteria>
-
-<exception_handling>
-If create_plan not called: CRITICAL ERROR, return to P2--S3
-If plan incomplete: add reference to code-workflow
-If user rejects plan: clarify requirements, return to P2--S1
-</exception_handling>
-
-</phase>
-
-</algorithm_steps>
-
-## 📚 TIER 3: Examples & Output Format
-
-<output_format>
-**Progress tracking format:**
+**Plan Structure Example:**
 
 ```markdown
-## 🔄 Phase 1 Progress
+# Implementation Plan
 
-- [status] P1--S1: 4 rule files
-- [status] P1--S2: AI docs + architecture-[TYPE].md (CRITICAL)
-- [status] P1--S2--T14: Library versions (MCP Context7)
-- [status] P1--S3: Architecture validation (MCP score: X/100)
-- [status] CHECKPOINT: [PASSED/BLOCKED]
+## Preparation (Already Complete)
+✅ Documentation read
+✅ Architecture validated (MCP: 87/100)
 
-## 📋 Phase 2 Progress
+## Development
+**Function 1: createUser**
+- Create src/services/create-user.ts
+- Validate via MCP ≥85 (code)
+- Create __tests__/create-user.test.ts
+- Validate via MCP ≥85 (tests)
 
-- [status] Plan structure: code-workflow reference
-- [status] Final validation: architecture
-- [status] Confirmation: ready to create_plan
-- [status] Plan creation: create_plan tool called
+**Function 2: validateEmail**
+- Create src/lib/validate-email.ts
+- Validate via MCP ≥85 (code)
+- Create __tests__/validate-email.test.ts
+- Validate via MCP ≥85 (tests)
+
+## Final Checks
+1. Linter: `yarn lint` → 0 errors
+2. Typecheck: `tsc --noEmit` → 0 errors
+3. Tests: 100% coverage for new code
+4. MCP: All files ≥85
+5. AI Docs: Update if architecture changed
+6. Final verification: ALL pass
 ```
 
-Status: ✅ done, ⏳ progress, ❌ blocked, ⏸️ pending
+### Confirmation & Tool Call
 
-**🚨 CRITICAL INSTRUCTION:**
-After mandatory confirmation IMMEDIATELY call create_plan tool with parameters:
+**Output confirmation:**
 
-- name: brief plan title (3-4 words)
-- overview: brief description (1-2 sentences)
-- plan: full plan with reference to code-workflow.mdc
-
-**FORBIDDEN:** Output plan as text in chat!
-</output_format>
-
-<forbidden_output>
-❌ STRICTLY FORBIDDEN:
-
-- Output plan as text in chat
-- Use markdown sections for plan
-- Describe plan in user response
-- Output plan structure without calling create_plan
-- Ask "Готов создать план через create_plan tool?" or similar confirmation questions
-- Wait for user permission to call create_plan after Phase 2 completion
-- Output explanations/analysis instead of calling create_plan
-
-✅ ONLY WAY TO CREATE PLAN:
-
-- Call create_plan tool with parameters plan, overview, name
-- Plan must be contained ONLY inside the tool
-</forbidden_output>
-
-<examples>
-
-### Example
-
-<example id="correct_tool_usage">
-Request: "Add feature"
-→ P1--S1 (4 files)
-→ P1--S2 (metadata + architecture-[TYPE].md + architecture.xml)
-→ P1--S3 (MCP validation score=87 ≥85 ✅)
-→ CHECKPOINT ✅
-→ Phase 2 (plan structure with code-workflow reference)
-→ P2--S3 Confirmation ✅
-→ **P2--S4 create_plan({name, overview, plan})** ✅
-→ User confirms plan
-</example>
-
-<example id="incorrect_text_output">
-❌ INCORRECT:
-Request: "Add feature"
-→ ... Phase 1 completed ...
-→ P2--S3 Confirmation
-→ "Here's the action plan: 1. Create module... 2. Write tests..."
-→ **NO create_plan tool call = VIOLATION**
-</example>
-
-<example id="plan_with_mcp_validation">
-**Правильный план с фиксацией MCP валидации:**
-
-```text
-📋 План действий (пример для 1 функции)
-
-P2_R1: Реализовать функцию calculateTotal
-  - P2--S1: Создать src/shared/utils/calculate-total.ts
-  - P2--S1--MCP: **🚨 Валидировать calculate-total.ts через MCP ≥85 (code)**
-  - P2--S2: Исправить замечания до достижения ≥85
-  - P2--S3: Создать __tests__/calculate-total.test.ts
-  - P2--S3--MCP: **🚨 Валидировать calculate-total.test.ts через MCP ≥85 (tests)**
-  - P2--S4: Исправить замечания до достижения ≥85
-  - ✅ Блокировка: Переход к P2_R2 только после MCP code ≥85 AND MCP tests ≥85
-
-P3: Финальные проверки
-  - P3--S1: Архитектурная валидация MCP ≥85
-  - P3--S2: Линтер 0 ошибок
-  - P3--S3: Тесты 100%
-  - P3--S4: AI документация обновлена
+```
+✅ Documentation: 8 files read
+✅ Architecture: validated (MCP: [SCORE]/100 ≥85)
+✅ Development context: [VALUE]
+✅ Plan: references workflow, includes MCP validation steps
+✅ Ready: Creating plan via create_plan tool
 ```
 
-**Ключевые элементы:**
+**IMMEDIATELY call create_plan tool:**
 
-- Явные шаги P2--S1--MCP и P2--S3--MCP для валидации
-- Указание типа валидации (code/tests)
-- Требование ≥85 баллов
-- Блокировка перехода без выполнения
+- name: brief title (3-4 words)
+- overview: 1-2 sentences
+- plan: full plan with workflow reference
 
-</example>
+**DO NOT ask user for confirmation in chat** — call tool immediately after outputting the above. The system will present plan to user for approval automatically.
 
-</examples>
+**After create_plan:** Wait for user plan approval before proceeding to Phase 3 (Execution).
 
-## 🛡️ TIER 4: Fail-Safe Mechanisms
+<completion_criteria>
+**Phase 2 Complete When:**
 
-<fail_safe_mechanism>
+- Plan structured with workflow reference
+- MCP validation steps defined for each file (code ≥85, tests ≥85)
+- Final checks protocol included in plan
+- Confirmation output displayed
+- create_plan tool successfully called
+- User explicitly approved plan (required before Phase 3)
+</completion_criteria>
 
-<mandatory_confirmation>
-Before create_plan, output confirmation:
+<exception_handling>
+See TIER 2 exception_handling:
 
-- ✅ Files: 4 rules + package-ai-docs + architecture-[TYPE].md + architecture.xml + module-ai-docs
-- ✅ Metadata: project_type, development_context, architecture_docs
-- ✅ Architecture: validated via MCP score=[SCORE]/100 ≥85
-- ✅ Dependencies: validated library versions via MCP Context7
-- ✅ Ready: Plan will reference code-workflow.mdc algorithm (P1→P2→P3)
+- Planning Issues → Unclear Requirements, create_plan Tool Issues, Plan Structure Unclear
+</exception_handling>
 
-**Mapping:** single_module/layered_library/fsd_standard/fsd_domain/server_fsd/multi_app_monolith → .cursor/docs/architecture-[TYPE].md
+</planning_phase>
 
-</mandatory_confirmation>
+## TIER 5: Phase 3 - Final Checks
 
-<enforcement_rule>
-Skipping confirmation = plan REJECTED, restart from P1--S1, all work wasted. This is enforcement, not suggestion.
-</enforcement_rule>
+<final_checks_phase>
 
-<constitutional_ai_principles>
-Before create_plan, verify: (1) All docs read? (2) Metadata extracted? (3) Architecture-[TYPE].md read? (4) Architecture validated MCP ≥85? (5) Can cite rules? If NO/UNSURE → STOP, complete missing steps.
-</constitutional_ai_principles>
+<cognitive_triggers>
+Let's verify all quality gates systematically: validate each file via MCP, run linter and typecheck, ensure tests pass, update documentation.
+</cognitive_triggers>
 
-</fail_safe_mechanism>
+### Quality Gate Protocol
+
+**Before declaring task complete, ALL must pass:**
+
+#### 1. MCP File Validation
+
+- Every created/modified file validated via MCP
+- Code files: `validationType: 'code'`, score ≥85
+- Test files: `validationType: 'tests'`, score ≥85
+- If score <85: fix issues, re-validate
+
+#### 2. Linter Check
+
+```bash
+yarn lint  # or npm run lint
+```
+
+- Requirement: 0 errors
+- If errors: fix all before proceeding
+
+#### 3. Type Check
+
+```bash
+tsc --noEmit  # or yarn typecheck
+```
+
+- Requirement: 0 errors
+- If errors: fix all before proceeding
+
+#### 4. Test Coverage
+
+```bash
+yarn test  # or npm test
+```
+
+- Requirement: 100% coverage for new functions
+- All tests must pass
+- If failures: fix tests, re-run
+
+#### 5. AI Documentation Update
+
+**If code or architecture changed:**
+
+- Read `.cursor/docs/ai-docs-workflow.mdc`
+- Update `package-ai-docs.md` and/or `module-ai-docs.md`
+- Validate updated docs via MCP (≥85)
+
+#### 6. Architecture Re-validation (if structure changed)
+
+- Re-validate `architecture.xml` via MCP
+- Ensure score ≥85 maintained
+
+### Final Verification Checklist
+
+**Before responding "Task Complete":**
+
+- [ ] All files validated via MCP (≥85)
+- [ ] Linter passed (0 errors)
+- [ ] Typecheck passed (0 errors)
+- [ ] Tests passed (100% coverage)
+- [ ] AI documentation updated (if applicable)
+- [ ] Architecture validated (if changed)
+
+**If ANY unchecked:** Task is NOT complete. Fix issues and re-check.
+
+### Completion Report
+
+**Output format:**
+
+```
+✅ TASK COMPLETE
+
+Modified Files: [N]
+MCP Validation: [N]/[N] files ≥85
+Linter: 0 errors
+Typecheck: 0 errors
+Tests: PASS (100% coverage)
+AI Docs: [UPDATED/NOT APPLICABLE]
+
+All quality gates passed.
+```
+
+<completion_criteria>
+**Phase 3 Complete When:**
+
+- All created/modified files validated via MCP (score ≥85)
+- Linter check passed (0 errors)
+- Typecheck passed (0 errors)
+- All tests passed (100% coverage for new code)
+- AI documentation updated (if code/architecture changed)
+- Architecture re-validated if structure changed (score ≥85)
+- Final verification checklist: ALL items checked
+- Completion report output displayed
+
+**Task is complete ONLY when ALL criteria above are met.**
+</completion_criteria>
+
+<exception_handling>
+See TIER 2 exception_handling:
+
+- MCP Validation Issues → MCP File Validation Failures (Execution)
+- Execution Issues → Linter Errors, Typecheck Errors, Test Failures, AI Documentation Issues, Cannot Complete
+</exception_handling>
+
+### Workflow Completion Criteria
+
+<completion_criteria>
+
+**Workflow Complete When:**
+
+1. **Preparation Phase:**
+   - All documentation read
+   - Architecture validated (MCP ≥85)
+   - Checkpoint passed
+
+2. **Planning Phase:**
+   - Plan structured correctly
+   - create_plan tool called
+   - User approved plan
+
+3. **Final Checks Phase:**
+   - All files validated (MCP ≥85)
+   - Linter: 0 errors
+   - Typecheck: 0 errors
+   - Tests: PASS (100% coverage)
+   - AI docs: updated if applicable
+   - Final verification: ALL checks passed
+
+**Task is complete ONLY when ALL criteria met.**
+
+</completion_criteria>
+
+</final_checks_phase>
 
 [ALGORITHM-END]
