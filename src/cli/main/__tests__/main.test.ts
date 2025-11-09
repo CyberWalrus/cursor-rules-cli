@@ -8,6 +8,8 @@ const mockInitCommand = vi.hoisted(() => vi.fn());
 const mockUpdateCommand = vi.hoisted(() => vi.fn());
 const mockReplaceAllCommand = vi.hoisted(() => vi.fn());
 const mockEnsureLatestVersion = vi.hoisted(() => vi.fn());
+const mockGetPackageVersion = vi.hoisted(() => vi.fn());
+const mockNotifyIfUpdateAvailable = vi.hoisted(() => vi.fn());
 
 vi.mock('citty', () => ({
     defineCommand: vi.fn((config) => config),
@@ -30,11 +32,21 @@ vi.mock('../ensure-latest-version', () => ({
     ensureLatestVersion: mockEnsureLatestVersion,
 }));
 
+vi.mock('../../lib/version-manager/get-package-version', () => ({
+    getPackageVersion: mockGetPackageVersion,
+}));
+
+vi.mock('../../lib/version-manager/notify-update', () => ({
+    notifyIfUpdateAvailable: mockNotifyIfUpdateAvailable,
+}));
+
 describe('runCli', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockEnsureLatestVersion.mockResolvedValue(undefined);
         mockRunMain.mockResolvedValue(undefined);
+        mockGetPackageVersion.mockResolvedValue('0.3.10');
+        mockNotifyIfUpdateAvailable.mockResolvedValue(undefined);
     });
 
     it('должен запускать CLI через runMain', async () => {

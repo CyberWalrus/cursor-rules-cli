@@ -4,6 +4,14 @@ import { compareVersions } from '../compare-versions';
 import { getNpmVersion } from '../get-npm-version';
 import { notifyIfUpdateAvailable } from '../notify-update';
 
+vi.mock('picocolors', () => ({
+    bold: (str: string) => str,
+    cyan: (str: string) => str,
+    green: (str: string) => str,
+    red: (str: string) => str,
+    yellow: (str: string) => str,
+}));
+
 vi.mock('../get-npm-version');
 vi.mock('../compare-versions');
 
@@ -28,6 +36,7 @@ describe('notifyIfUpdateAvailable', () => {
         const lineLengths = borderLines.map((line) => line.length);
         const firstLength = lineLengths[0];
 
+        expect(firstLength).toBe(49);
         lineLengths.forEach((len) => {
             expect(len).toBe(firstLength);
         });
@@ -66,6 +75,7 @@ describe('notifyIfUpdateAvailable', () => {
         const borderLines = logs.filter((line) => line.includes('│'));
         const firstLength = borderLines[0]?.length;
 
+        expect(firstLength).toBe(49);
         borderLines.forEach((line) => {
             expect(line.length).toBe(firstLength);
         });
@@ -87,6 +97,7 @@ describe('notifyIfUpdateAvailable', () => {
 
         expect(borderLines.length).toBeGreaterThan(0);
         const firstLength = borderLines[0]?.length;
+        expect(firstLength).toBe(49);
         borderLines.forEach((line) => {
             expect(line.length).toBe(firstLength);
         });
