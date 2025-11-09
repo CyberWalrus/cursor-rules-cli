@@ -1,36 +1,37 @@
 ---
-id: prompt-workflow-compact
+id: prompt-structure-guide
 type: compact
 alwaysApply: false
 ---
 
-# Prompt Workflow Compact
+# Prompt Structure Guide
 
-<prompt_workflow_compact>
+<prompt_structure_guide>
 
-**CRITICAL PRINCIPLE:** Every prompt must match its type structure. Wrong structure = prompt failure. Preserve working elements when editing.
+**CRITICAL PRINCIPLE:** Prompt must match its type structure; otherwise it fails.
 
 **Prompt Type Classification:**
 
 1. **compact** - Routing/detection, simple logic (1-3 steps), ≤150 lines
 2. **command** - Task execution, imperative instructions, 50-200 lines, Russian language
-3. **algorithm** - Multi-step workflows, TIER structure, 100-600 lines
-4. **reference** - Documentation, examples, 100-1000 lines
-5. **combo** - Algorithm + reference combined, 200-1600 lines
+3. Otherwise → DEFAULT: use compact type for simple routing
+4. **algorithm** - Multi-step workflows, TIER structure, 100-600 lines
+5. **reference** - Documentation, examples, 100-1000 lines
+6. **combo** - Algorithm + reference combined, 200-1600 lines
 
 **Type-Specific Structure Requirements:**
 
 **COMPACT:**
 
 - YAML: id, type, alwaysApply (minimal)
-- ONE semantic XML tag: `<prompt_name>` (no multiple tags)
-- NO TIER structure (use **bold** headers)
+- ONE semantic XML tag: `<prompt_name>`
+- NO TIER, **bold** headers
 - NO system anchors [ALGORITHM-BEGIN/END]
-- Numbered lists for logic
-- Inline fallback: "3. Otherwise → DEFAULT"
-- Imperative triggers: EXECUTE, REQUIRED (INSTANT optional)
+- Numbered lists; each number represents a distinct step
+- Fallback: 3. Otherwise → DEFAULT
+- Imperative triggers (required): EXECUTE; optional: INSTANT
 - No emoji (token economy)
-- English content only (no Russian language instruction)
+- English content only (except allowed user-output sentence)
 
 **COMMAND:**
 
@@ -57,7 +58,7 @@ alwaysApply: false
 
 **Writing Style (CRITICAL - ZERO TOLERANCE):**
 
-1. Write concise, powerful phrases with maximum meaning density (NO EXCEPTIONS)
+1. Write concise, high-density phrases (NO EXCEPTIONS)
 2. Eliminate redundant words, contradictions, and filler content
 3. Each sentence must convey essential information only
 4. Prefer single precise verb over multiple weak modifiers
@@ -96,7 +97,7 @@ alwaysApply: false
 
 **Content Guidelines:**
 
-- Numbered lists > prose (scannable, token-efficient)
+- Numbered lists over prose (token-efficient)
 - Guard clauses: `if (!condition) return;` not `if (condition) { ... }`
 - Explicit fallbacks: "3. Otherwise → DEFAULT action"
 - Front-load critical info (imperative trigger first)
@@ -105,17 +106,18 @@ alwaysApply: false
 
 **Editing Protocol:**
 
-1. Analyze existing structure (YAML, XML tags, anchors, TIER)
-2. Identify working components → preserve them
-3. MINOR EDIT (<20%): target specific sections, preserve architecture
-4. MAJOR EDIT (≥20%): may need ecosystem context check
-5. Keep YAML unless changing type/language, maintain XML structure if functional
-6. Incremental changes > complete rewrites
+1. Analyze structure
+2. Preserve working parts
+3. Otherwise → DEFAULT: apply minimal changes
+4. MINOR EDIT (<20%): target specific sections
+5. MAJOR EDIT (≥20%): may need ecosystem context check
+6. Keep YAML unless changing type/language, maintain XML structure if functional
+7. Incremental changes only if needed
 
-**Quick Reference:**
+**Quick reference**
 
 **Creating new:** Determine type → Apply type-specific structure (YAML, XML, TIER, anchors) → Follow language policy → Use numbered lists, explicit actions, inline fallbacks
 
 **Editing existing:** Read current structure (preserve working elements) → Identify target sections (surgical changes) → Maintain YAML/XML/TIER/anchors unless explicitly changing → Verify structure matches type
 
-</prompt_workflow_compact>
+</prompt_structure_guide>
