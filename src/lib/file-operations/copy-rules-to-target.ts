@@ -32,10 +32,8 @@ async function copyDirectoryRecursive(
 
         if (entry.isDirectory()) {
             await copyDirectoryRecursive(sourcePath, targetPath, baseDir, ignoreList);
-        } else if (entry.isFile()) {
-            if (!shouldIgnoreFile(relativePath, ignoreList)) {
-                await copyFile(sourcePath, targetPath);
-            }
+        } else if (entry.isFile() && !shouldIgnoreFile(relativePath, ignoreList)) {
+            await copyFile(sourcePath, targetPath);
         }
     }
 }
