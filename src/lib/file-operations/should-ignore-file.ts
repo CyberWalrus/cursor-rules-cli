@@ -1,5 +1,4 @@
 import { isMatch } from 'micromatch';
-import { normalize } from 'node:path';
 
 /** Проверяет, должен ли файл быть проигнорирован */
 export function shouldIgnoreFile(filePath: string, ignoreList: string[]): boolean {
@@ -7,10 +6,10 @@ export function shouldIgnoreFile(filePath: string, ignoreList: string[]): boolea
         return false;
     }
 
-    const normalizedPath = normalize(filePath.replace(/\\/g, '/'));
+    const normalizedPath = filePath.replace(/\\/g, '/');
 
     return ignoreList.some((pattern) => {
-        const normalizedPattern = normalize(pattern.replace(/\\/g, '/'));
+        const normalizedPattern = pattern.replace(/\\/g, '/');
 
         return isMatch(normalizedPath, normalizedPattern);
     });
