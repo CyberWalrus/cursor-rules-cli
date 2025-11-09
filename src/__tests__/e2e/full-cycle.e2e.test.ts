@@ -72,7 +72,6 @@ describe('Full Cycle E2E', () => {
         const configFilePath: string = join(tempDir2, '.cursor', VERSION_FILE_NAME);
 
         const configAfterInit = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
-        const timestampInit = new Date(configAfterInit.installedAt).getTime();
         const timestampUpdatedInit = new Date(configAfterInit.updatedAt).getTime();
 
         await new Promise<void>((resolve) => {
