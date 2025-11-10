@@ -8,7 +8,9 @@
         "src/**/__tests__/**",
         "src/test-setup.ts",
         "src/lib/diff-calculator/index.ts",
-        "src/lib/version-manager/index.ts"
+        "src/lib/version-manager/index.ts",
+        "src/lib/helpers/ask-confirmation.ts",
+        "src/lib/helpers/index.ts"
     ],
     "ignoreDependencies": [
         "eslint-walrus-config"

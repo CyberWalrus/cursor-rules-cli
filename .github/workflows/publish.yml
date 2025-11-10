@@ -169,7 +169,7 @@ jobs:
         if: steps.check.outputs.should-publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.check.outputs.version }}
+          tag_name: cli/v${{ steps.check.outputs.version }}
           name: Release v${{ steps.check.outputs.version }}
           body_path: release_notes.md
           draft: false
