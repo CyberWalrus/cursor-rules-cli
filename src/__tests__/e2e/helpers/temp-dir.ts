@@ -2,6 +2,9 @@ import { mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+const MAX_RETRIES = 5;
+const RETRY_DELAY = 100;
+
 /** Создает временную директорию для тестов */
 async function createTempDir(): Promise<string> {
     const tempBaseDir = tmpdir();
@@ -15,13 +18,37 @@ async function createTempDir(): Promise<string> {
     return tempProjectDir;
 }
 
-/** Удаляет временную директорию */
+/** Попытка удалить директорию с повторными попытками */
+async function attemptDelete(path: string, attempt: number): Promise<void> {
+    if (!path) {
+        return;
+    }
+
+    try {
+        await rm(path, { force: true, recursive: true });
+    } catch (error) {
+        const nodeError = error as { code?: string };
+        const isBusyError = nodeError.code === 'EBUSY';
+
+        if (!isBusyError || attempt === MAX_RETRIES) {
+            throw error;
+        }
+
+        await new Promise((resolve) => {
+            setTimeout(() => resolve(undefined), RETRY_DELAY * attempt);
+        });
+
+        return attemptDelete(path, attempt + 1);
+    }
+}
+
+/** Удаляет временную директорию с retry логикой для Windows */
 async function cleanupTempDir(path: string): Promise<void> {
     if (!path) {
         return;
     }
 
-    await rm(path, { force: true, recursive: true });
+    await attemptDelete(path, 1);
 }
 
 /** Возвращает путь к временной директории проекта */
@@ -31,13 +58,9 @@ function getTempProjectDir(): string {
     return join(tempBaseDir, `cursor-rules-test-${Date.now()}`);
 }
 
-/** Фабрика для работы с временными директориями */
-export const tempDir: {
-    cleanup: (path: string) => Promise<void>;
-    create: () => Promise<string>;
-    getProjectDir: () => string;
-} = {
+/** Фабрика для работы с временными директориями в тестах */
+export const tempDir = {
     cleanup: cleanupTempDir,
     create: createTempDir,
     getProjectDir: getTempProjectDir,
-};
+} as const;
