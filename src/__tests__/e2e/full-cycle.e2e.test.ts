@@ -4,7 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 import { initCommand } from '../../cli/commands/init/index';
 import { replaceAllCommand } from '../../cli/commands/replace-all/index';
-import { updateCommand } from '../../cli/commands/update/index';
+import { upgradeCommand } from '../../cli/commands/upgrade/index';
 import type { RulesConfig } from '../../model';
 import { VERSION_FILE_NAME } from '../../model';
 import { tempDir } from './helpers/temp-dir';
@@ -33,7 +33,7 @@ describe('Full Cycle E2E', () => {
         await tempDir.cleanup(tempDirPath);
     });
 
-    it('должен выполнять полный цикл: init → update → replace-all', async () => {
+    it('должен выполнять полный цикл: init → upgrade → replace-all', async () => {
         await initCommand(packageDir, tempDirPath);
 
         const cursorDir = join(tempDirPath, '.cursor');
@@ -55,7 +55,7 @@ describe('Full Cycle E2E', () => {
             setTimeout(() => resolve(), 10);
         });
 
-        await updateCommand(packageDir, tempDirPath);
+        await upgradeCommand(packageDir, tempDirPath);
 
         const configAfterUpdate = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
 
@@ -90,7 +90,7 @@ describe('Full Cycle E2E', () => {
             setTimeout(() => resolve(), 10);
         });
 
-        await updateCommand(packageDir, tempDir2);
+        await upgradeCommand(packageDir, tempDir2);
         const configAfterUpdate = JSON.parse(await readFile(configFilePath, 'utf-8')) as RulesConfig;
         const timestampUpdatedUpdate = new Date(configAfterUpdate.updatedAt).getTime();
 
@@ -114,7 +114,7 @@ describe('Full Cycle E2E', () => {
         const tempDir3: string = await tempDir.create();
 
         await initCommand(packageDir, tempDir3);
-        await updateCommand(packageDir, tempDir3);
+        await upgradeCommand(packageDir, tempDir3);
         await replaceAllCommand(packageDir, tempDir3);
 
         const cursorRulesDir: string = join(tempDir3, '.cursor', 'rules');

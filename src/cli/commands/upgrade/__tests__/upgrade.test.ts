@@ -6,7 +6,7 @@ import { copyRulesToTarget, readConfigFile, writeConfigFile } from '../../../../
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../../lib/github-fetcher';
 import { getCurrentVersion } from '../../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../../lib/version-manager/get-package-version';
-import { updateCommand } from '../index';
+import { upgradeCommand } from '../index';
 
 vi.mock('node:fs/promises');
 vi.mock('../../../../lib/diff-calculator/calculate-diff');
@@ -24,7 +24,7 @@ const mockWriteConfigFile = vi.mocked(writeConfigFile);
 const mockFetchPromptsTarball = vi.mocked(fetchPromptsTarball);
 const mockGetLatestPromptsVersion = vi.mocked(getLatestPromptsVersion);
 
-describe('updateCommand', () => {
+describe('upgradeCommand', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
@@ -61,7 +61,7 @@ describe('updateCommand', () => {
         mockCopyRulesToTarget.mockResolvedValue(undefined);
         mockWriteConfigFile.mockResolvedValue(undefined);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockGetCurrentVersion).toHaveBeenCalledWith('/target/dir');
         expect(mockGetLatestPromptsVersion).toHaveBeenCalledWith('CyberWalrus/cursor-rules');
@@ -74,25 +74,29 @@ describe('updateCommand', () => {
     });
 
     it('должен выбрасывать ошибку если packageDir не указан', async () => {
-        await expect(updateCommand('', '/target/dir')).rejects.toThrow('packageDir is required');
+        await expect(upgradeCommand('', '/target/dir')).rejects.toThrow('packageDir is required');
     });
 
     it('должен выбрасывать ошибку если packageDir null', async () => {
-        await expect(updateCommand(null as unknown as string, '/target/dir')).rejects.toThrow('packageDir is required');
+        await expect(upgradeCommand(null as unknown as string, '/target/dir')).rejects.toThrow(
+            'packageDir is required',
+        );
     });
 
     it('должен выбрасывать ошибку если targetDir не указан', async () => {
-        await expect(updateCommand('/package/dir', '')).rejects.toThrow('targetDir is required');
+        await expect(upgradeCommand('/package/dir', '')).rejects.toThrow('targetDir is required');
     });
 
     it('должен выбрасывать ошибку если targetDir null', async () => {
-        await expect(updateCommand('/package/dir', null as unknown as string)).rejects.toThrow('targetDir is required');
+        await expect(upgradeCommand('/package/dir', null as unknown as string)).rejects.toThrow(
+            'targetDir is required',
+        );
     });
 
     it('должен выбрасывать ошибку если правила не инициализированы', async () => {
         mockGetCurrentVersion.mockResolvedValue(null);
 
-        await expect(updateCommand('/package/dir', '/target/dir')).rejects.toThrow(
+        await expect(upgradeCommand('/package/dir', '/target/dir')).rejects.toThrow(
             'Rules not initialized. Run init command first.',
         );
     });
@@ -113,7 +117,7 @@ describe('updateCommand', () => {
         mockCopyRulesToTarget.mockResolvedValue(undefined);
         mockWriteConfigFile.mockResolvedValue(undefined);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockGetCurrentVersion).toHaveBeenCalledWith('/target/dir');
         expect(mockGetLatestPromptsVersion).toHaveBeenCalled();
@@ -139,7 +143,7 @@ describe('updateCommand', () => {
         mockGetPackageVersion.mockResolvedValue('1.1.0');
         mockReadConfigFile.mockResolvedValue(config);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockCalculateDiff).not.toHaveBeenCalled();
         expect(mockCopyRulesToTarget).not.toHaveBeenCalled();
@@ -160,7 +164,7 @@ describe('updateCommand', () => {
         mockCopyRulesToTarget.mockResolvedValue(undefined);
         mockWriteConfigFile.mockResolvedValue(undefined);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockCalculateDiff).toHaveBeenCalled();
     });
@@ -181,7 +185,7 @@ describe('updateCommand', () => {
         mockCopyRulesToTarget.mockResolvedValue(undefined);
         mockWriteConfigFile.mockResolvedValue(undefined);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockWriteConfigFile).toHaveBeenCalledTimes(1);
         expect(mockWriteConfigFile).toHaveBeenCalled();
@@ -203,7 +207,7 @@ describe('updateCommand', () => {
         mockCopyRulesToTarget.mockResolvedValue(undefined);
         mockWriteConfigFile.mockResolvedValue(undefined);
 
-        await updateCommand('/package/dir', '/target/dir');
+        await upgradeCommand('/package/dir', '/target/dir');
 
         expect(mockCopyRulesToTarget).toHaveBeenCalled();
         expect(mockWriteConfigFile).toHaveBeenCalled();

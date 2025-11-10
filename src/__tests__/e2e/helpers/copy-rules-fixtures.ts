@@ -16,6 +16,6 @@ export async function copyRulesFixtures(targetDir: string): Promise<void> {
 
     const cursorExists = await pathExists(cursorSourceDir);
     if (cursorExists) {
-        await cp(cursorSourceDir, cursorTargetDir, { recursive: true });
+        await cp(cursorSourceDir, cursorTargetDir, { force: true, recursive: true });
     }
 }

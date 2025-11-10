@@ -20,8 +20,8 @@ vi.mock('../../commands/init/index', () => ({
     initCommand: mockInitCommand,
 }));
 
-vi.mock('../../commands/update/index', () => ({
-    updateCommand: mockUpdateCommand,
+vi.mock('../../commands/upgrade/index', () => ({
+    upgradeCommand: mockUpdateCommand,
 }));
 
 vi.mock('../../commands/replace-all/index', () => ({
@@ -68,7 +68,7 @@ describe('runCli', () => {
 
         expect(mainConfig).toHaveProperty('subCommands');
         expect(mainConfig.subCommands).toHaveProperty('init');
-        expect(mainConfig.subCommands).toHaveProperty('update');
+        expect(mainConfig.subCommands).toHaveProperty('upgrade');
         expect(mainConfig.subCommands).toHaveProperty('replace-all');
     });
 
@@ -85,17 +85,17 @@ describe('runCli', () => {
         expect(typeof initCmd.run).toBe('function');
     });
 
-    it('должен включать команду update с корректными метаданными', async () => {
+    it('должен включать команду upgrade с корректными метаданными', async () => {
         await runCli();
 
         const mainConfig = mockRunMain.mock.calls[0][0] as Record<string, unknown>;
-        const updateCmd = (mainConfig.subCommands as Record<string, unknown>).update as Record<string, unknown>;
+        const upgradeCmd = (mainConfig.subCommands as Record<string, unknown>).upgrade as Record<string, unknown>;
 
-        expect(updateCmd).toHaveProperty('meta');
-        expect(updateCmd.meta).toHaveProperty('name', 'update');
-        expect(updateCmd.meta).toHaveProperty('description', 'Update .cursor rules to the latest version');
-        expect(updateCmd).toHaveProperty('run');
-        expect(typeof updateCmd.run).toBe('function');
+        expect(upgradeCmd).toHaveProperty('meta');
+        expect(upgradeCmd.meta).toHaveProperty('name', 'upgrade');
+        expect(upgradeCmd.meta).toHaveProperty('description', 'Upgrade .cursor rules to the latest version');
+        expect(upgradeCmd).toHaveProperty('run');
+        expect(typeof upgradeCmd.run).toBe('function');
     });
 
     it('должен включать команду replace-all с корректными метаданными', async () => {

@@ -4,8 +4,8 @@ export {
     initCommandParamsSchema,
     type ReplaceAllCommandParams,
     replaceAllCommandParamsSchema,
-    type UpdateCommandParams,
-    updateCommandParamsSchema,
+    type UpgradeCommandParams,
+    upgradeCommandParamsSchema,
 } from './schemas/command-params';
 export { rulesConfigSchema } from './schemas/main';
 export type {

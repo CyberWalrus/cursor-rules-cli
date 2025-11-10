@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { initCommand } from '../commands/init/index';
 import { replaceAllCommand } from '../commands/replace-all/index';
-import { updateCommand } from '../commands/update/index';
+import { upgradeCommand } from '../commands/upgrade/index';
 import { ensureLatestVersion } from './ensure-latest-version';
 import { getPackageDir } from './get-package-dir';
 import { getTargetDir } from './get-target-dir';
@@ -43,16 +43,16 @@ const main = defineCommand({
                 console.log('✅ Rules replaced successfully');
             },
         }),
-        update: defineCommand({
+        upgrade: defineCommand({
             meta: {
-                description: 'Update .cursor rules to the latest version',
-                name: 'update',
+                description: 'Upgrade .cursor rules to the latest version',
+                name: 'upgrade',
             },
             /** Запускает обновление .cursor правил */
             async run(): Promise<void> {
                 const targetDir = getTargetDir();
-                await updateCommand(packageDir, targetDir);
-                console.log('✅ Rules updated successfully');
+                await upgradeCommand(packageDir, targetDir);
+                console.log('✅ Rules upgraded successfully');
             },
         }),
     },

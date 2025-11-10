@@ -5,14 +5,16 @@ import { join } from 'node:path';
 import { calculateDiff } from '../../../lib/diff-calculator/calculate-diff';
 import { copyRulesToTarget, readConfigFile, writeConfigFile } from '../../../lib/file-operations';
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
+import { askConfirmation } from '../../../lib/helpers';
+import { compareCalVerVersions } from '../../../lib/version-manager/compare-calver-versions';
 import { getCurrentVersion } from '../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
-import { GITHUB_REPO, updateCommandParamsSchema } from '../../../model';
+import { GITHUB_REPO, upgradeCommandParamsSchema } from '../../../model';
 
-/** Команда обновления правил */
-export async function updateCommand(packageDir: string, targetDir: string): Promise<void> {
+/** Обновляет правила до последней версии */
+export async function upgradeCommand(packageDir: string, targetDir: string): Promise<void> {
     try {
-        updateCommandParamsSchema.parse({ packageDir, targetDir });
+        upgradeCommandParamsSchema.parse({ packageDir, targetDir });
     } catch (error) {
         const zodError = error as { issues?: Array<{ path: Array<number | string> }> };
         const firstIssue = zodError.issues?.[0];
@@ -53,13 +55,49 @@ export async function updateCommand(packageDir: string, targetDir: string): Prom
         );
     }
 
-    const latestPromptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
     const currentPromptsVersion = config.promptsVersion ?? config.version;
+
+    if (currentPromptsVersion == null) {
+        throw new Error('Current prompts version not found in config');
+    }
+
+    const latestPromptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
+
+    if (latestPromptsVersion == null) {
+        console.warn(
+            `⚠️ No internet connection. Cannot fetch latest version from GitHub. Current version: ${currentPromptsVersion}`,
+        );
+
+        const shouldUseLocal = await askConfirmation('Do you want to continue with the current local version?');
+
+        if (!shouldUseLocal) {
+            throw new Error('Upgrade cancelled by user');
+        }
+
+        console.log(`✓ Using current local version ${currentPromptsVersion}`);
+
+        return;
+    }
 
     if (currentPromptsVersion === latestPromptsVersion) {
         console.log('✓ Prompts are up to date');
 
         return;
+    }
+
+    const versionComparison = compareCalVerVersions(currentPromptsVersion, latestPromptsVersion);
+    const reverseComparison = compareCalVerVersions(latestPromptsVersion, currentPromptsVersion);
+
+    if (versionComparison.changeType === 'none' && reverseComparison.changeType !== 'none') {
+        console.warn(`⚠️ Local version ${currentPromptsVersion} is newer than GitHub version ${latestPromptsVersion}.`);
+
+        const shouldDowngrade = await askConfirmation(
+            `Do you want to downgrade from ${currentPromptsVersion} to ${latestPromptsVersion}?`,
+        );
+
+        if (!shouldDowngrade) {
+            throw new Error('Upgrade cancelled by user');
+        }
     }
 
     const tmpDir = join(tmpdir(), `cursor-rules-${Date.now()}`);
@@ -75,7 +113,7 @@ export async function updateCommand(packageDir: string, targetDir: string): Prom
         config.updatedAt = new Date().toISOString();
         await writeConfigFile(targetDir, config);
 
-        console.log(`✓ Prompts updated to ${latestPromptsVersion}`);
+        console.log(`✓ Upgraded from ${currentPromptsVersion} to ${latestPromptsVersion}`);
     } finally {
         await rm(tmpDir, { force: true, recursive: true });
     }

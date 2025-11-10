@@ -1,5 +1,5 @@
 /** Тип команды CLI */
-export type CommandType = 'init' | 'replace-all' | 'update';
+export type CommandType = 'init' | 'replace-all' | 'upgrade';
 
 /** Конфигурация правил */
 export type RulesConfig = {
