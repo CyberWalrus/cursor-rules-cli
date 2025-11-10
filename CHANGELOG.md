@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.4.0] - 2025-11-10
+
+<small>10.11.2025 14:50</small>
+
+### Added
+
+- **GitHub fetcher module for prompts**
+    - Added new module `github-fetcher` for fetching prompts from GitHub releases
+    - Integrated GitHub fetcher into init, update, and replace-all commands
+    - Updated configuration types and schemas to support prompts versioning
+    - Added helper function for creating test configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/48ada768ca1406cc2a8aafdac074a4dc357cdbe1" target="_blank">48ada76</a>
+
+- **CI/CD workflow for automatic prompts versioning**
+    - Added GitHub Actions workflow for automatic CalVer versioning of prompts
+    - Created prompts-version.json file for tracking prompts releases
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/1cd9633d0022c3d0b56c2e3a4eabdf1485304c47" target="_blank">1cd9633</a>
+
+### Changed
+
+- **Package configuration updates**
+    - Added tar dependency for extracting prompts tarballs
+    - Updated publish workflow configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/b2fe7b0db518cedda738e744c3b74c7b61347b4a" target="_blank">b2fe7b0</a>
+
+### Docs
+
+- **Documentation and prompts updates**
+    - Updated agent analysis, changelog, and commit commands
+    - Improved chat mode router and agent mode workflow rules
+    - Enhanced plan mode dispatcher and prompt structure guide
+    - Updated package AI documentation
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/2f6ded9f7b0c7741262bc1624026dee33d8a9f30" target="_blank">2f6ded9</a>
+
+### Tests
+
+- **Test for updated schemas**
+    - Added test for updated configuration schemas
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/5b38401569b54d3a2fb54e08c8d38013fe2d8175" target="_blank">5b38401</a>
+
 ## [0.3.11] - 2025-11-09
 
 <small>09.11.2025 21:28</small>
