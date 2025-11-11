@@ -1,129 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <architecture>
-  <architecture_metadata version="1" language="ts">
-    <architecture_type>layered_library</architecture_type>
-    <scope>full</scope>
-    <package_name>cursor-rules</package_name>
-    <workspace_path>/Users/andreypakhomov/github.com/cursor-rules</workspace_path>
-    <source_root>src</source_root>
-    <generated_at>2025-11-03T12:00:00Z</generated_at>
-    <validator_min_version>1</validator_min_version>
-    <source_revision>git:29c7916634fc59c17b96f8dc5d3e894f16a0333e</source_revision>
-    <module_units>
-      <unit path="src" layer="package-root" />
-      <unit path="src/cli/commands/init" layer="cli" />
-      <unit path="src/cli/commands/upgrade" layer="cli" />
-      <unit path="src/cli/commands/replace-all" layer="cli" />
-      <unit path="src/cli/main" layer="cli" />
-      <unit path="src/lib/file-operations" layer="lib" />
-      <unit path="src/lib/version-manager" layer="lib" />
-      <unit path="src/lib/version-manager/respawn-process" layer="lib" />
-      <unit path="src/lib/diff-calculator" layer="lib" />
-      <unit path="scripts" layer="scripts" />
-    </module_units>
-    <entrypoints>
-      <entrypoint path="src/index.ts" />
-      <entrypoint path="src/cli/main/index.ts" />
-    </entrypoints>
-    <ruleset>cursor-rules-2025-11</ruleset>
-  </architecture_metadata>
-
-  <sections>
-    <package_root>
-      <source_directory name="src">
-        <module name="package-root">
-          <facade name="index.ts" role="unit_facade" purpose="Главный фасад пакета" exports="initCommand, upgradeCommand, replaceAllCommand, runCli" />
-        </module>
-
-        <layer name="cli" purpose="Слой команд CLI">
-          <directory name="commands">
-            <module name="init">
-              <facade name="index.ts" role="unit_facade" purpose="Команда инициализации правил" exports="initCommand" />
-              <directory name="__tests__">
-                <test name="init.test.ts" role="unit_test" />
-              </directory>
-            </module>
-
-            <module name="upgrade">
-              <facade name="index.ts" role="unit_facade" purpose="Команда обновления правил" exports="upgradeCommand" />
-              <directory name="__tests__">
-                <test name="upgrade.test.ts" role="unit_test" />
-              </directory>
-            </module>
-
-            <module name="replace-all">
-              <facade name="index.ts" role="unit_facade" purpose="Команда полной замены правил" exports="replaceAllCommand" />
-              <directory name="__tests__">
-                <test name="replace-all.test.ts" role="unit_test" />
-              </directory>
-            </module>
-          </directory>
-
-          <directory name="main">
-            <module name="main">
-              <facade name="index.ts" role="unit_facade" purpose="Основной CLI entry point" exports="runCli" />
-              <directory name="__tests__">
-                <test name="main.test.ts" role="unit_test" />
-              </directory>
-            </module>
-          </directory>
-        </layer>
-
-        <layer name="lib" purpose="Слой утилит и библиотек">
-          <directory name="file-operations">
-            <module name="file-operations">
-              <facade name="index.ts" role="unit_facade" purpose="Операции с файлами" exports="copyRulesToTarget, deleteRulesFromTarget, readVersionFile, writeVersionFile" />
-              <directory name="__tests__">
-                <test name="file-operations.test.ts" role="unit_test" />
-              </directory>
-            </module>
-          </directory>
-
-          <directory name="version-manager">
-            <module name="version-manager">
-              <facade name="index.ts" role="unit_facade" purpose="Управление версиями" exports="getCurrentVersion, getPackageVersion, compareVersions, respawnProcess" />
-              <file name="respawn-process.ts" role="function" purpose="Перезапуск CLI процесса для загрузки новой версии кода" />
-              <directory name="__tests__">
-                <test name="version-manager.test.ts" role="unit_test" />
-                <test name="respawn-process.test.ts" role="unit_test" />
-              </directory>
-            </module>
-          </directory>
-
-          <directory name="diff-calculator">
-            <module name="diff-calculator">
-              <facade name="index.ts" role="unit_facade" purpose="Расчет diff между версиями" exports="calculateDiff, getFilesToAdd, getFilesToUpdate, getFilesToDelete" />
-              <directory name="__tests__">
-                <test name="diff-calculator.test.ts" role="unit_test" />
-              </directory>
-            </module>
-          </directory>
-        </layer>
-
-        <layer name="model" purpose="Слой типов, констант и схем">
-          <directory name="types">
-            <file name="main.ts" role="types" purpose="TypeScript типы (CommandType, VersionInfo, RulesConfig)" />
-          </directory>
-
-          <directory name="constants">
-            <file name="main.ts" role="config" purpose="Константы проекта (VERSION_FILE_NAME, CURSOR_DIR, RULES_PATHS)" />
-          </directory>
-
-          <directory name="schemas">
-            <file name="main.ts" role="schemas" purpose="Zod схемы валидации (versionSchema)" />
-            <directory name="__tests__">
-              <test name="schemas.test.ts" role="unit_test" />
-            </directory>
-          </directory>
-        </layer>
-      </source_directory>
-
-      <directory name="scripts">
-        <layer name="scripts" purpose="Вспомогательные скрипты разработки">
-          <file name="quality-check.ts" role="workflow" purpose="Параллельное выполнение проверок качества кода" />
-        </layer>
-      </directory>
-    </package_root>
-  </sections>
+	<architecture_metadata version="1" language="ts">
+		<architecture_type>
+			layered_library
+		</architecture_type>
+		<scope>
+			full
+		</scope>
+		<package_name>
+			cursor-rules
+		</package_name>
+		<workspace_path>
+			/Users/andreypakhomov/github.com/cursor-rules
+		</workspace_path>
+		<source_root>
+			src
+		</source_root>
+		<generated_at>
+			2025-11-03T12:00:00Z
+		</generated_at>
+		<validator_min_version>
+			1
+		</validator_min_version>
+		<source_revision>
+			git:29c7916634fc59c17b96f8dc5d3e894f16a0333e
+		</source_revision>
+		<module_units>
+			<unit path="src" layer="package-root" />
+			<unit path="src/cli/commands/init" layer="cli" />
+			<unit path="src/cli/commands/upgrade" layer="cli" />
+			<unit path="src/cli/commands/replace-all" layer="cli" />
+			<unit path="src/cli/main" layer="cli" />
+			<unit path="src/lib/file-operations" layer="lib" />
+			<unit path="src/lib/version-manager" layer="lib" />
+			<unit path="src/lib/version-manager/respawn-process" layer="lib" />
+			<unit path="src/lib/diff-calculator" layer="lib" />
+			<unit path="scripts" layer="scripts" />
+		</module_units>
+		<entrypoints>
+			<entrypoint path="src/index.ts" />
+			<entrypoint path="src/cli/main/index.ts" />
+		</entrypoints>
+		<ruleset>
+			cursor-rules-2025-11
+		</ruleset>
+	</architecture_metadata>
+	<sections>
+		<package_root>
+			<source_directory name="src">
+				<module name="package-root">
+					<facade name="index.ts" role="unit_facade" purpose="Главный фасад пакета" exports="initCommand, upgradeCommand, replaceAllCommand, runCli" />
+				</module>
+				<layer name="cli" purpose="Слой команд CLI">
+					<directory name="commands">
+						<module name="init">
+							<facade name="index.ts" role="unit_facade" purpose="Команда инициализации правил" exports="initCommand" />
+							<directory name="__tests__">
+								<test name="init.test.ts" role="unit_test" />
+							</directory>
+						</module>
+						<module name="upgrade">
+							<facade name="index.ts" role="unit_facade" purpose="Команда обновления правил" exports="upgradeCommand" />
+							<directory name="__tests__">
+								<test name="upgrade.test.ts" role="unit_test" />
+							</directory>
+						</module>
+						<module name="replace-all">
+							<facade name="index.ts" role="unit_facade" purpose="Команда полной замены правил" exports="replaceAllCommand" />
+							<directory name="__tests__">
+								<test name="replace-all.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+					<directory name="main">
+						<module name="main">
+							<facade name="index.ts" role="unit_facade" purpose="Основной CLI entry point" exports="runCli" />
+							<directory name="__tests__">
+								<test name="main.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+				</layer>
+				<layer name="lib" purpose="Слой утилит и библиотек">
+					<directory name="file-operations">
+						<module name="file-operations">
+							<facade name="index.ts" role="unit_facade" purpose="Операции с файлами" exports="copyRulesToTarget, deleteRulesFromTarget, readVersionFile, writeVersionFile" />
+							<directory name="__tests__">
+								<test name="file-operations.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+					<directory name="version-manager">
+						<module name="version-manager">
+							<facade name="index.ts" role="unit_facade" purpose="Управление версиями" exports="getCurrentVersion, getPackageVersion, compareVersions, respawnProcess" />
+							<file name="respawn-process.ts" role="function" purpose="Перезапуск CLI процесса для загрузки новой версии кода" />
+							<directory name="__tests__">
+								<test name="version-manager.test.ts" role="unit_test" />
+								<test name="respawn-process.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+					<directory name="diff-calculator">
+						<module name="diff-calculator">
+							<facade name="index.ts" role="unit_facade" purpose="Расчет diff между версиями" exports="calculateDiff, getFilesToAdd, getFilesToUpdate, getFilesToDelete" />
+							<directory name="__tests__">
+								<test name="diff-calculator.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+				</layer>
+				<layer name="model" purpose="Слой типов, констант и схем">
+					<directory name="types">
+						<file name="main.ts" role="types" purpose="TypeScript типы (CommandType, VersionInfo, RulesConfig)" />
+					</directory>
+					<directory name="constants">
+						<file name="main.ts" role="config" purpose="Константы проекта (VERSION_FILE_NAME, CURSOR_DIR, RULES_PATHS)" />
+					</directory>
+					<directory name="schemas">
+						<file name="main.ts" role="schemas" purpose="Zod схемы валидации (versionSchema)" />
+						<directory name="__tests__">
+							<test name="schemas.test.ts" role="unit_test" />
+						</directory>
+					</directory>
+				</layer>
+			</source_directory>
+			<directory name="scripts">
+				<layer name="scripts" purpose="Вспомогательные скрипты разработки">
+					<file name="quality-check.ts" role="workflow" purpose="Параллельное выполнение проверок качества кода" />
+				</layer>
+			</directory>
+		</package_root>
+	</sections>
 </architecture>
-
