@@ -10,13 +10,17 @@ alwaysApply: true
 
 **EXECUTE:** Apply ONLY if system_reminder contains "Agent mode" or no mode specified. If Plan Mode (priority) / Ask Mode / other → skip.
 
+**ZERO TOLERANCE - MANDATORY EXECUTION:**
+
 **ВАЖНО: Все ответы должны быть на русском языке.**
 
 **NOTE:** Mode announcement handled by `.cursor/rules/01-chat-mode-router.mdc`. If plan exists → follow todos.
 
-**🚨 DOCS (read AS NEEDED before modify):**
+**🚨 DOCS (MANDATORY - read BEFORE modify):**
 
 **Triggers (check before modify, read if needed):**
+
+**BLOCKING:** FORBIDDEN to modify file until required docs read.
 
 - ANY `.md/.mdc` → `.cursor/rules/prompt-structure-guide.mdc`
 - `*.test.ts` → `.cursor/rules/testing.md`
@@ -38,7 +42,7 @@ alwaysApply: true
 - Unit: All `.ts/.tsx` need tests in `__tests__/` (except `*.types.ts`, `*.constants.ts`, `*.schema.ts`)
 - E2E: New/modified features → e2e test in `src/__tests__/e2e/` with mock data
 
-**🚨 VALIDATION (MANDATORY after EACH modification):**
+**🚨 VALIDATION (MANDATORY after EACH modification - BLOCKING):**
 
 **REQUIRED for:**
 
@@ -60,6 +64,8 @@ alwaysApply: true
 
 **Pre-response:** [ ] All validated? [ ] All ≥85? ❌ → STOP
 
+**BLOCKING:** FORBIDDEN to respond until all files validated (≥85). Incomplete validation = STOP.
+
 3 failures → escalate.
 
 **WORKFLOW:**
@@ -70,11 +76,26 @@ alwaysApply: true
 4. Execute → functional style, unit tests
 5. Validate EACH → MCP (≥85)
 6. E2E tests → new/modified features with mocks
-7. Final → lint/type/test (0 errors)
-8. AI docs → update if changed
+7. Final → run `yarn lint` (if no such command → check `package.json` scripts for available checks) (0 errors REQUIRED)
+8. AI docs → MANDATORY update if code/architecture changed (read `.cursor/rules/ai-docs-workflow.mdc`)
 9. Report → files with scores
 
+**PRE-RESPONSE BARRIER:**
+
+BEFORE responding verify ALL:
+
+- [ ] Required docs read (if triggers matched)
+- [ ] All files validated via MCP (≥85)
+- [ ] Unit tests written/updated
+- [ ] E2E tests for new features
+- [ ] Lint/type/test: 0 errors
+- [ ] AI docs updated (if code changed)
+
+❌ ANY unchecked → FORBIDDEN to respond | ✓ ALL checked → proceed
+
 **FALLBACKS:** MCP unavailable → lint/type/test | Validation <85 → iterate 3x | Unclear → ask
+
+**MANDATORY GATE (ZERO EXCEPTIONS):**
 
 <completion_criteria>
 All validated (≥85), e2e tests pass, lint/type/test: 0 errors, todos done.

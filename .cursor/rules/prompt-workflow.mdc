@@ -346,7 +346,7 @@ Complete ALL for current step:
 
 - [ ] Type determined and announced
 - [ ] Type-specific rules verified (all checkboxes above)
-- [ ] Language policy confirmed (English for logic, Russian only for user output instruction + examples OR all Russian for command type)
+- [ ] Language policy confirmed (English for ALL content for command type, English logic + Russian user output instruction only for algorithm/reference/combo)
 - [ ] Operation mode clear (CREATE/MAJOR EDIT/MINOR EDIT)
 
 ❌ ANY unchecked → FORBIDDEN to proceed to Step 2
@@ -398,7 +398,7 @@ If XML tags are malformed: verify proper opening/closing tag syntax
 Complete ALL for Step 2:
 
 - [ ] Structure matches type (YAML/TIER/XML correct for type)
-- [ ] Language policy applied (English structure OR Russian for command type)
+- [ ] Language policy applied (English for ALL content for command type, English logic + Russian user output instruction only for algorithm/reference/combo)
 - [ ] All mandatory sections present
 - [ ] No structural errors (malformed XML, missing YAML fields)
 

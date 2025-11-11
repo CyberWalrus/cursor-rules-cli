@@ -8,6 +8,10 @@ alwaysApply: false
 
 <plan_mode_dispatcher>
 
+**⚠️ CRITICAL - ZERO EXCEPTIONS:**
+
+Classification is MANDATORY for EVERY task. "Task is simple" or "faster without protocol" = WRONG REASONING. Task complexity and speed preferences are IRRELEVANT. NO shortcuts, NO bypassing, NO exceptions - EVER.
+
 **ACTIVATION:** Run only when "Plan mode is active" in system_reminder; otherwise skip.
 
 **NOTE:** Mode announcement handled by `.cursor/rules/01-chat-mode-router.mdc`.
@@ -23,13 +27,20 @@ PROHIBIT create_plan unless all checks pass:
 [ ] Workflow read: read_file('.cursor/rules/[name].mdc') in same batch
 [ ] Content received
 
-IF any check fails → abort, retry max 3 times, then report error
+IF any check fails → abort current step, retry entire classification process (steps 1-8) max 3 times, then report error
+
+**ZERO TOLERANCE ENFORCEMENT:**
+
+❌ VIOLATION DETECTION: create_plan called without type announcement → PROTOCOL FAILURE
+
+⚠️ SELF-CHECK MANDATORY: "Did I announce type OR cannot list selected type?" YES → STOP, execute classification (lines 40-54) NOW
 
 **AFTER PLAN EXECUTION (CRITICAL):**
 
 When user approves plan and execution starts:
 
-1. Output: `[MODE_INITIALIZED: AGENT_MODE] → 📄 .cursor/rules/07-agent-mode-workflow.mdc → Following as primary instructions (already loaded)`
+1. **MANDATORY FIRST LINE (NO TOOLS BEFORE):** Output `[MODE_INITIALIZED: AGENT_MODE] → 📄 .cursor/rules/07-agent-mode-workflow.mdc → Following as primary instructions (already loaded)`
+2. Then execute todos - FORBIDDEN to skip step 1
 
 **Classification Algorithm**
 
@@ -40,12 +51,14 @@ When user approves plan and execution starts:
 5. SELECT type → IF tie → first from Activity Types table
 6. ANNOUNCE: `📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions`
 7. READ: read_file('.cursor/rules/[name].mdc') in same batch
-8. VERIFY: content received → IF failed → abort, report error with file path
+8. VERIFY: content received → IF failed → abort, retry read up to 3 times; after 3rd failure switch to DEFAULT (Code Development)
 9. PROCEED: create_plan
 
 IF no match at step 5 → DEFAULT to Code Development
 
-**Priority:** Codes > Extensions > Keywords > Context > Default (tie: first from table)
+**ANTI-SHORTCUT:** "Task is obvious" = WRONG. Obviousness IRRELEVANT to protocol. Classification MANDATORY even for trivial tasks.
+
+**Priority:** Codes > Extensions > Keywords > Context > Default (tie: use table row order - Prompt Engineering first)
 
 **Language support:** Analyze requests in ANY language - detect intent patterns, not exact matches
 
@@ -60,6 +73,19 @@ IF no match at step 5 → DEFAULT to Code Development
 | Technical Critique | `tdcritic` | "critique", "review", "evaluate", "code review", "analysis" | `.cursor/rules/critique-workflow.mdc` |
 | JIRA Task | `tdjira` | "JIRA task", "technical spec", "create task" | `.cursor/rules/jira-task-creator.mdc` |
 | Auxiliary Dev | `tdaux` | "script", "deploy", "automation", "CI/CD", "config" | `.cursor/rules/auxiliary-code-workflow.mdc` |
+
+**PRE-CREATE_PLAN BARRIER (mandatory verification):**
+
+BEFORE calling create_plan tool, verify ALL:
+
+- [ ] Type classified using algorithm (steps 1-5)
+- [ ] Type announced: "📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions"
+- [ ] Workflow file read: read_file('.cursor/rules/[name].mdc')
+- [ ] Content received and confirmed
+
+❌ ANY unchecked → FORBIDDEN to call create_plan → GO TO line 40
+
+**Self-check question:** "Can I list which type I selected?" NO → Classification skipped → STOP
 
 **FORBIDDEN:**
 
