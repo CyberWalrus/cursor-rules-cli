@@ -2,8 +2,8 @@ import { mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const MAX_RETRIES = 5;
-const RETRY_DELAY = 100;
+const MAX_RETRIES = 10;
+const RETRY_DELAY = 200;
 
 /** Создает временную директорию для тестов */
 async function createTempDir(): Promise<string> {
@@ -29,13 +29,16 @@ async function attemptDelete(path: string, attempt: number): Promise<void> {
     } catch (error) {
         const nodeError = error as { code?: string };
         const isBusyError = nodeError.code === 'EBUSY';
+        const isNotEmptyError = nodeError.code === 'ENOTEMPTY';
+        const isRetryableError = isBusyError || isNotEmptyError;
 
-        if (!isBusyError || attempt === MAX_RETRIES) {
+        if (!isRetryableError || attempt === MAX_RETRIES) {
             throw error;
         }
 
+        const delay = RETRY_DELAY * attempt * attempt;
         await new Promise((resolve) => {
-            setTimeout(() => resolve(undefined), RETRY_DELAY * attempt);
+            setTimeout(() => resolve(undefined), delay);
         });
 
         return attemptDelete(path, attempt + 1);
