@@ -1,0 +1,384 @@
+name: CI/CD Pipeline (Go)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - ".cursor/**"
+      - "user-rules/**"
+      - "src/**"
+      - "dist/**"
+      - "*.ts"
+      - "*.tsx"
+      - "tsconfig.json"
+      - "tsup.config.ts"
+      - "vitest.config.ts"
+      - "package.json"
+      - "yarn.lock"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: linux
+          name: linux-coverage
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: windows
+          name: windows-coverage
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: macos
+          name: macos-coverage
+
+  build-and-publish:
+    needs: [test-linux, test-windows, test-macos]
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Get version from git tag or package.json
+        id: check
+        run: |
+          # Пытаемся получить версию из последнего git tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -f "package.json" ]; then
+            VERSION=$(node -p "require('./package.json').version")
+          else
+            # Если нет package.json, используем версию из последнего тега или dev
+            if [ -n "$LAST_TAG" ]; then
+              VERSION=$(echo $LAST_TAG | sed 's/^cli\/v//' | sed 's/^v//')
+            else
+              VERSION="0.1.0"
+            fi
+          fi
+          
+          echo "Current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Проверка существования версии в npm
+          if npm view cursor-rules-cli@$VERSION version >/dev/null 2>&1; then
+            echo "Version $VERSION already exists in npm - skipping publish"
+            echo "should-publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version $VERSION not found in npm - will publish"
+            echo "should-publish=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build for all platforms
+        if: steps.check.outputs.should-publish == 'true'
+        run: |
+          mkdir -p bin
+          VERSION="${{ steps.check.outputs.version }}"
+          BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          GIT_COMMIT=$(git rev-parse --short HEAD)
+          LDFLAGS="-X 'main.version=$VERSION' -X 'main.buildTime=$BUILD_TIME' -X 'main.gitCommit=$GIT_COMMIT'"
+          
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-linux-amd64 ./cmd/cursor-rules-cli
+          GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-linux-arm64 ./cmd/cursor-rules-cli
+          
+          # macOS
+          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-darwin-amd64 ./cmd/cursor-rules-cli
+          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-darwin-arm64 ./cmd/cursor-rules-cli
+          
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-windows-amd64.exe ./cmd/cursor-rules-cli
+          GOOS=windows GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/cursor-rules-cli-windows-arm64.exe ./cmd/cursor-rules-cli
+          
+          echo "Build complete. Binaries:"
+          ls -lh bin/
+
+      - name: Prepare npm package
+        if: steps.check.outputs.should-publish == 'true'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          mkdir -p npm-package
+          
+          # Создание package.json для npm пакета
+          cat > npm-package/package.json << EOF
+          {
+            "name": "cursor-rules-cli",
+            "version": "$VERSION",
+            "description": "CLI tool for managing .cursor rules in projects (Go version)",
+            "bin": {
+              "cursor-rules-cli": "./bin/cursor-rules-cli-linux-amd64",
+              "crules": "./bin/cursor-rules-cli-linux-amd64"
+            },
+            "os": ["linux", "darwin", "win32"],
+            "cpu": ["x64", "arm64"],
+            "files": [
+              "bin/",
+              "README-GO.md",
+              "LICENSE"
+            ],
+            "repository": {
+              "type": "git",
+              "url": "git@github.com:CyberWalrus/cursor-rules-cli.git"
+            },
+            "keywords": [
+              "cursor",
+              "ai",
+              "rules",
+              "cli",
+              "cursor-ai",
+              "configuration",
+              "management"
+            ],
+            "author": "Пахомов Андрей Николаевич <andrey.pahomov@ligastavok.ru>",
+            "license": "MIT",
+            "engines": {
+              "node": ">=14.0.0"
+            }
+          }
+          EOF
+          
+          # Копирование бинарников
+          cp -r bin npm-package/
+          
+          # Копирование README и LICENSE
+          if [ -f "README-GO.md" ]; then
+            cp README-GO.md npm-package/README.md
+          fi
+          if [ -f "LICENSE" ]; then
+            cp LICENSE npm-package/
+          fi
+          
+          # Создание install скрипта для автоматического выбора правильного бинарника
+          cat > npm-package/bin/install.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          const os = require('os');
+          
+          const platform = os.platform();
+          const arch = os.arch();
+          
+          let binaryName = 'cursor-rules-cli';
+          if (platform === 'win32') {
+            binaryName += '.exe';
+          }
+          
+          const binaryMap = {
+            'linux-x64': 'cursor-rules-cli-linux-amd64',
+            'linux-arm64': 'cursor-rules-cli-linux-arm64',
+            'darwin-x64': 'cursor-rules-cli-darwin-amd64',
+            'darwin-arm64': 'cursor-rules-cli-darwin-arm64',
+            'win32-x64': 'cursor-rules-cli-windows-amd64.exe',
+            'win32-arm64': 'cursor-rules-cli-windows-arm64.exe',
+          };
+          
+          const key = `${platform}-${arch}`;
+          const sourceBinary = binaryMap[key] || binaryMap['linux-x64'];
+          const targetBinary = path.join(__dirname, binaryName);
+          
+          if (fs.existsSync(path.join(__dirname, sourceBinary))) {
+            fs.copyFileSync(path.join(__dirname, sourceBinary), targetBinary);
+            fs.chmodSync(targetBinary, '755');
+            console.log(`Installed ${sourceBinary} as ${binaryName}`);
+          } else {
+            console.error(`Binary not found for ${key}`);
+            process.exit(1);
+          }
+          EOF
+          
+          # Обновление package.json с postinstall скриптом
+          node -e "
+          const pkg = require('./npm-package/package.json');
+          pkg.scripts = { postinstall: 'node bin/install.js' };
+          require('fs').writeFileSync('./npm-package/package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Publish to npm
+        if: steps.check.outputs.should-publish == 'true'
+        id: publish
+        working-directory: npm-package
+        run: |
+          npm publish
+          echo "published=true" >> $GITHUB_OUTPUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Git Tag
+        if: steps.check.outputs.should-publish == 'true'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+          # Проверка существования тега
+          if git rev-parse "cli/v$VERSION" >/dev/null 2>&1; then
+            echo "Tag cli/v$VERSION already exists, skipping"
+          else
+            git tag "cli/v$VERSION"
+            git push origin "cli/v$VERSION"
+            echo "Created and pushed tag cli/v$VERSION"
+          fi
+
+      - name: Extract changelog
+        if: steps.check.outputs.should-publish == 'true'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          echo "Extracting changelog for version: $VERSION"
+          
+          if [ -f "CHANGELOG.md" ]; then
+            awk -v version="$VERSION" '
+              BEGIN { 
+                in_section = 0
+                found_version = 0
+              }
+              /^## \[/ { 
+                if ($0 ~ "^## \\[" version "\\]") {
+                  in_section = 1
+                  found_version = 1
+                  print
+                  next
+                } else if (in_section) {
+                  exit
+                }
+              }
+              in_section { 
+                print 
+              }
+            ' CHANGELOG.md > release_notes.md
+          fi
+          
+          if [ ! -f "release_notes.md" ] || [ ! -s "release_notes.md" ] || [ $(wc -l < release_notes.md 2>/dev/null || echo 0) -lt 3 ]; then
+            echo "No changelog found for version $VERSION, creating fallback..."
+            echo "## [$VERSION] - $(date +%Y-%m-%d)" > release_notes.md
+            echo "" >> release_notes.md
+            echo "### Changes" >> release_notes.md
+            echo "- Go version of cursor-rules-cli" >> release_notes.md
+            echo "- See [Full Changelog](https://github.com/CyberWalrus/cursor-rules-cli/commits/cli/v$VERSION) for details" >> release_notes.md
+            echo "- View [All Releases](https://github.com/CyberWalrus/cursor-rules-cli/releases) for complete history" >> release_notes.md
+          else
+            echo "Successfully extracted changelog for version $VERSION"
+            echo "Changelog preview:"
+            head -10 release_notes.md
+          fi
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.should-publish == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cli/v${{ steps.check.outputs.version }}
+          name: Release v${{ steps.check.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            bin/cursor-rules-cli-linux-amd64
+            bin/cursor-rules-cli-linux-arm64
+            bin/cursor-rules-cli-darwin-amd64
+            bin/cursor-rules-cli-darwin-arm64
+            bin/cursor-rules-cli-windows-amd64.exe
+            bin/cursor-rules-cli-windows-arm64.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
