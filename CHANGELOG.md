@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.4.2] - 2025-11-18
+
+<small>18.11.2025 02:04</small>
+
+### Added
+
+- **Force mode check command**
+    - Added force mode check command for validation
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/fea04743a271dd58cfed42081ffbe13c7effb411" target="_blank">fea0474</a>
+
+- **Commit-fast and fix commands**
+    - Added commit-fast and fix commands, removed lint-fix
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/28baaf44882aab79097b3a44e5ad687f00375b9d" target="_blank">28baaf4</a>
+
+### Fixed
+
+- **Retry logic for temporary directories**
+    - Improved retry logic for removing temporary directories
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/998a9a83acf750bd69716f9664a6e229cf3a5035" target="_blank">998a9a8</a>
+
+### Changed
+
+- **Code refactoring**
+    - Replaced Promise.all with sequential loop
+    - Simplified update notification formatting
+    - Replaced auxiliary-dev-workflow with auxiliary-code-workflow
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/bd71aa09b897ad7d8d9df5cf64f57581fca66ac8" target="_blank">bd71aa0</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/dc174548a4067cbbcb671153894c333b49cc84e6" target="_blank">dc17454</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/913d997760c104efeaca6c3c7b7a4c6d1a9afdcd" target="_blank">913d997</a>
+
+- **Configuration updates**
+    - Improved Vitest configuration for E2E tests
+    - Updated command configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/e1627de365e08e64912177f0692e3956b6013efe" target="_blank">e1627de</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/ea5828d1a623078b43ab43cb854dcf698983df16" target="_blank">ea5828d</a>
+
+- **Commit command improvements**
+    - Added version check and changelog update section to commit command
+    - Updated commit workflow with mandatory version verification
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Docs
+
+- **Documentation updates**
+    - Updated commit message examples to Russian language
+    - Updated architecture documentation
+    - Updated workflow rules and mode router
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/ab1f8178104a6382674938c1fb0b10d2d642e4fb" target="_blank">ab1f817</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/b07c73fb469b19d113176688aff2c9c67a4d0cc4" target="_blank">b07c73f</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/23256111b0d10fcd5fea6e8867155b67fdcd476e" target="_blank">2325611</a>
+
 ## [0.4.1] - 2025-11-10
 
 <small>10.11.2025 18:57</small>
