@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { getTargetDir } from '../get-target-dir';
 import { runCli } from '../index';
 
@@ -10,6 +8,7 @@ const mockReplaceAllCommand = vi.hoisted(() => vi.fn());
 const mockEnsureLatestVersion = vi.hoisted(() => vi.fn());
 const mockGetPackageVersion = vi.hoisted(() => vi.fn());
 const mockNotifyIfUpdateAvailable = vi.hoisted(() => vi.fn());
+const mockShowInteractiveMenu = vi.hoisted(() => vi.fn());
 
 vi.mock('citty', () => ({
     defineCommand: vi.fn((config) => config),
@@ -40,13 +39,25 @@ vi.mock('../../lib/version-manager/notify-update', () => ({
     notifyIfUpdateAvailable: mockNotifyIfUpdateAvailable,
 }));
 
+vi.mock('../interactive-menu', () => ({
+    showInteractiveMenu: mockShowInteractiveMenu,
+}));
+
 describe('runCli', () => {
+    const originalArgv = process.argv;
+
     beforeEach(() => {
         vi.clearAllMocks();
         mockEnsureLatestVersion.mockResolvedValue(undefined);
         mockRunMain.mockResolvedValue(undefined);
         mockGetPackageVersion.mockResolvedValue('0.3.10');
         mockNotifyIfUpdateAvailable.mockResolvedValue(undefined);
+        mockShowInteractiveMenu.mockResolvedValue(undefined);
+        process.argv = ['node', 'script.js', 'init'];
+    });
+
+    afterEach(() => {
+        process.argv = originalArgv;
     });
 
     it('должен запускать CLI через runMain', async () => {

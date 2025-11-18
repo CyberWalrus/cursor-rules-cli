@@ -1,12 +1,13 @@
 import { defineCommand, runMain } from 'citty';
 import { fileURLToPath } from 'node:url';
 
-import { initCommand } from '../commands/init/index';
-import { replaceAllCommand } from '../commands/replace-all/index';
-import { upgradeCommand } from '../commands/upgrade/index';
+import { initCommand } from '../commands/init';
+import { replaceAllCommand } from '../commands/replace-all';
+import { upgradeCommand } from '../commands/upgrade';
 import { ensureLatestVersion } from './ensure-latest-version';
 import { getPackageDir } from './get-package-dir';
 import { getTargetDir } from './get-target-dir';
+import { showInteractiveMenu } from './interactive-menu';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
 const packageDir = getPackageDir(currentFilePath);
@@ -68,6 +69,12 @@ export async function runCli(): Promise<void> {
         const message: string = error instanceof Error ? error.message : String(error);
         console.warn(`⚠️ Failed to check for updates: ${message}`);
     });
+
+    if (process.argv.length <= 2) {
+        await showInteractiveMenu(currentFilePath);
+
+        return;
+    }
 
     await runMain(main);
 }

@@ -1,6 +1,9 @@
 /** Тип команды CLI */
 export type CommandType = 'init' | 'replace-all' | 'upgrade';
 
+/** Тип действия интерактивного меню */
+export type InteractiveMenuAction = 'exit' | 'init' | 'replace-all' | 'upgrade';
+
 /** Конфигурация правил */
 export type RulesConfig = {
     /** Версия CLI тулзы */
