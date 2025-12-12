@@ -4,151 +4,89 @@ type: reference
 alwaysApply: false
 ---
 
-# 🧩 AI Module Unit Documentation Reference
+# AI Module Unit Documentation Reference
 
 [REFERENCE-BEGIN]
 
-## 🎯 TIER 1: Expert Role
+## TIER 1: Expert Role
 
 <expert_role>
-You are an elite AI Documentation Engineer specializing in creating production-ready documentation for module units (модульные единицы) in TypeScript projects.
-Your expertise includes modular architecture patterns, API documentation standards, and cross-model compatibility for documentation generation.
+You are an elite AI Documentation Engineer specializing in creating production-ready documentation for module units in TypeScript projects.
+Focus: behavioral contracts, design decisions, business context — information NOT available in code.
 Target models: Claude, GPT, Gemini, Qwen with universal documentation patterns.
 
 **ВАЖНО: Все ответы должны быть на русском языке.**
 </expert_role>
 
 <terminology_note>
-In this reference, the term "module unit" = "модульная единица" (a folder with facade index.ts/index.tsx, where there is no other facade file one level up). Do not confuse with "функциональный элемент" from architecture.
+In this reference, "module unit" = folder with facade index.ts/index.tsx, where there is no other facade file one level up. Do not confuse with "functional element" from architecture.
 </terminology_note>
 
-## 🧩 TIER 2: Documentation Process
+## TIER 2: Documentation Process
 
 <algorithm_motivation>
-We will proceed in a structured manner to create comprehensive, accurate, and standardized AI documentation for module units. Each step ensures complete coverage while maintaining consistency across the project architecture.
+AI documentation must contain information ABSENT from code: contracts, decisions, context, edge cases. Code already shows WHAT; documentation explains WHY and GUARANTEES.
 </algorithm_motivation>
 
 <algorithm_steps>
 
-### Step 1: Analysis and Context Gathering
+### Step 1: Analysis and Contract Definition
 
-<cognitive_triggers>
-Let's think step by step about the module unit we need to document.
-</cognitive_triggers>
-
-- Analyze the module unit's purpose, scope, and integration points
-- Identify public API surface (functions, types, constants)
-- Map internal structure and dependencies
-- Determine usage patterns and integration scenarios
+- Identify behavioral invariants (what MUST always be true)
+- Define API contract (inputs, outputs, errors, side effects)
+- Document edge cases and how they are handled
+- Map business purpose and criticality
 
 <completion_criteria>
-Completion: Full understanding of the module unit's architecture, API, and integration patterns established
+Completion: Contracts and business context clearly defined, not duplicating code
 </completion_criteria>
 
-<exception_handling>
-If module unit structure is unclear: request clarification on key functions and their purposes
-If dependencies are complex: focus on main integration points rather than exhaustive mapping
-If examples are insufficient: request additional usage scenarios
-</exception_handling>
+### Step 2: Design Decisions Capture
 
-### Step 2: YAML Metadata Creation
-
-- Create standardized YAML frontmatter with id, documentation_type, module_context
-- Ensure module_context includes name, path, parent_package, and purpose
-- Set size_limits to enforce content constraints (max 120 lines)
+- Document WHY this approach was chosen (not WHAT it does)
+- List alternatives considered and why rejected
+- Note any trade-offs made
 
 <completion_criteria>
-Completion: YAML metadata properly structured with all required fields and accurate module context
+Completion: Design rationale captured for future maintainers and AI refactoring
 </completion_criteria>
 
-<exception_handling>
-If module path is unclear: use relative path from project root
-If parent package is unknown: infer from project structure or request clarification
-</exception_handling>
+### Step 3: YAML Metadata and Structure
 
-### Step 3: Core Documentation Sections
-
-- **Purpose Section:** Write 2-3 sentence description of unit's responsibility
-- **Public API:** Document all exported functions, types, and constants
-- **Usage Examples:** Provide basic usage and integration examples
-- **Structure:** Create XML representation of file organization
+- Create YAML frontmatter with id, documentation_type, module_context
+- Ensure module_context includes name, path, parent_package, purpose
+- Set size_limits to max 150 lines
 
 <completion_criteria>
-Completion: All core sections completed with accurate technical details and practical examples
+Completion: YAML metadata properly structured with accurate module context
 </completion_criteria>
 
-<exception_handling>
-If API surface is extensive: focus on primary functions and note additional exports
-If examples require complex setup: provide simplified integration patterns
-</exception_handling>
+### Step 4: Quality Validation
 
-### Step 4: Dependencies and Notes
-
-- **Dependencies:** Categorize as Node.js built-ins, external packages, internal imports
-- **Notes:** Document key features, limitations, and implementation details
-- Ensure technical accuracy and relevance
+- Verify all required sections present
+- Check that documentation adds value beyond code
+- Confirm contracts are testable and specific
 
 <completion_criteria>
-Completion: Dependencies properly categorized and key technical notes documented
+Completion: Documentation passes quality checks, adds unique value
 </completion_criteria>
-
-<exception_handling>
-If dependency relationships are complex: focus on direct dependencies and main integration points
-If technical limitations are numerous: prioritize critical ones for immediate awareness
-</exception_handling>
-
-### Step 5: Quality Validation
-
-- Verify all sections are present and properly formatted
-- Ensure XML structure is valid and comprehensive
-- Check examples are realistic and functional
-- Confirm documentation follows established patterns
-
-<completion_criteria>
-Completion: Documentation passes quality checks and follows established standards
-</completion_criteria>
-
-<exception_handling>
-If quality issues found: revise sections for clarity and completeness
-If examples don't work: fix implementation details or provide alternative approaches
-</exception_handling>
 
 </algorithm_steps>
 
-<completion_criteria>
-Completion: All 5 steps executed successfully, comprehensive AI documentation created, quality validation passed, production-ready module documentation generated
-</completion_criteria>
-
-<exception_handling>
-If module unit analysis incomplete: focus on core functions and request clarification on complex parts
-If documentation generation fails: provide partial documentation with clear notes on missing sections
-If quality validation identifies issues: revise specific sections rather than complete rewrite
-If size limits exceeded: prioritize essential information and move detailed examples to separate documentation
-</exception_handling>
-
-## 🔧 TIER 3: Template System
+## TIER 3: Template System
 
 <output_format>
 **Documentation output format:**
 
 - **Main format:** Markdown with YAML frontmatter
 - **XML sections:** Each main section wrapped in corresponding XML tags
-- **Structure:** Linear sequence of sections without nested blocks
-- **Encoding:** UTF-8 with Russian language support
-- **Limits:** Maximum 120 lines of content, including YAML (exception: test files may be larger)
-
-**Formatting rules:**
-
-- Use XML tags for all main sections
-- Quotes in code: single quotes for string literals
-- Indentation: 4 spaces for YAML, 2 for markdown code
-- Maximum 80 characters per line (except code)
-
+- **Language:** Generated documentation in Russian (as per expert_role instruction)
+- **Limits:** Maximum 150 lines for generated module documentation
 </output_format>
 
 <module_template>
 
-**Unified template for module-ai-docs.md:**
+**Template for module-ai-docs.md (output in Russian):**
 
 ````markdown
 ---
@@ -161,103 +99,99 @@ module_context:
     purpose: '${ONE_LINE_PURPOSE}'
 ---
 
-# 🧩 ${MODULE_NAME}
+# ${MODULE_NAME}
 
 <module_purpose>
 ${2_SENTENCES_PURPOSE_AND_SCOPE}
 </module_purpose>
 
+<contract>
+**Behavioral (what module MUST do):**
+
+- Invariant: ${INVARIANT_DESCRIPTION}
+- Guarantee: ${GUARANTEE_DESCRIPTION}
+
+**API Contract:**
+
+- Input: `${INPUT_TYPE}` — ${INPUT_CONSTRAINTS}
+- Output: `${OUTPUT_TYPE}` — ${OUTPUT_GUARANTEES}
+- Errors: ${ERROR_CASES}
+- Side effects: ${SIDE_EFFECTS_OR_NONE}
+</contract>
+
+<design_decisions>
+**Why this approach was chosen:**
+
+- Decision: ${DECISION}
+- Rationale: ${RATIONALE}
+- Alternatives: ${ALTERNATIVES_CONSIDERED}
+
+**Implementation notes:** ${KEY_IMPLEMENTATION_NOTES}
+</design_decisions>
+
+<business_context>
+**Why module exists:**
+
+- Business goal: ${BUSINESS_GOAL}
+- Users: ${WHO_USES_IT}
+- Criticality: high|medium|low
+</business_context>
+
+<edge_cases>
+**Edge cases:**
+
+- ${EDGE_CASE_1}: ${HOW_HANDLED}
+- ${EDGE_CASE_2}: ${HOW_HANDLED}
+</edge_cases>
+
 <public_api>
-**Функции:**
+**Functions:**
 
-- '${FUNCTION_NAME}(${PARAMS})' - ${PURPOSE}
+- `${FUNCTION_NAME}(${PARAMS}): ${RETURN_TYPE}` — ${PURPOSE}
 
-**Типы:**
+**Types:**
 
-- '${TYPE_NAME}' - ${DESCRIPTION}
-
-**Константы:**
-
-- '${CONST_NAME}' - ${DESCRIPTION}
-  </public_api>
-
-<usage_examples>
-**Основное использование:**
-
-```typescript
-import { ${MAIN_EXPORT} } from './${MODULE_NAME}';
-
-const result = ${MAIN_EXPORT}(${PARAMS});
-console.log(result);
-```
-
-**Интеграция:**
-
-```typescript
-// ${INTEGRATION_CONTEXT}
-const pipeline = ${INTEGRATION_EXAMPLE};
-```
-
-</usage_examples>
-
-<module_structure>
-
-```xml
-<module name="${MODULE_NAME}">
-    <facade name="index.ts" role="unit_facade" exports="${MAIN_EXPORT}"/>
-    <file name="${FILE_1}.ts" role="function" purpose="${ROLE_1}"/>
-    <file name="${FILE_2}.ts" role="component" purpose="${ROLE_2}"/>
-    <file name="types.ts" role="types" purpose="типы модульной единицы"/>
-    <file name="constants.ts" role="config" purpose="константы"/>
-    <test name="__tests__/index.test.ts" role="unit_test" purpose="unit тесты"/>
-</module>
-```
-
-</module_structure>
+- `${TYPE_NAME}` — ${DESCRIPTION}
+</public_api>
 
 <dependencies>
 **Node.js:** ${NODE_MODULES_LIST}
-**Внешние:** ${EXTERNAL_PACKAGES_LIST}
-**Внутренние:** ${INTERNAL_IMPORTS_LIST}
+**External:** ${EXTERNAL_PACKAGES_LIST}
+**Internal:** ${INTERNAL_IMPORTS_LIST}
 </dependencies>
-
-<notes>
-**Особенности:** ${KEY_IMPLEMENTATION_NOTES}
-**Ограничения:** ${KEY_LIMITATIONS}
-</notes>
 ````
 
 </module_template>
 
-## 📚 TIER 4: Template Variables Reference
+## TIER 4: Template Variables Reference
 
 <template_variables>
 
 **Template variables for module unit documentation:**
 
-- `${MODULE_NAME}` - module unit name (validation, mcp-server)
-- `${MODULE_PATH}` - module unit path in project
-- `${PARENT_PACKAGE}` - parent package
-- `${MODULE_PURPOSE}` - module unit purpose
-- `${EXPORT_FUNCTION_*}` - exported functions
-- `${EXPORT_TYPE_*}` - exported types
-- `${EXPORT_CONST_*}` - exported constants
-- `${USAGE_SCENARIO_*}` - usage scenarios for module unit
-- `${USAGE_DESCRIPTION_*}` - usage example descriptions
-- `${VARIABLE_NAME_*}` - variable names in examples
-- `${INTEGRATION_EXAMPLE_*}` - integration examples with other module units
-- `${EXTERNAL_PACKAGE_*}` - external dependencies
-- `${INTERNAL_IMPORT_*}` - internal imports
-- `${BUG_*}`, `${LIMITATION_*}`, `${TECH_DEBT_*}` - issues and limitations
+- `${MODULE_NAME}` — module unit name (validation, mcp-server)
+- `${MODULE_PATH}` — module unit path in project
+- `${PARENT_PACKAGE}` — parent package
+- `${INVARIANT_DESCRIPTION}` — what MUST always be true
+- `${GUARANTEE_DESCRIPTION}` — what module guarantees to callers
+- `${INPUT_TYPE}`, `${INPUT_CONSTRAINTS}` — input types and validation rules
+- `${OUTPUT_TYPE}`, `${OUTPUT_GUARANTEES}` — output types and guarantees
+- `${ERROR_CASES}` — when and what errors are thrown
+- `${SIDE_EFFECTS_OR_NONE}` — side effects (file writes, API calls) or "none"
+- `${DECISION}`, `${RATIONALE}` — key design decision and why
+- `${ALTERNATIVES_CONSIDERED}` — what else was considered
+- `${BUSINESS_GOAL}` — business reason for existence
+- `${WHO_USES_IT}` — who calls this module
+- `${EDGE_CASE_*}` — boundary conditions and handling
 
 </template_variables>
 
-## ⚠️ TIER 5: Examples and Best Practices
+## TIER 5: Example
 
 <module_examples>
 
 <example type="validation_module">
-**Example AI documentation for validation module unit:**
+**Example generated module-ai-docs.md (Russian output):**
 
 ````markdown
 ---
@@ -266,201 +200,103 @@ documentation_type: 'ai-module-documentation'
 module_context:
     name: 'validation'
     path: 'src/services/workflows/validation'
-    parent_package: '@${ORG}/tools.mcp-validator'
-    purpose: 'валидация кода и промптов через AI модели'
+    parent_package: '@org/tools.mcp-validator'
+    purpose: 'code and prompt validation via AI models'
 ---
 
-# 🧩 validation
+# validation
 
 <module_purpose>
-Основная модульная единица для валидации различных типов контента через AI модели. Обеспечивает проверку кода TypeScript/JavaScript/Go/Rust и тестирование промптов на консистентность. Изолированный блок с фасадом, доступный только через публичный API.
+Module unit for validating code and prompts via AI models. Provides TypeScript/JavaScript code quality checks and prompt consistency testing.
 </module_purpose>
 
-<public_api>
-**Функции:**
+<contract>
+**Behavioral (what module MUST do):**
 
-- `validateCode(input: ValidationInput): ValidationResult` - валидация кода
-- `testPrompt(prompt: string, options: TestOptions): TestResult` - тест промптов
-- `getValidationTypes(): string[]` - доступные типы
+- Invariant: validation result always contains score 0-100
+- Guarantee: returns error on API unavailability, never hangs
 
-**Типы:**
+**API Contract:**
 
-- `ValidationInput` - входные данные
-- `ValidationResult` - результат валидации
-- `TestOptions` - опции тестирования
-  </public_api>
+- Input: `ValidationInput` — file ≤100KB, valid path or content
+- Output: `ValidationResult` — score: number, issues: Issue[], passed: boolean
+- Errors: `FileNotFoundError`, `FileTooLargeError`, `APITimeoutError`
+- Side effects: HTTP requests to OpenRouter API
+</contract>
 
-<usage_examples>
-**Основное использование:**
+<design_decisions>
+**Why this approach was chosen:**
 
-```typescript
-import { validateCode } from './validation';
+- Decision: synchronous file processing with caching
+- Rationale: predictable behavior more important than parallelism for validation
+- Alternatives: async queue (rejected: debugging complexity)
 
-const result = await validateCode({
-    type: 'file',
-    data: 'src/user-service.ts',
-});
-```
+**Implementation notes:** result cache by file hash for 5 minutes
+</design_decisions>
 
-**Интеграция:**
+<business_context>
+**Why module exists:**
 
-```typescript
-// Использование в MCP pipeline
-const pipeline = await handleMCPRequest('validate').then(validateCode).then(formatResult);
-```
+- Business goal: automated code quality checks in CI/CD
+- Users: agent-mode-workflow, CLI commands
+- Criticality: high (blocks low-quality code)
+</business_context>
 
-</usage_examples>
+<edge_cases>
+**Edge cases:**
 
-<module_structure>
-
-```xml
-<module name="validation">
-    <facade name="index.ts" role="unit_facade" exports="validateCode, testPrompt, getValidationTypes"/>
-    <file name="validate-code.ts" role="function" purpose="валидация кода"/>
-    <file name="test-prompt.ts" role="function" purpose="тест промптов"/>
-    <file name="types.ts" role="types" purpose="типы модульной единицы"/>
-    <file name="constants.ts" role="config" purpose="константы валидации"/>
-    <test name="__tests__/index.test.ts" role="unit_test" purpose="unit тесты"/>
-</module>
-```
-
-</module_structure>
-
-<dependencies>
-**Node.js:** node:fs
-**Внешние:** openai, zod
-**Внутренние:** ../adapters/openrouter-client, ../adapters/file-reader
-</dependencies>
-
-<notes>
-**Особенности:** Синхронная обработка файлов, кеширование результатов
-**Ограничения:** Максимум 100KB файл, timeout 30 секунд
-</notes>
-````
-
-</example>
-
-<example type="mcp_server_adapter">
-**Example AI documentation for MCP Server adapter:**
-
-````markdown
----
-id: module-mcp-server
-documentation_type: 'ai-module-documentation'
-module_context:
-    name: 'mcp-server'
-    path: 'src/services/adapters/mcp-server'
-    parent_package: '@${ORG}/tools.mcp-validator'
-    purpose: 'MCP протокол сервер для интеграции с Cursor'
----
-
-# 🧩 mcp-server
-
-<module_purpose>
-Адаптер для работы с MCP (Model Context Protocol) клиентами. Реализует stdio интерфейс для взаимодействия с Cursor через стандартные потоки ввода-вывода.
-</module_purpose>
+- Empty file: returns score 100, empty issues list
+- File >100KB: throws FileTooLargeError without API call
+- API timeout: retry 3 times with exponential backoff, then APITimeoutError
+</edge_cases>
 
 <public_api>
-**Функции:**
+**Functions:**
 
-- `initializeMCPServer(): Promise<MCPServer>` - инициализация сервера
-- `handleMCPRequest(request: MCPRequest): Promise<MCPResponse>` - обработка запроса
-- `shutdownMCPServer(): Promise<void>` - корректное завершение
+- `validateCode(input: ValidationInput): Promise<ValidationResult>` — code validation
+- `testPrompt(prompt: string, options: TestOptions): Promise<TestResult>` — prompt testing
 
-**Типы:**
+**Types:**
 
-- `MCPServer` - интерфейс сервера
-- `MCPRequest` - структура входящего запроса
-- `MCPResponse` - структура ответа
-  </public_api>
-
-<usage_examples>
-**Основное использование:**
-
-```typescript
-import { initializeMCPServer, handleMCPRequest } from './mcp-server';
-
-const server = await initializeMCPServer();
-const response = await handleMCPRequest(request);
-```
-
-**Интеграция:**
-
-```typescript
-// CLI запуск через stdio
-process.stdin.pipe(mcpServer).pipe(process.stdout);
-```
-
-</usage_examples>
-
-<module_structure>
-
-```xml
-<module name="mcp-server">
-    <facade name="index.ts" role="unit_facade" exports="initializeMCPServer, handleMCPRequest, shutdownMCPServer"/>
-    <file name="initialize-mcp-server.ts" role="function" purpose="инициализация"/>
-    <file name="handle-mcp-request.ts" role="function" purpose="обработка запросов"/>
-    <file name="stdio-handler.ts" role="helper" purpose="работа с stdio"/>
-    <file name="protocol-validator.ts" role="helper" purpose="валидация MCP протокола"/>
-    <test name="__tests__/mcp-integration.test.ts" role="integration_test" purpose="интеграционные тесты"/>
-</module>
-```
-
-</module_structure>
+- `ValidationInput` — input data (type: 'file'|'content', data: string)
+- `ValidationResult` — result (score, issues, passed)
+</public_api>
 
 <dependencies>
-**Node.js:** node:process, node:stream
-**Внешние:** @modelcontextprotocol/sdk
-**Внутренние:** ../validation, ../../lib/error-handler
+**Node.js:** node:fs, node:crypto
+**External:** openai, zod
+**Internal:** ../adapters/openrouter-client
 </dependencies>
-
-<notes>
-**Особенности:** Работа через stdio потоки, JSON-RPC протокол
-**Ограничения:** Только stdio транспорт, синхронная обработка
-</notes>
 ````
 
 </example>
 
 </module_examples>
 
-## 📋 TIER 6: Required Elements Checklist
+## TIER 6: Required Elements Checklist
 
 <required_elements>
 
-**Module unit documentation sections:**
+**Required sections (in order):**
 
-- `<module_purpose>` - purpose and responsibility scope of module unit (2-3 sentences)
-- `<public_api>` - exported functions, types, constants
-- `<usage_examples>` - concrete examples of module unit usage in code
-- `<module_structure>` - complete XML structure including tests
-- `<dependencies>` - external packages and internal imports
-- `<notes>` - key features and limitations
+1. `<module_purpose>` — 2-3 sentences, responsibility scope
+2. `<contract>` — behavioral invariants + API contract (CRITICAL)
+3. `<design_decisions>` — WHY this approach, alternatives considered
+4. `<business_context>` — business goal, users, criticality
+5. `<edge_cases>` — boundary conditions and handling
+6. `<public_api>` — exported functions and types (brief)
+7. `<dependencies>` — categorized imports
 
 **YAML metadata:**
 
 - `documentation_type: 'ai-module-documentation'`
-- `ai_documentation_version: '2.0.0'`
-- `module_context` with full module unit metadata
-- `size_limits: content: { max: 120 }` - strict limit of 120 lines (exception: test files)
+- `module_context` with name, path, parent_package, purpose
 
-**Code example structure:**
+**What NOT to include (duplicates code):**
 
-- **Basic usage:** basic import + main function call
-- **Integration:** example usage in larger workflow
-
-**Dependencies by category:**
-
-- **Node.js:** built-in modules (node:fs, node:path)
-- **External:** npm packages from package.json
-- **Internal:** relative imports of project module units
-
-**XML file structure:**
-
-- `<module>` - root module tag
-- `<facade>` - public API of module
-- `<file>` - files with code, types, configuration
-- `<test>` - test files
+- Detailed XML file structure (code is the source of truth)
+- Full type definitions (available in types.ts)
+- Implementation details (available in source files)
 
 </required_elements>
 
