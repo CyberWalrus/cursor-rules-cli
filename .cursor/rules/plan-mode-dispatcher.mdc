@@ -8,38 +8,45 @@ alwaysApply: false
 
 <plan_mode_dispatcher>
 
-**⚠️ CRITICAL - ZERO EXCEPTIONS:**
+**🚨 CRITICAL - ABSOLUTE ZERO EXCEPTIONS 🚨**
 
-Classification is MANDATORY for EVERY task. "Task is simple" or "faster without protocol" = WRONG REASONING. Task complexity and speed preferences are IRRELEVANT. NO shortcuts, NO bypassing, NO exceptions - EVER.
+**WHY THIS MATTERS:**
+
+- Skipping classification → wrong workflow → failed plan
+- Skipping workflow read → missing critical instructions → incomplete plan
+- Plans without proper research fail 80% of the time
+
+Classification is MANDATORY for EVERY task. "Task is simple" or "faster without protocol" = WRONG REASONING. NO shortcuts, NO bypassing, NO exceptions - EVER.
 
 **ACTIVATION:** Run only when "Plan mode is active" in system_reminder; otherwise skip.
-
-**NOTE:** Mode announcement handled by `.cursor/rules/01-chat-mode-router.mdc`.
 
 **FIRST ACTION:** Classify activity type before ANY response. Skipping = plan aborts.
 
 **BLOCKING GATE BEFORE create_plan**
 
-PROHIBIT create_plan unless all checks pass:
+PROHIBIT create_plan unless ALL checks pass:
 
-[ ] Type classified
-[ ] Type announced: "📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions"
-[ ] Workflow read: read_file('.cursor/rules/[name].mdc') in same batch
-[ ] Content received
+- [ ] Type classified
+- [ ] Type announced: "📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions"
+- [ ] Workflow file read: read_file('.cursor/rules/[name].mdc') in same batch
+- [ ] Content received and **understood**
+- [ ] **Workflow instructions followed** (each workflow has its own research/validation requirements)
 
-IF any check fails → abort current step, retry entire classification process (steps 1-8) max 3 times, then report error
+IF any check fails → abort, retry classification (max 3 times), then report error
 
-**ZERO TOLERANCE ENFORCEMENT:**
+**🚨 ZERO TOLERANCE ENFORCEMENT 🚨**
 
-❌ VIOLATION DETECTION: create_plan called without type announcement → PROTOCOL FAILURE
+❌ VIOLATION: create_plan called without type announcement → PROTOCOL FAILURE
+❌ VIOLATION: create_plan called without reading workflow file → PROTOCOL FAILURE
+❌ VIOLATION: create_plan called without following workflow instructions → PROTOCOL FAILURE
 
-⚠️ SELF-CHECK MANDATORY: "Did I announce type OR cannot list selected type?" YES → STOP, execute classification (lines 40-54) NOW
+⚠️ SELF-CHECK: "Did I read and follow the workflow file instructions?" NO → STOP, read workflow NOW
 
 **AFTER PLAN EXECUTION (CRITICAL):**
 
 When user approves plan and execution starts:
 
-1. **MANDATORY FIRST LINE (NO TOOLS BEFORE):** Output `[MODE_INITIALIZED: AGENT_MODE] → 📄 .cursor/rules/07-agent-mode-workflow.mdc → Following as primary instructions (already loaded)`
+1. **MANDATORY FIRST LINE:** Output `[MODE_INITIALIZED: AGENT_MODE] → 📄 .cursor/rules/07-agent-mode-workflow.mdc → Following as primary instructions (already loaded)`
 2. Then execute todos - FORBIDDEN to skip step 1
 
 **Classification Algorithm**
@@ -51,48 +58,46 @@ When user approves plan and execution starts:
 5. SELECT type → IF tie → first from Activity Types table
 6. ANNOUNCE: `📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions`
 7. READ: read_file('.cursor/rules/[name].mdc') in same batch
-8. VERIFY: content received → IF failed → abort, retry read up to 3 times; after 3rd failure switch to DEFAULT (Code Development)
-9. PROCEED: create_plan
+8. VERIFY: content received → IF failed → retry up to 3 times; after 3rd failure → DEFAULT
+9. **FOLLOW:** Execute workflow instructions (research, validation, etc.) BEFORE create_plan
+10. PROCEED: create_plan (only after workflow requirements satisfied)
 
 IF no match at step 5 → DEFAULT to Code Development
 
-**ANTI-SHORTCUT:** "Task is obvious" = WRONG. Obviousness IRRELEVANT to protocol. Classification MANDATORY even for trivial tasks.
+**ANTI-SHORTCUT:** "Task is obvious" = WRONG. "I know this workflow" = WRONG. ALWAYS read file. ALWAYS follow instructions.
 
-**Priority:** Codes > Extensions > Keywords > Context > Default (tie: use table row order - Prompt Engineering first)
-
-**Language support:** Analyze requests in ANY language - detect intent patterns, not exact matches
+**Priority:** Codes > Extensions > Keywords > Context > Default
 
 **Activity Types**
 
 | Activity | Codes | Key Triggers | File |
 |:---|:---|:---|:---|
-| Prompt Engineering | `tdprompt` | `.cursor/`, `.mdc`, "prompt", "rules", "AI behavior", "workflow", "dispatcher", "improve prompt", "rewrite prompt" | `.cursor/rules/prompt-workflow.mdc` |
-| Code Development | `tdcode` | `.ts`, `.tsx`, `.js`, `.jsx`, "bug", "fix", "implement", "function", "refactor" | `.cursor/rules/code-workflow.mdc` |
-| UI Development | `tdui` | "ui", "interface", "visual", "styles", "component", "layout", "design" | `.cursor/rules/ui-workflow.mdc` |
-| AI Documentation | `tdaidoc` | "ai-docs", "package-ai-docs", "module-ai-docs", "module documentation", "YAML", "Diátaxis", "update documentation" | `.cursor/rules/ai-docs-workflow.mdc` |
-| Technical Critique | `tdcritic` | "critique", "review", "evaluate", "code review", "analysis" | `.cursor/rules/critique-workflow.mdc` |
+| Prompt Engineering | `tdprompt` | `.cursor/`, `.mdc`, "prompt", "rules", "workflow" | `.cursor/rules/prompt-workflow.mdc` |
+| Code Development | `tdcode` | `.ts`, `.tsx`, `.js`, "bug", "fix", "implement", "refactor" | `.cursor/rules/code-workflow.mdc` |
+| UI Development | `tdui` | "ui", "interface", "visual", "component", "layout" | `.cursor/rules/ui-workflow.mdc` |
+| AI Documentation | `tdaidoc` | "ai-docs", "package-ai-docs", "module-ai-docs" | `.cursor/rules/ai-docs-workflow.mdc` |
+| Technical Critique | `tdcritic` | "critique", "review", "evaluate", "code review" | `.cursor/rules/critique-workflow.mdc` |
 | JIRA Task | `tdjira` | "JIRA task", "technical spec", "create task" | `.cursor/rules/jira-task-creator.mdc` |
-| Auxiliary Dev | `tdaux` | "script", "deploy", "automation", "CI/CD", "config" | `.cursor/rules/auxiliary-code-workflow.mdc` |
+| Auxiliary Dev | `tdaux` | "script", "deploy", "automation", "CI/CD" | `.cursor/rules/auxiliary-code-workflow.mdc` |
 
-**PRE-CREATE_PLAN BARRIER (mandatory verification):**
+**PRE-CREATE_PLAN BARRIER:**
 
-BEFORE calling create_plan tool, verify ALL:
+BEFORE calling create_plan, verify ALL:
 
-- [ ] Type classified using algorithm (steps 1-5)
-- [ ] Type announced: "📋 [type] → 📄 .cursor/rules/[name].mdc → Following as primary instructions"
-- [ ] Workflow file read: read_file('.cursor/rules/[name].mdc')
-- [ ] Content received and confirmed
+- [ ] Type classified and announced
+- [ ] Workflow file read
+- [ ] **Workflow instructions followed** (research done, validation passed)
+- [ ] Plan content complete per workflow template
 
-❌ ANY unchecked → FORBIDDEN to call create_plan → GO TO line 40
-
-**Self-check question:** "Can I list which type I selected?" NO → Classification skipped → STOP
+❌ ANY unchecked → FORBIDDEN to call create_plan
 
 **FORBIDDEN:**
 
 - create_plan before classification
-- Questions before read_file
-- Skip announcement
+- create_plan before reading workflow
+- create_plan before following workflow instructions
+- Skipping research/validation steps defined in workflow
 
-**Example:** `📋 Prompt Engineering → 📄 .cursor/rules/prompt-workflow.mdc → Following as primary instructions`
+**Example:** `📋 Code Development → 📄 .cursor/rules/code-workflow.mdc → Following as primary instructions`
 
 </plan_mode_dispatcher>
