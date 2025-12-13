@@ -1,688 +1,408 @@
 ---
-id: architecture-reference-v2
+id: architecture-reference
 type: reference
 alwaysApply: false
 ---
 
-# Справочник архитектуры проекта
-
-[REFERENCE-BEGIN]
-
-## TIER 1: Роль эксперта
+# Architecture Reference
 
 <expert_role>
-You are an elite Architecture Enforcer and Reference Interpreter specializing in TypeScript/React projects using Feature-Sliced Design (FSD) and modular architecture.
+
+## Expert Role
+
+You are an Architecture Enforcer specializing in TypeScript/React projects.
+
+**Primary Principle:** Colocation — code lives where it is used.
 
 **Core Expertise:**
 
-- Enforcing architectural rules with zero deviations
-- Prioritizing encapsulation, minimal public API, and strict layer/domain/segment constraints
-- Forbidding cross-imports and internal imports that violate dependency hierarchy
-- Resolving conflicts through priority-based rule application
+- Deciding where to place new code for minimal change time
+- Enforcing high cohesion inside modules, low coupling between them
+- Blocking architectural violations (cycles, god files, scattered code)
 
-**LANGUAGE POLICY:**
+**Behavior by Mode:**
 
-- Create architectural guidance in Russian (professional standard)
-- BUT all user-facing responses, explanations, and code-related comments must be in Russian
-- Add explicit language instruction when user output is expected
+- Plan mode: warn about violations, suggest fixes
+- Agent mode: fix silently, ask only if ambiguous
 
-**ВАЖНО: Все ответы должны быть на русском языке.**
 </expert_role>
 
-## TIER 2: Область справочника и приоритеты
+---
 
-<reference_scope>
-Universal architectural rules reference for TypeScript/React projects combining Feature-Sliced Design (FSD) principles with modular architecture.
+<decision_algorithm>
 
-**Coverage:** modular architecture principles, terminology, general code placement rules, contexts and imports.
+## Decision Algorithm
 
-**CRITICAL:** All rules are MANDATORY for AI enforcement. Deviations are not allowed.
-</reference_scope>
+### Golden Rule
 
-<priority_rules>
-**Priority and Conflict Resolution:**
+**Code lives where it is used.** If code is needed only by one modular unit — it MUST be located INSIDE that modular unit.
 
-- This document is the primary source of truth for AI on general architectural principles
-- Conflict resolution: specific rules in specialized architecture type documents > this reference > examples > general recommendations
-- Always apply highest priority restrictions; when in doubt, prefer encapsulation, export minimization, and explicit facades
-  </priority_rules>
+### Placement Rules
 
-<completion_criteria>
+| Where is code used? | Where to place | Notes |
+|:---|:---|:---|
+| 1 place only | NEXT TO that place (same folder) | — |
+| 2 places in SAME module | Module ROOT (types.ts, helpers.ts) | — |
+| 3+ modules OR >50 lines | ASK USER before extracting | Confirm it's not coincidentally similar; confirm it won't diverge |
+| Already in shared, used by 1-2 | Consider moving back to usage site | — |
 
-- All architectural decisions follow established hierarchy
-- Encapsulation principles strictly enforced
-- Public API minimized to essential elements only
-  </completion_criteria>
+### Decision Questions
 
-<exception_handling>
-If conflicting rules exist: apply the most restrictive interpretation
-If unclear architectural decision: default to encapsulation and minimal API
-If missing specific guidance: refer to closest architectural type document
-</exception_handling>
+Before placing code, answer:
 
-## TIER 3: XML-схемы для архитектур
+1. **How many modules use this?** (1 / 2 in same module / 3+)
+2. **Will this logic diverge?** (same now but different later = duplicate)
+3. **Is extraction worth the coupling?** (small code = just copy)
 
-<architecture_schemas>
-Each architecture type has its specific tag schema:
+### Extraction Triggers
 
-<note>
-Канонический файл архитектуры имеет корневой тег `<architecture>` с блоком `<architecture_metadata>` и
-разделами `<sections>`/`<package_root>`, как описано в `.cursor/docs/generate-architecture-xml.md`.
-Ниже в примерах показана внутренняя часть `<package_root>`, которая может быть вложена в канонический файл,
-либо предоставлена как упрощённый (legacy) фрагмент. Валидатор поддерживает оба варианта ввода.
-</note>
+Extract to shared/lower layer ONLY when:
 
-### 1. single_module — minimal structure
+- 3+ modules use identical logic AND
+- Logic is stable (won't diverge) AND
+- User confirms extraction
 
-```xml
-<package_root>
-  <source_directory name="src">
-    <entrypoint name="index.ts" />
-    <file name="validate-email.ts" role="function" />
-    <file name="types.ts" role="types" />
-    <test name="__tests__/validate-email.test.ts" role="unit_test" />
-  </source_directory>
-</package_root>
+**Never auto-extract.** Duplication is acceptable if it improves change speed.
+
+</decision_algorithm>
+
+---
+
+<modular_unit>
+
+## Modular Unit
+
+### Definition
+
+A **modular unit** is an isolated code block with:
+
+- Clear single responsibility (one feature/task)
+- Public API through facade (index.ts or main file)
+- All related code inside (types, helpers, constants)
+- Minimal external dependencies
+
+### Boundaries
+
+Define module boundaries by **feature**, not by file type:
+
+```
+✅ CORRECT: Group by feature
+features/auth/
+├── index.ts          # facade
+├── auth-form.tsx     # component
+├── types.ts          # auth types
+├── helpers.ts        # auth helpers
+└── constants.ts      # auth constants
+
+❌ WRONG: Scatter by type
+model/types/auth.ts
+lib/helpers/auth-helpers.ts
+model/constants/auth.ts
+features/auth/auth-form.tsx
 ```
 
-### 2. layered_library — multi-module package
+### Internal Structure
 
-```xml
-<package_root>
-  <source_directory name="src">
-    <entrypoint name="index.ts" />
+| Size | Structure | Example |
+|:---|:---|:---|
+| Small (1-3 files) | Flat, file = facade | `validate-email.ts` |
+| Medium (4-10 files) | Flat with index.ts | `auth/index.ts` + files |
+| Large (10+ files) | Nested segments | `auth/ui/`, `auth/model/` |
 
-    <layer name="api" purpose="integrations">
-      <directory name="external">
-        <module name="ipify">
-          <facade name="index.ts" role="unit_facade" />
-          <file name="ipify-client.ts" role="function" />
-          <test name="__tests__/ipify.test.ts" role="unit_test" />
-        </module>
-      </directory>
-    </layer>
+### Facade Rules
 
-    <layer name="ui" purpose="components">
-      <directory name="base">
-        <module name="button">
-          <facade name="index.ts" role="unit_facade" />
-          <file name="Button.tsx" role="component" />
-          <file name="types.ts" role="types" />
-          <test name="__tests__/button.test.tsx" role="unit_test" />
-        </module>
-      </directory>
-    </layer>
+1. **Re-exports only** — no logic in index.ts
+2. **Minimal API** — export only what's needed externally
+3. **Hide internals** — consumers don't know internal structure
+4. **Small modules** — file itself is the facade (no index.ts needed)
 
-    <layer name="lib" purpose="utilities">
-      <directory name="hooks">
-        <module name="use-safe-back">
-          <facade name="index.ts" role="unit_facade" />
-          <file name="use-safe-back.ts" role="function" />
-          <test name="__tests__/use-safe-back.test.ts" role="unit_test" />
-        </module>
-      </directory>
-    </layer>
-  </source_directory>
-</package_root>
+```typescript
+// ✅ CORRECT: re-exports only
+export { AuthForm } from './auth-form';
+export type { AuthFormProps } from './types';
+
+// ❌ WRONG: logic in facade
+export function AuthForm() { ... }
 ```
 
-### 3. fsd_domain / fsd_standard — FSD architecture
+</modular_unit>
 
-```xml
-<package_root>
-  <source_directory name="src">
-    <entrypoint name="app/index.ts" />
+---
 
-    <layer name="pages" purpose="application pages">
-      <module name="home">
-        <facade name="index.ts" role="slice_facade" />
-        <segment name="ui" purpose="UI components">
-          <file name="HomePage.tsx" role="component" />
-        </segment>
-        <test name="__tests__/home.test.ts" role="unit_test" />
-      </module>
-    </layer>
+<cohesion_coupling>
 
-    <layer name="widgets" purpose="widgets">
-      <module name="header">
-        <facade name="index.ts" role="slice_facade" />
-        <segment name="ui" purpose="UI components">
-          <file name="Header.tsx" role="component" />
-        </segment>
-      </module>
-    </layer>
+## Cohesion and Coupling
 
-    <layer name="features" purpose="features">
-      <module name="auth">
-        <facade name="index.ts" role="slice_facade" />
-        <segment name="ui" purpose="UI components">
-          <file name="AuthForm.tsx" role="component" />
-        </segment>
-        <segment name="model" purpose="business logic">
-          <file name="auth-store.ts" role="function" />
-        </segment>
-      </module>
-    </layer>
+### High Cohesion (inside module)
 
-    <layer name="entities" purpose="entities">
-      <module name="user">
-        <facade name="index.ts" role="slice_facade" />
-        <segment name="model" purpose="types and models">
-          <file name="types.ts" role="types" />
-        </segment>
-      </module>
-    </layer>
+Everything related stays together:
 
-    <layer name="shared" purpose="shared code">
-      <directory name="lib">
-        <directory name="hooks">
-          <module name="use-safe-back">
-            <facade name="index.ts" role="unit_facade" />
-            <file name="use-safe-back.ts" role="function" />
-          </module>
-        </directory>
-      </directory>
-    </layer>
-  </source_directory>
-</package_root>
-```
+- Types used by component → same folder
+- Helpers used by one function → same file or folder
+- Constants for one feature → inside that feature
 
-### 4. multi_app_monolith — monolith with applications
+### Low Coupling (between modules)
 
-```xml
-<package_root>
-  <source_directory name="src">
-    <entrypoint name="index.ts" />
+Modules communicate only through:
 
-    <application name="admin-frontend">
-      <entrypoint name="index.ts" />
-      <layer name="pages" purpose="admin pages">
-        <module name="dashboard">
-          <facade name="index.ts" role="slice_facade" />
-          <segment name="ui" purpose="UI components">
-            <file name="Dashboard.tsx" role="component" />
-          </segment>
-        </module>
-      </layer>
-    </application>
+- Facade imports (never internal paths)
+- Shared contracts (types from lower layers)
+- Props/parameters (no hidden dependencies)
 
-    <application name="public-frontend">
-      <entrypoint name="index.ts" />
-      <layer name="pages" purpose="public pages">
-        <module name="home">
-          <facade name="index.ts" role="slice_facade" />
-          <segment name="ui" purpose="UI components">
-            <file name="HomePage.tsx" role="component" />
-          </segment>
-        </module>
-      </layer>
-    </application>
+### Dependency Direction (FSD Layers)
 
-    <application name="cli-tools">
-      <entrypoint name="index.ts" />
-      <file name="commands.ts" role="workflow" />
-      <file name="utils.ts" role="helper" />
-    </application>
+| Layer | Can import from |
+|:---|:---|
+| pages | widgets, features, entities, shared |
+| widgets | features, entities, shared |
+| features | entities, shared |
+| entities | shared only |
+| shared | nothing (leaf layer) |
 
-    <application name="common">
-      <entrypoint name="index.ts" />
-      <layer name="services" purpose="common services">
-        <directory name="workflows">
-          <module name="rebuild-indexes">
-            <facade name="index.ts" role="unit_facade" />
-            <file name="rebuild-workflow.ts" role="workflow" />
-          </module>
-        </directory>
-      </layer>
-      <layer name="lib" purpose="common utilities">
-        <directory name="helpers">
-          <module name="format-date">
-            <facade name="index.ts" role="unit_facade" />
-            <file name="format-date.ts" role="helper" />
-          </module>
-        </directory>
-      </layer>
-    </application>
-  </source_directory>
-</package_root>
-```
+**Rules:**
 
-### Tag Descriptions
+- Import only from layers BELOW
+- Never import from same-layer slices
+- Always through facade, never internal paths
 
-**`<package_root>`** — root element
+</cohesion_coupling>
 
-- Always the single root tag for all architectures
+---
 
-**`<source_directory name="name">`** — source code folder
+<forbidden_practices>
 
-- Usually `name="src"`, but can be any name
-- Content depends on architecture type
+## Forbidden Practices
 
-**`<application name="app-name">`** — application (multi_app_monolith only)
+### Absolute Bans
 
-- Standalone application with its own `<entrypoint>`
-- Can have internal layers
+| Practice | Why Forbidden | Fix |
+|:---|:---|:---|
+| God files (`shared/utils.ts` 500+ lines) | Dump for unrelated code | Split into modular units |
+| Cross-imports between same-layer modules | Creates hidden coupling | Extract to lower layer or duplicate |
+| Scattered related code | Breaks cohesion | Move to single module |
+| Internal imports (bypass facade) | Breaks encapsulation | Import from index.ts only |
+| Circular dependencies | Architectural violation | Restructure or extract |
+| Auto-extracting to shared | Creates premature abstractions | Ask user first |
 
-**`<entrypoint name="index.ts">`** — package or application entry point
+### Allowed "Garbage" Place
 
-- Used at `package_root` level or inside `<application>`
-- For FSD both variants allowed: `src/index.ts` or `src/app/index.ts`
+`shared/` is the only allowed place for cross-cutting code, but with rules:
 
-**`<layer name="layer-name" purpose="description">`** — semantic layer
-
-- **layered_library**: `api`, `ui`, `lib`, `model`, `core`, `schemas`, `assets`, `services`, `cli`, `config`, `adapters`, `gateways`, `workflows`
-- **FSD**: `app`, `pages`, [widgets]?, [features]?, [entities]?, `shared`, [core]? (обязательны: app, pages, shared)
-- **multi_app_monolith**: any layers inside each `<application>` (including `applications/common`)
-
-**`<directory name="group">`** — module grouping
-
-- **layered_library**: `external`, `base`, `hooks`, `helpers`, `adapters`, `gateways`, `workflows`
-- **multi_app_monolith**: logical grouping inside applications
-
-**`<module name="module">`** — modular unit
-
-- Main structural unit of all architectures
-- Always has facade `index.ts`
-
-**`<facade name="index.ts" role="type">`** — module facade
-
-- Applicable ONLY inside `<module>`
-- What is facade: main export entity of module or set of re-exports of its public parts
-- `role`: `unit_facade` (regular), `slice_facade` (FSD), `sub_facade` (internal sub-modules)
-
-**`<segment name="group" purpose="purpose">`** — internal module structure (FSD and multi_app_monolith)
-
-- `ui`, `model`, `lib`, `service` — file groups inside slice/module
-- Used for complex modules/slices with multiple file types
-
-**`<file name="file.ext" role="role">`** — code file
-
-- `role`: `function`, `component`, `types`, `config`, `helper`, `workflow`, `adapter`, `asset`
-
-**`<test name="test" role="unit_test">`** — test file
-
-- Always in `__tests__/` folder or next to file
-
-### Schema Application Rules
-
-1. **single_module**: mandatory `entrypoint` (`src/index.ts`), then `file`, `test` in `source_directory` root
-2. **layered_library**: mandatory main `entrypoint`, then `layer -> directory? -> module` with facades
-3. **FSD**: only `layer -> directory? -> module` with possible `segment` inside modules
-4. **multi_app_monolith**: only `application` containers (each with any internal architecture), common code in `applications (common)`
-
-<completion_criteria>
-
-- All architecture schemas properly defined with correct XML structure
-- Tag descriptions clearly explain each element's purpose and usage
-- Application rules specify correct usage for each architecture type
-  </completion_criteria>
-
-<exception_handling>
-If schema is unclear: refer to specific architecture type documentation
-If tag usage is ambiguous: default to most restrictive interpretation
-If missing required elements: add them according to architecture type rules
-</exception_handling>
-
-</architecture_schemas>
-
-## TIER 4: Термины и базовые концепции
-
-<terminology_dictionary>
-
-### Architectural Organization Levels
-
-#### Structural Hierarchy
-
-| **Term**               | **Description**                                                                                                                                                                                                     | **Examples**                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Package**            | Logically related group of files and folders. Can be simple (modular unit) or complex (FSD).                                                                                                                        | `shared/lib/hooks/use-safe-back`, `features/user`                |
-| **Modular Unit**       | Isolated code block with public API. Single file: main.ts (function+types). Complex: dir with index.ts facade.                                                                                                      | `shared/ui/base/button`, `features/user/auth`                    |
-| **Functional Element** | Independent component/hook/function with clear responsibility.                                                                                                                                                      | `AuthForm`, `useAuth`, `validatePassword`                        |
-| **Assistive Element**  | Element of specific functional element and its auxiliary components.                                                                                                                                                | `AuthForm/Button`, `useAuth/helpers.ts`                          |
-| **Facade**             | Module entry point through index.ts, hiding internal implementation. Can be: 1) file with re-exports from internal module files, 2) file with main function/element exported externally without additional exports. | `features/user/auth/index.ts`, `shared/lib/validations/index.ts` |
-
-#### FSD Structural Elements (for complex packages)
-
-| **Term**    | **Description**                                                                | **Examples**                                                        |
-| ----------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| **Layer**   | Vertical abstraction level with clear dependency rules.                        | `app`, `pages`, `widgets`, `features`, `entities`, `shared`, `core` |
-| **Domain**  | Functionality grouping around business entity.                                 | `user`, `payments`, `betting`, `gambling`, `loyalty`, `system`      |
-| **Slice**   | Independent modular unit implementing specific function. Consists of segments. | `auth-form`, `bet-cart`, `payment-gateway`                          |
-| **Segment** | Functional block inside slice. Defines responsibility zone.                    | `ui`, `model`, `service`, `lib`, `assets`                           |
+- Must be modular units (not flat files)
+- Each unit has single responsibility
+- Extraction requires 3+ usages + confirmation
 
 ### Examples
 
-**Single file module (simple, e.g., model constants):**
-constants/main.ts — self-contained file with all exports (DEFAULT_CONFIG, types; no dir+index.ts).
-
-**Nested module (complex sub-group, e.g., model):**
-constants/default-values/index.ts — facade re-exports from sub-files (e.g., export { DEFAULT_VALUE } from './value').
-
-**Model layer container folders (special case):**
-
-- `model/constants/` — container folder (NOT a modular unit, no facade required)
-- `model/constants/main.ts` — modular unit (self-contained file with all exports)
-- `model/schemas/main.ts` — modular unit (simple, re-exports from other files)
-- `model/types/main/index.ts` — modular unit (complex, multiple files with facade)
-
-<completion_criteria>
-
-- All architectural terms clearly defined with examples
-- Hierarchy relationships properly explained
-- FSD-specific terminology distinguished from general terms
-  </completion_criteria>
-
-<exception_handling>
-If term is unclear: refer to specific architecture type documentation
-If hierarchy is ambiguous: default to most restrictive interpretation
-If missing term definition: add it based on architectural context
-</exception_handling>
-
-</terminology_dictionary>
-
-<core_principles>
-
-### Basic Architecture Principles
-
-<principle_characteristics>
-**Key characteristics of modular units:**
-
-- **Encapsulation** → all internal details hidden, only public API exposed through facade
-- **Single responsibility** → each unit solves one clear task
-- **Self-sufficiency** → contains its own types, schemas, constants, helpers
-- **Minimal dependencies** → uses only what's necessary
-- **Physical grouping** → everything related lies in one folder
-  </principle_characteristics>
-
-<principle_cohesion>
-
-### Cohesion Principle
-
-<golden_rule>
-**Golden Rule:** If code is needed only by a modular unit — it must be located INSIDE that modular unit.
-</golden_rule>
-
 ```typescript
-// ✅ CORRECT: everything for validation — in one modular unit
-services/validation/
-├── index.ts
-├── validate-email.ts
-├── types.ts
-└── schemas.ts
+// ❌ FORBIDDEN: god file
+// shared/utils.ts
+export function formatDate() { ... }
+export function validateEmail() { ... }
+export function parseUrl() { ... }
+export function calculateTax() { ... }
 
-// ❌ INCORRECT: scattered across layers/folders
-model/types/validation/
-model/schemas/validation/
-services/validation/
+// ✅ CORRECT: modular units
+// shared/lib/format-date/index.ts
+export { formatDate } from './format-date';
+
+// shared/lib/validate-email/index.ts
+export { validateEmail } from './validate-email';
 ```
 
-</principle_cohesion>
-
-<completion_criteria>
-
-- All core principles clearly defined with examples
-- Golden rule properly explained with code examples
-- Cohesion principle demonstrated with correct/incorrect patterns
-  </completion_criteria>
-
-<exception_handling>
-If principle is unclear: refer to specific architecture type documentation
-If cohesion is violated: move related code to appropriate modular unit
-If encapsulation is broken: ensure proper facade usage
-</exception_handling>
-
-</core_principles>
-
-## TIER 5: Быстрый справочник размещения кода
-
-<project_structure_quickref>
-
-| **What do you have?** | **Simple structure** | **Complex structure**                                     |
-| --------------------- | -------------------- | --------------------------------------------------------- |
-| TypeScript type       | `types.ts`           | `model/types/main.ts` (container: `model/types/`)         |
-| Zod schema            | `schemas.ts`         | `model/schemas/main.ts` (container: `model/schemas/`)     |
-| Constant              | `constants.ts`       | `model/constants/main.ts` (container: `model/constants/`) |
-| Pure function         | `helpers.ts`         | `lib/helpers/func/index.ts`                               |
-| React hook            | `hooks.ts`           | `lib/hooks/hook-name/index.ts`                            |
-| File operations       | `file.ts`            | `services/adapters/file/index.ts`                         |
-| localStorage          | `storage.ts`         | `services/gateways/storage/index.ts`                      |
-| Business logic        | `process.ts`         | `services/workflows/process/index.ts`                     |
-| HTTP request          | `endpoints.ts`       | `api/endpoint/index.ts`                                   |
-| React component       | `component.tsx`      | `ui/component/index.tsx`                                  |
-
-**Note:** In `model` layer, folders like `constants/`, `schemas/`, `types/` are container folders (NOT modular units). The actual modular units are the `main.ts` files inside these containers.
-
-<completion_criteria>
-
-- All common code types have clear placement guidance
-- Simple vs complex structure distinction is clear
-- Examples cover all major architectural patterns
-  </completion_criteria>
-
-<exception_handling>
-If code type is unclear: default to simple structure for single modules
-If architecture type is ambiguous: refer to specific architecture type documentation
-If placement conflicts exist: apply most restrictive interpretation
-</exception_handling>
-
-</project_structure_quickref>
-
-## TIER 6: Обязательные правила
-
-<mandatory_rules>
-
-### Iron Rules (MANDATORY for AI enforcement)
-
-<structure_rules>
-
-#### RULE 1: Facades, Public API and Encapsulation
-
-- **Encapsulation:** All modular units MUST have facade `index.ts/tsx`.
-- **Public API:** Only public functional elements are exportable; auxiliary elements export is FORBIDDEN.
-- **Named exports:** Only named exports; `default` exports are FORBIDDEN.
-- **Export minimization:** Do not re-export internal details externally.
-
-#### RULE 2: Export Naming
-
-- Exports contain modular unit name: `useSafeBack`, `ButtonPrimary`.
-- Exception: main entry point components are exported without `Main` suffix (e.g., `AuthForm`).
-- Do not use `default` exports — only named exports.
-
-#### RULE 3: Functions and Files
-
-- **One function per file** — each file contains one main function/component.
-- **Named exports** — in all cases.
-- **Type encapsulation** — if types exist, extract to `types.ts`.
-
-#### Facades and Helpers
-
-- **Facades (index.ts):** ONLY re-exports of public API; no function definitions or logic (> re-exports only, ≤10 lines)
-- **Helpers:** Separate file if exported or complex (>10 lines); private helpers — inline in main function file
-
-</structure_rules>
-
-<forbidden_practices>
-**Forbidden practices:**
-
-- ❌ Scattering related code across different places
-- ❌ Direct import from internal parts of modular units
-- ❌ Export of auxiliary elements
-- ❌ `Default` exports
-- ❌ Violation of encapsulation principle
-- ❌ God facades with multiple functions or logic
-
-### Example: Facade Usage
-
-**✅ Correct (re-exports only):**
-
 ```typescript
-// index.ts
-export { mainFunction } from './main-function';
-export type { Options } from './types';
-```
+// ❌ FORBIDDEN: internal import
+import { helper } from '$features/auth/internal/helper';
 
-**❌ Incorrect (logic in facade):**
-
-```typescript
-// BAD index.ts
-export function mainFunction() { ... }  // Logic violates facade
-export { mainFunction };  // Duplicate
+// ✅ CORRECT: facade import
+import { AuthForm } from '$features/auth';
 ```
 
 </forbidden_practices>
 
-<completion_criteria>
+---
 
-- All mandatory rules clearly defined with examples
-- Forbidden practices explicitly listed
-- Structure rules cover all essential aspects
-  </completion_criteria>
+<architecture_types>
+
+## Architecture Types
+
+### Detection
+
+1. Check `architecture.xml` in project root
+2. If not found → ask user which type applies
+3. Apply universal rules + type-specific rules
+
+### Types Overview
+
+| Type | Use Case | Key Characteristic |
+|:---|:---|:---|
+| single_module | One function/component | Entire package = one module |
+| layered_library | Component library, utils | Layers: api, ui, lib, model |
+| fsd_standard | Frontend application | Layers: app, pages, [widgets], [features], [entities], shared |
+| fsd_domain | Frontend with domains | FSD + domain grouping (user, payments) |
+| server_fsd | Backend/CLI application | Layers: controllers, services, models |
+| multi_app_monolith | Multiple apps in monorepo | Applications container + common |
+
+### FSD Layers
+
+Only `app` is mandatory. Add layers as project grows:
+
+| Layer | When to add |
+|:---|:---|
+| app/ | MANDATORY: entry point, providers |
+| pages/ | When you have routes |
+| widgets/ | For complex page sections |
+| features/ | For user interactions |
+| entities/ | For business entities |
+| shared/ | For cross-cutting code |
+
+### Links to Detailed Rules
+
+- [architecture-single-module.md](architecture-single-module.md)
+- [architecture-layered-library.md](architecture-layered-library.md)
+- [architecture-fsd-standard.md](architecture-fsd-standard.md)
+- [architecture-fsd-domain.md](architecture-fsd-domain.md)
+- [architecture-server-fsd.md](architecture-server-fsd.md)
+- [architecture-multi-app-monolith.md](architecture-multi-app-monolith.md)
+
+</architecture_types>
+
+---
+
+<xml_schema>
+
+## XML Schema (Minimal)
+
+### Common Tags
+
+| Tag | Purpose | Required Attributes |
+|:---|:---|:---|
+| `<package_root>` | Root element | — |
+| `<source_directory>` | Source folder | `name` |
+| `<entrypoint>` | Entry file | `name` |
+| `<layer>` | Semantic layer | `name`, `purpose` |
+| `<module>` | Modular unit | `name` |
+| `<facade>` | Module facade | `name`, `role` |
+| `<file>` | Code file | `name`, `role` |
+| `<test>` | Test file | `name`, `role` |
+
+### Minimal Example
+
+```xml
+<package_root>
+  <source_directory name="src">
+    <entrypoint name="index.ts" />
+    <layer name="features" purpose="user interactions">
+      <module name="auth">
+        <facade name="index.ts" role="slice_facade" />
+        <file name="auth-form.tsx" role="component" />
+        <file name="types.ts" role="types" />
+      </module>
+    </layer>
+  </source_directory>
+</package_root>
+```
+
+</xml_schema>
+
+---
+
+<terminology>
+
+## Terminology
+
+| Term | Definition |
+|:---|:---|
+| **Modular Unit** | Isolated code block with public API and single responsibility |
+| **Facade** | Entry point (index.ts) exposing public API, hiding internals |
+| **Cohesion** | How related code is grouped together inside module |
+| **Coupling** | Dependencies between modules (lower = better) |
+| **Colocation** | Placing code next to where it's used |
+| **Layer** | Vertical abstraction level with dependency rules |
+| **Slice** | Horizontal module within a layer (FSD term) |
+| **Segment** | Functional block inside slice: ui, model, lib |
+
+</terminology>
+
+---
+
+<quick_reference>
+
+## Quick Reference
+
+### File Structure Rules
+
+**One function per file** — each file contains one main function/component (exception: `helpers.ts` for small related helpers).
+
+**Mandatory separation:**
+
+- Types → `types.ts` (functions MUST NOT export types)
+- Constants → `constants.ts` (functions MUST NOT export constants)
+- Schemas → `schemas.ts` (Zod/validation schemas)
+
+### Placement Table
+
+| What | Simple structure | Complex structure |
+|:---|:---|:---|
+| TypeScript type | `types.ts` | `model/types/main.ts` |
+| Zod schema | `schemas.ts` | `model/schemas/main.ts` |
+| Constant | `constants.ts` | `model/constants/main.ts` |
+| Pure function | `helpers.ts` | `lib/helpers/func/index.ts` |
+| React hook | `hooks.ts` | `lib/hooks/hook-name/index.ts` |
+| File operations | `file.ts` | `services/adapters/file/index.ts` |
+| localStorage | `storage.ts` | `services/gateways/storage/index.ts` |
+| Business logic | `process.ts` | `services/workflows/process/index.ts` |
+| HTTP request | `endpoints.ts` | `api/endpoint/index.ts` |
+| React component | `component.tsx` | `ui/component/index.tsx` |
+
+**Note:** In `model` layer: `constants/`, `schemas/`, `types/` are container folders (NOT modular units). Actual modular units are `main.ts` files inside.
+
+### Extraction to Shared
+
+| Usage | Action |
+|:---|:---|
+| 1-2 modules | Keep in module |
+| 3+ modules | ASK USER before extracting to shared |
+
+**Never auto-extract.** Duplication is acceptable if it improves change speed.
+
+### File Naming
+
+- Files: `kebab-case.ts` (`validate-email.ts`)
+- Components: `PascalCase.tsx` (`AuthForm.tsx`)
+- Folders: `kebab-case/` (`auth-form/`)
+
+### Import Rules
+
+- Inside module: relative (`./types`)
+- Between modules: absolute (`$features/auth`)
+- Always through facade, never internal paths
+
+</quick_reference>
+
+---
+
+<validation>
+
+## Validation
+
+To validate architecture:
+
+1. Check `architecture.xml` in project root
+2. Run: `mcp_mcp-validator_validate validationType="architecture"`
+3. Target score: >=85
+
+</validation>
+
+---
 
 <exception_handling>
-If rule is unclear: apply most restrictive interpretation
-If forbidden practice is detected: correct immediately
-If structure rule is violated: enforce proper facade usage
+
+## Exception Handling
+
+- Ambiguous placement → ask user
+- Circular dependency detected → suggest restructure
+- God file found → suggest splitting into modular units
+- Internal import found → suggest facade import
+
 </exception_handling>
-
-</mandatory_rules>
-
-<context_and_imports>
-
-### Contexts and Imports
-
-- Context levels: global → application → modular unit → functional element → nested element.
-- Child element does not import parent; access to parent's public API is allowed through facade.
-- Nested element can use auxiliary content of parent functional element; reverse access is forbidden.
-- Relative imports — only inside one modular unit.
-- Absolute imports — for connections between modular units/layers.
-
-<completion_criteria>
-
-- All import rules clearly defined with hierarchy
-- Context levels properly explained
-- Import restrictions clearly specified
-  </completion_criteria>
-
-<exception_handling>
-If import rule is unclear: default to most restrictive interpretation
-If context hierarchy is violated: correct import structure
-If relative/absolute import is misused: enforce proper import patterns
-</exception_handling>
-
-</context_and_imports>
-
-<testing_rules>
-
-### Testing Rules
-
-- All tests — in `__tests__` folders at the level of tested module.
-- File names: `{module}.test.ts` (unit/integration), `{module}.e2e.ts` (E2E).
-- Auxiliary mocks — in `__tests__/mocks`.
-
-<completion_criteria>
-
-- All testing rules clearly defined with examples
-- File naming conventions specified
-- Mock organization structure defined
-  </completion_criteria>
-
-<exception_handling>
-If test structure is unclear: default to standard `__tests__` pattern
-If naming convention is violated: correct to standard format
-If mock organization is wrong: move to proper `__tests__/mocks` structure
-</exception_handling>
-
-</testing_rules>
-
-## TIER 7: Типы архитектур пакетов
-
-<architecture_types_overview>
-
-There are four main types of package architecture for TypeScript projects:
-
-### 1. Single Module — Minimal Modular Unit
-
-**Purpose:** Entire package represents one modular unit.
-**Suitable for:** Libraries, utilities, simple components.
-**Details:** [architecture-single-module.md](architecture-single-module.md)
-
-### 2. Layered Library — Multi-Module Package
-
-**Purpose:** Several independent modular units grouped by layers (`api`, `ui`, `lib`).
-**Suitable for:** Component libraries, shared layers, utility packages.
-**Details:** [architecture-layered-library.md](architecture-layered-library.md)
-
-### 3. FSD Standard — Feature-Sliced Design
-
-**Purpose:** Full FSD structure for frontend applications.
-**Suitable for:** Complex frontend applications.
-**Variants:**
-
-- [architecture-fsd-standard.md](architecture-fsd-standard.md) — without domains
-- [architecture-fsd-domain.md](architecture-fsd-domain.md) — with domains
-- [architecture-server-fsd.md](architecture-server-fsd.md) — for server applications
-
-### 4. Multi App Monolith — Multi-Application Monolith
-
-**Purpose:** One package contains multiple applications (frontend, backend, CLI).
-**Suitable for:** Monorepositories with multiple entry points.
-**Details:** [architecture-multi-app-monolith.md](architecture-multi-app-monolith.md)
-
-<completion_criteria>
-
-- All architecture types clearly defined with purpose and suitability
-- Links to detailed documentation provided
-- Clear distinction between different types
-  </completion_criteria>
-
-<exception_handling>
-If architecture type is unclear: refer to specific documentation
-If type selection is ambiguous: default to single module for simple cases
-If multiple types apply: choose most appropriate based on complexity
-</exception_handling>
-
-</architecture_types_overview>
-
-## TIER 8: Алгоритм выбора и применения
-
-<compliance_algorithm>
-
-### Architecture Type Selection Algorithm
-
-**Step 1:** Determine package complexity
-
-- **One function/component/hook** → `single_module`
-- **Several independent modular units without FSD** → `layered_library`
-- **Complex frontend application** → one of `fsd_*` architectures
-- **Multiple applications in one package** → `multi_app_monolith`
-
-**Step 2:** Apply appropriate structure
-
-- Follow rules of specific architecture type
-- Observe encapsulation and facade principles
-- Check dependencies according to type rules
-
-**Step 3:** Ensure quality
-
-- Facades on all modular units
-- Minimal public API
-- Tests next to code
-- Follow naming rules
-
-<completion_criteria>
-
-- All selection steps clearly defined
-- Quality criteria specified
-- Algorithm covers all architecture types
-
-</completion_criteria>
-
-<exception_handling>
-If complexity is unclear: default to single module
-If architecture type is ambiguous: refer to specific documentation
-If quality criteria not met: enforce proper structure
-</exception_handling>
-
-</compliance_algorithm>
-
-[REFERENCE-END]
