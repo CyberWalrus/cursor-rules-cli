@@ -151,7 +151,34 @@ If requirements are clear → proceed to Step 5.
 
 **MCP Architecture Check:**
 
-**Prepare DIFF summary from Step 5:**
+**Structural Changes Analysis (MANDATORY OUTPUT):**
+
+Before MCP validation, EXPLICITLY reason about structural changes in chat:
+
+| Category | Analysis Question | Your Answer |
+|:---|:---|:---|
+| NEW files | Will new files/folders be created? | YES (list) / NO |
+| REMOVED files | Will files/folders be deleted? | YES (list) / NO |
+| MODIFIED only | Only changes to existing files? | YES / NO |
+
+**Decision Logic:**
+
+1. If NEW = YES OR REMOVED = YES → structural changes exist → MCP validation REQUIRED
+2. If MODIFIED only = YES (no new/removed) → NO structural changes → MCP validation MAY BE SKIPPED
+
+**Output format (MANDATORY in chat before MCP call or skip):**
+
+```
+STRUCTURAL ANALYSIS:
+- NEW: [list files] / NONE
+- REMOVED: [list files] / NONE
+- MODIFIED: [list files]
+- DECISION: MCP REQUIRED (structural changes) / MCP SKIPPED (no structural changes)
+```
+
+**VIOLATION:** Skipping this analysis OR calling MCP without explicit reasoning → restart Step
+
+**Prepare DIFF summary from Step 5 (if MCP REQUIRED):**
 
 Collect planned UI changes into diff format:
 
@@ -185,6 +212,11 @@ Files affected: [count] files, [count] components`
 
 ❌ Score field empty → FORBIDDEN to proceed to Step 7
 ❌ NO without documented reason → VIOLATION
+
+**Valid skip reasons:**
+
+- "No structural changes — only MODIFIED existing files, no NEW/REMOVED"
+- MCP unavailable → manual check
 
 ### Step 7: Determine AI Docs
 
@@ -224,7 +256,8 @@ Steps 1-7 complete when:
 - [ ] Solution designed (specific files and CSS changes)
 - [ ] Context7 checked (if new packages) or N/A with reason
 - [ ] Web Search verified solution (or N/A with reason)
-- [ ] MCP architecture validated (actual score recorded, >=85)
+- [ ] Structural analysis output in chat (NEW/REMOVED/MODIFIED listed)
+- [ ] MCP architecture validated (actual score recorded, >=85) OR skipped with valid reason
 - [ ] MCP RESULT RECORD table filled with actual values
 
 ❌ ANY unchecked → FORBIDDEN to proceed to Step 8
