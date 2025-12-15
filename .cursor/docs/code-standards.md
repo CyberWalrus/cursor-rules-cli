@@ -51,8 +51,11 @@ CI Pipeline:
 </tooling>
 
 <rule_id_registry>
-structural.one_file_one_function — One file = one function, max 150 lines
+structural.one_file_one_function — One file = one function, max 150 lines (CRITICAL)
 structural.file_size_max_150 — File size limit 150 lines (exception: tests)
+structural.entity_separation — Functions/types/constants in separate files (CRITICAL)
+structural.no_type_export_from_function — Function files MUST NOT export types (CRITICAL)
+structural.no_const_export_from_function — Function files MUST NOT export constants (CRITICAL)
 arrays.methods_only — Array methods only, no for/while
 control_flow.guard_clauses — Guard clauses instead of deep nesting
 comparisons.explicit — Explicit comparisons only (no !value)
@@ -75,6 +78,7 @@ absolute_bans.no_implicit_comparisons — Implicit comparisons forbidden
 absolute_bans.no_deep_if_else — Deep branching forbidden
 absolute_bans.files_over_150_lines — Files > 150 lines forbidden
 absolute_bans.node_imports_without_prefix — Node.js imports without node: prefix forbidden
+absolute_bans.mixed_entity_files — Mixing functions/types/constants forbidden (CRITICAL)
 modules.esm_only — ESM only, CommonJS forbidden
 react.children_react_node — Use ReactNode for children prop
 react.event_typing_explicit — Explicitly type React events
@@ -130,6 +134,83 @@ organization.local_types_file — Component types MUST be in local types.ts file
 Code passes linter with 0 errors, 100% test coverage for new functions, all structural rules verified, JSDoc present for file-level functions, exceptions applied only when justified
 </completion_criteria>
 </structural_requirements>
+
+<entity_separation>
+
+**ENTITY SEPARATION (CRITICAL - ZERO TOLERANCE):**
+
+Each file type contains ONLY that entity. Mixing entities = CRITICAL violation.
+
+| Entity | File | Can Contain |
+|:---|:---|:---|
+| Function | `function-name.ts` | ONE main function + private helpers |
+| Types | `types.ts` | ONLY type definitions |
+| Constants | `constants.ts` | ONLY constant exports |
+| Schemas | `schemas.ts` | ONLY Zod/validation schemas |
+
+**FORBIDDEN COMBINATIONS:**
+
+```typescript
+// ❌ CRITICAL: Function file exporting types
+// validate-email.ts
+export type ValidationResult = { isValid: boolean };  // WRONG! Move to types.ts
+export function validateEmail(email: string): ValidationResult { ... }
+
+// ❌ CRITICAL: Function file exporting constants
+// process-data.ts
+export const MAX_SIZE = 1000;  // WRONG! Move to constants.ts
+export function processData(data: unknown): void { ... }
+
+// ❌ CRITICAL: Mixed file (function + types + constants)
+// user-service.ts
+export type User = { id: string };         // WRONG!
+export const USER_ROLES = ['admin'];       // WRONG!
+export function getUser(id: string): User { ... }
+```
+
+**CORRECT SEPARATION:**
+
+```
+validate-email/
+├── index.ts           <- Facade: export { validateEmail }
+├── validate-email.ts  <- Function only
+├── types.ts           <- Types only
+└── constants.ts       <- Constants only
+```
+
+```typescript
+// types.ts — ONLY types
+export type ValidationResult = { isValid: boolean };
+
+// constants.ts — ONLY constants
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// validate-email.ts — ONLY function
+import type { ValidationResult } from './types';
+import { EMAIL_REGEX } from './constants';
+
+/** Валидирует email адрес */
+export function validateEmail(email: string): ValidationResult {
+    return { isValid: EMAIL_REGEX.test(email) };
+}
+```
+
+**ONE FILE = ONE FUNCTION (ENFORCEMENT):**
+
+| Violation | Severity | Fix |
+|:---|:---|:---|
+| 2+ exported functions | CRITICAL | Split into separate files |
+| Function + type export | CRITICAL | Move types to types.ts |
+| Function + constant export | CRITICAL | Move constants to constants.ts |
+| Multiple unrelated functions | CRITICAL | Split by responsibility |
+
+**EXCEPTIONS (use sparingly):**
+
+- `helpers.ts` <150 lines: Multiple RELATED helpers OK
+- Factory with closures: Nested private functions OK
+- Barrel files: Only re-exports, no logic
+
+</entity_separation>
 
 <core_patterns>
 

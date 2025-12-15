@@ -20,7 +20,7 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 
 **Structure:**
 
-1. One file = one function, max 150 lines (why: testability, reusability) - exceptions: tests, constants.ts, types.ts, schemas.ts, barrel files, helpers.ts <150 lines
+1. One file = one function, max 150 lines (CRITICAL) - exceptions: tests, constants.ts, types.ts, schemas.ts, barrel files, helpers.ts <150 lines
 2. 100% test coverage for new functions
 3. JSDoc (Russian, single line) for file-level functions; nested closures optional
 4. Guard clauses (why: readability, fewer bugs) - `if (!data) return null; return process(data);` not `if (data) { return process(data); }`
@@ -31,6 +31,18 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 9. All types in types.ts - functions MUST NOT export types
 10. All constants in constants.ts - functions MUST NOT export constants
 11. Node.js imports with node: prefix (refactor legacy)
+
+**Entity Separation (CRITICAL):**
+
+| File | Can Contain | CANNOT Contain |
+|:---|:---|:---|
+| `function.ts` | ONE function | Types, constants |
+| `types.ts` | ONLY types | Functions, constants |
+| `constants.ts` | ONLY constants | Functions, types |
+
+- `export function` + `export type` = CRITICAL violation
+- `export function` + `export const VAL` = CRITICAL violation
+- Multiple `export function` in one file = CRITICAL violation
 
 **Numeric Literals:** Use underscores for readability - `60_000`, `1_800_000` (preferred over `60000`)
 
@@ -116,6 +128,8 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 13. Function type - use concrete signatures
 14. any type - use unknown
 15. JSX.Element - use ReactNode
+16. **Mixing entities** - function file exporting types/constants (CRITICAL)
+17. **Multiple exports** - 2+ functions in one file (CRITICAL)
 
 Violation = Task Failure
 
