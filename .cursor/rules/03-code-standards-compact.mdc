@@ -18,39 +18,58 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 
 ## Core Rules
 
-**Structure:**
+**🚨 ONE-FILE-ONE-FUNCTION (BLOCKING GATE):**
 
-1. One file = one function, max 150 lines (CRITICAL) - exceptions: tests, constants.ts, types.ts, schemas.ts, barrel files, helpers.ts <150 lines
+BEFORE creating/editing any `.ts/.tsx` file, CHECK:
+
+| File Name | Multiple Functions? | What It Contains |
+|:---|:---|:---|
+| `helpers.ts` | ✅ YES | Multiple related functions |
+| `constants.ts` | ❌ NO | Only constants |
+| `types.ts` | ❌ NO | Only types |
+| `schemas.ts` | ❌ NO | Only schemas |
+| `index.ts` (barrel) | ❌ NO | Only re-exports |
+| **Any other file** | ❌ **NO** | **Exactly ONE function** |
+
+**SELF-CHECK:** "Is this file NOT `helpers.ts` AND has 2+ exported functions?" → YES = VIOLATION
+
+**Entity Separation (CRITICAL - ZERO TOLERANCE):**
+
+| Entity | Goes To | NEVER In |
+|:---|:---|:---|
+| Functions | `feature.ts` or `helpers.ts` | types.ts, constants.ts |
+| Types | `types.ts` | function files |
+| Constants | `constants.ts` | function files |
+
+**CRITICAL VIOLATIONS (INSTANT FAILURE):**
+
+```typescript
+// ❌ Two functions in non-helpers file
+export function doA() { }
+export function doB() { }  // VIOLATION
+
+// ❌ Type in function file
+export type Result = { };   // VIOLATION
+export function process() { }
+
+// ❌ Constant in function file
+export const MAX = 100;     // VIOLATION
+export function validate() { }
+```
+
+**Other Structure Rules:**
+
+1. Max 150 lines (exceptions: tests, constants.ts, types.ts, schemas.ts)
 2. 100% test coverage for new functions
-3. JSDoc (Russian, single line) for file-level functions; nested closures optional
-4. Guard clauses (why: readability, fewer bugs) - `if (!data) return null; return process(data);` not `if (data) { return process(data); }`
-5. Array methods (why: functional style, maintainability) - `items.filter(x => x.valid).map(fn)` not `for (let i = 0; ...)` - exception: math algorithms (ИНН/СНИЛС)
+3. JSDoc (Russian, single line) for file-level functions
+4. Guard clauses - `if (!data) return null;` not deep nesting
+5. Array methods - `items.filter().map()` not `for` loops (exception: math algorithms)
 6. Linter: 0 errors
 7. ESM-only (no CommonJS)
 8. No classes - functions and composition only
-9. All types in types.ts - functions MUST NOT export types
-10. All constants in constants.ts - functions MUST NOT export constants
-11. Node.js imports with node: prefix (refactor legacy)
+9. Node.js imports with node: prefix
 
-**Entity Separation (CRITICAL):**
-
-| File | Can Contain | CANNOT Contain |
-|:---|:---|:---|
-| `function.ts` | ONE function | Types, constants |
-| `types.ts` | ONLY types | Functions, constants |
-| `constants.ts` | ONLY constants | Functions, types |
-
-- `export function` + `export type` = CRITICAL violation
-- `export function` + `export const VAL` = CRITICAL violation
-- Multiple `export function` in one file = CRITICAL violation
-
-**Numeric Literals:** Use underscores for readability - `60_000`, `1_800_000` (preferred over `60000`)
-
-**Exceptions (use sparingly):**
-
-- `helpers.ts` <150 lines: multiple related functions OK (prefer separate files)
-- Closures/factories: nested private functions OK (prefer extraction if possible)
-- Math algorithms: `for` loops OK (ИНН/СНИЛС validation, checksums only)
+**Numeric Literals:** Use underscores - `60_000`, `1_800_000`
 
 **Comparisons:** `value === null || value === undefined` not `!value` (why: explicit intent, no false positives)
 
@@ -113,26 +132,29 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 
 ## Absolute Bans
 
-❌ **FORBIDDEN:**
+❌ **FORBIDDEN (ZERO TOLERANCE):**
 
-1. for/while loops
-2. class keyword
-3. export default (exception: Storybook)
-4. Multiline JSDoc
-5. Implicit comparisons (!value, !!value)
-6. Deep if/else
-7. Comments in function bodies (except tool directives)
-8. Multiple functions per file (exception: helpers.ts <150 lines)
-9. Files >150 lines (exception: tests, constants.ts, types.ts, schemas.ts)
-10. Inline types - use types.ts
-11. Node.js imports without node: prefix
-12. CommonJS (require, module.exports)
-13. Function type - use concrete signatures
-14. any type - use unknown
-15. JSX.Element - use ReactNode
-16. **Mixing entities** - function file exporting types/constants (CRITICAL)
-17. **Multiple exports** - 2+ functions in one file (CRITICAL)
-18. **Nested JSX/components** - JSX outside return or nested components, extract to separate files (CRITICAL)
+**File Structure (CRITICAL):**
+
+1. **Multiple functions in non-helpers file** - only `helpers.ts` allows multiple functions
+2. **Mixing entities** - function + type/constant in same file
+3. Files >150 lines (exception: tests, constants.ts, types.ts, schemas.ts)
+
+**Code Patterns:**
+4. for/while loops (exception: math algorithms)
+5. class keyword
+6. export default (exception: Storybook)
+7. Multiline JSDoc
+8. Implicit comparisons (!value, !!value)
+9. Deep if/else
+10. Comments in function bodies (except tool directives)
+11. Inline types - use types.ts
+12. Node.js imports without node: prefix
+13. CommonJS (require, module.exports)
+14. Function type - use concrete signatures
+15. any type - use unknown
+16. JSX.Element - use ReactNode
+17. **Nested JSX/components** - extract to separate files
 
 Violation = Task Failure
 

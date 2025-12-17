@@ -95,9 +95,27 @@ organization.local_types_file — Component types MUST be in local types.ts file
 ## TIER 3: Coding Rules
 
 <structural_requirements>
+
+**🚨 ONE-FILE-ONE-FUNCTION (BLOCKING GATE - CHECK FIRST):**
+
+BEFORE creating or editing any `.ts/.tsx` file, determine file type:
+
+| File Name | Multiple Functions? | What It Contains |
+|:---|:---|:---|
+| `helpers.ts` | ✅ **YES** | Multiple related functions allowed |
+| `constants.ts` | ❌ NO | Only constants |
+| `types.ts` | ❌ NO | Only types |
+| `schemas.ts` | ❌ NO | Only schemas |
+| `index.ts` (barrel) | ❌ NO | Only re-exports |
+| **Any other `.ts/.tsx`** | ❌ **NO** | **Exactly ONE exported function** |
+
+**SELF-CHECK (MANDATORY):**
+
+> "Is this file NOT `helpers.ts` AND has 2+ exported functions?" → YES = CRITICAL VIOLATION
+
 **IRON RULES:**
 
-- Size: One file = one function, max 150 lines (exceptions: tests, constants.ts, types.ts, schemas.ts, barrel files, helpers.ts)
+- Size: max 150 lines (exceptions: tests, constants.ts, types.ts, schemas.ts)
 - Tests: 100% coverage for each new function
 - JSDoc: Single-line Russian for EVERY function (exported and private at file level; nested closures exempt)
 - Guard clauses instead of deep nesting
@@ -109,61 +127,59 @@ organization.local_types_file — Component types MUST be in local types.ts file
 - All constants in constants.ts — functions MUST NOT export constants
 - Node.js imports ALWAYS with node: prefix (refactor legacy code)
 
-**ИСКЛЮЧЕНИЯ:**
+**ВЛОЖЕННЫЕ ФУНКЦИИ:**
 
-**helpers.ts файлы:** Допустимо несколько логически связанных функций в одном `helpers.ts` файле если:
-
-- Общий размер <150 строк
-- Функции логически связаны (общая предметная область)
-- Каждая функция имеет JSDoc
-- ПРЕДПОЧТИТЕЛЬНО: разделять на отдельные файлы
-
-**Вложенные функции:** Допустимы вложенные приватные функции внутри фабрик и замыканий:
+Допустимы вложенные приватные функции внутри фабрик и замыканий:
 
 - Используются для closures pattern
 - Не экспортируются наружу
 - Имеют JSDoc (опционально для коротких <5 строк)
-- ПРЕДПОЧТИТЕЛЬНО: выносить в отдельные файлы если возможно
 
-**For loops в математических алгоритмах:** Допустимо использование `for` loops ТОЛЬКО для:
+**FOR LOOPS В МАТЕМАТИЧЕСКИХ АЛГОРИТМАХ:**
+
+Допустимо использование `for` loops ТОЛЬКО для:
 
 - Математических вычислений (валидация ИНН, СНИЛС, checksums)
 - Обратного обхода массивов когда findLast недоступен
 - Производительно-критичных операций с обоснованием
-- ПРЕДПОЧТИТЕЛЬНО: array methods где возможно
 
 <completion_criteria>
-Code passes linter with 0 errors, 100% test coverage for new functions, all structural rules verified, JSDoc present for file-level functions, exceptions applied only when justified
+Code passes linter with 0 errors, 100% test coverage for new functions, all structural rules verified, JSDoc present for file-level functions, ONE-FILE-ONE-FUNCTION self-check passed
 </completion_criteria>
 </structural_requirements>
 
 <entity_separation>
 
-**ENTITY SEPARATION (CRITICAL - ZERO TOLERANCE):**
+**🚨 ENTITY SEPARATION (CRITICAL - ZERO TOLERANCE):**
 
-Each file type contains ONLY that entity. Mixing entities = CRITICAL violation.
+Each entity type goes to its dedicated file. Mixing entities = INSTANT FAILURE.
 
-| Entity | File | Can Contain |
+| Entity | Goes To | NEVER In |
 |:---|:---|:---|
-| Function | `function-name.ts` | ONE main function + private helpers |
-| Types | `types.ts` | ONLY type definitions |
-| Constants | `constants.ts` | ONLY constant exports |
-| Schemas | `schemas.ts` | ONLY Zod/validation schemas |
+| Functions | `feature.ts` or `helpers.ts` | types.ts, constants.ts |
+| Types | `types.ts` | function files |
+| Constants | `constants.ts` | function files |
+| Schemas | `schemas.ts` | function files |
 
-**FORBIDDEN COMBINATIONS:**
+**CRITICAL VIOLATIONS (INSTANT FAILURE):**
 
 ```typescript
-// ❌ CRITICAL: Function file exporting types
+// ❌ VIOLATION: Two functions in non-helpers file
+// process-data.ts
+export function processData() { ... }
+export function formatData() { ... }  // WRONG! Only helpers.ts allows multiple functions
+
+// ❌ VIOLATION: Type in function file
 // validate-email.ts
 export type ValidationResult = { isValid: boolean };  // WRONG! Move to types.ts
 export function validateEmail(email: string): ValidationResult { ... }
 
-// ❌ CRITICAL: Function file exporting constants
+// ❌ VIOLATION: Constant in function file
 // process-data.ts
 export const MAX_SIZE = 1000;  // WRONG! Move to constants.ts
 export function processData(data: unknown): void { ... }
 
-// ❌ CRITICAL: Mixed file (function + types + constants)
+// ❌ VIOLATION: Mixed file (function + types + constants)
 // user-service.ts
 export type User = { id: string };         // WRONG!
 export const USER_ROLES = ['admin'];       // WRONG!
@@ -174,8 +190,8 @@ export function getUser(id: string): User { ... }
 
 ```
 validate-email/
-├── index.ts           <- Facade: export { validateEmail }
-├── validate-email.ts  <- Function only
+├── index.ts           <- Barrel: only re-exports
+├── validate-email.ts  <- ONE function only
 ├── types.ts           <- Types only
 └── constants.ts       <- Constants only
 ```
@@ -187,7 +203,7 @@ export type ValidationResult = { isValid: boolean };
 // constants.ts — ONLY constants
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// validate-email.ts — ONLY function
+// validate-email.ts — ONLY ONE function
 import type { ValidationResult } from './types';
 import { EMAIL_REGEX } from './constants';
 
@@ -197,20 +213,15 @@ export function validateEmail(email: string): ValidationResult {
 }
 ```
 
-**ONE FILE = ONE FUNCTION (ENFORCEMENT):**
+**ENFORCEMENT TABLE:**
 
 | Violation | Severity | Fix |
 |:---|:---|:---|
-| 2+ exported functions | CRITICAL | Split into separate files |
-| Function + type export | CRITICAL | Move types to types.ts |
-| Function + constant export | CRITICAL | Move constants to constants.ts |
-| Multiple unrelated functions | CRITICAL | Split by responsibility |
+| 2+ exported functions (not helpers.ts) | **CRITICAL** | Split into separate files |
+| Function + type export | **CRITICAL** | Move types to types.ts |
+| Function + constant export | **CRITICAL** | Move constants to constants.ts |
 
-**EXCEPTIONS (use sparingly):**
-
-- `helpers.ts` <150 lines: Multiple RELATED helpers OK
-- Factory with closures: Nested private functions OK
-- Barrel files: Only re-exports, no logic
+**REMEMBER:** Only `helpers.ts` allows multiple functions. Everything else = ONE function per file.
 
 </entity_separation>
 
@@ -769,65 +780,66 @@ describe('validatePackageName', () => {
 ## TIER 5: Absolute Bans
 
 <absolute_bans>
-❌ **FORBIDDEN (NO EXCEPTIONS):**
+❌ **FORBIDDEN (ZERO TOLERANCE):**
 
-1. for/while loops - use array methods
-2. class keyword - use functions and composition
-3. export default - use named exports (exception: Storybook)
-4. Multiline JSDoc with @param/@returns - single line only
-5. Single-letter variables (except in array methods)
-6. Implicit comparisons: !value, !!value
-7. Missing braces in if/else
-8. Deep if/else - use guard clauses
-9. Comments inside function bodies (ONLY exceptions: @ts-ignore, @ts-expect-error, eslint-disable for tool directives)
-10. Multiple functions per file (exception: helpers.ts <150 lines, constants.ts, types.ts, schemas.ts, barrel files)
-11. Files >150 lines (exception: tests, constants.ts, types.ts, schemas.ts, barrel files)
-12. Inline types in code - use types.ts
-13. Node.js imports without node: prefix - refactor legacy
-14. Exporting types from function files - use types.ts only
-15. Exporting constants from function files - use constants.ts only
-16. CommonJS: require, module.exports, exports - ESM only
-17. Function type - use concrete function signatures
-18. any type - use unknown with type guards or concrete types
-19. JSX.Element, JSX.IntrinsicElements - use ReactNode or ReactElement
-20. Nested JSX outside return - extract to separate component files in same folder
-21. Inline functional components inside components - extract to separate files
+**🚨 FILE STRUCTURE (CRITICAL):**
+
+1. **Multiple functions in non-helpers file** - ONLY `helpers.ts` allows multiple functions
+2. **Mixing entities** - function + type/constant in same file → separate into types.ts/constants.ts
+3. Files >150 lines (exception: tests, constants.ts, types.ts, schemas.ts)
+
+**CODE PATTERNS:**
+
+4. for/while loops - use array methods (exception: math algorithms)
+5. class keyword - use functions and composition
+6. export default - use named exports (exception: Storybook)
+7. Multiline JSDoc with @param/@returns - single line only
+8. Single-letter variables (except in array methods)
+9. Implicit comparisons: !value, !!value
+10. Missing braces in if/else
+11. Deep if/else - use guard clauses
+12. Comments inside function bodies (ONLY exceptions: @ts-ignore, @ts-expect-error, eslint-disable)
+13. Inline types in code - use types.ts
+14. Node.js imports without node: prefix - refactor legacy
+15. CommonJS: require, module.exports, exports - ESM only
+16. Function type - use concrete function signatures
+17. any type - use unknown with type guards or concrete types
+18. JSX.Element, JSX.IntrinsicElements - use ReactNode or ReactElement
+19. Nested JSX outside return - extract to separate component files
+20. Inline functional components inside components - extract to separate files
 
 **Violation = Task Failure**
 
 <completion_criteria>
-Code verified against all absolute bans, 0 violations detected, linter configured to catch banned patterns
+Code verified against all absolute bans, 0 violations detected, ONE-FILE-ONE-FUNCTION self-check passed
 </completion_criteria>
 </absolute_bans>
 
 <acceptable_exceptions>
-**IMPORTANT:** These exceptions are acceptable, but NOT RECOMMENDED. Prefer standard patterns.
 
-**helpers.ts with multiple functions:** Acceptable if logically related and <150 lines. Preferred: separate files.
+**helpers.ts:** Multiple related functions allowed in `helpers.ts` file.
 
-**Nested private functions:** Acceptable for closures/factories. Preferred: extract to separate files if possible.
+**Nested private functions:** Allowed for closures/factories (not exported).
 
 ```typescript
-// ⚠️ ACCEPTABLE for closure
+// ✅ ALLOWED in helpers.ts or as closure
 export function createErrorBuffer(): ErrorBuffer {
     const errorQueue: unknown[] = [];
-    /** Отправляет накопленные ошибки в Sentry */
     function call(sentry: Client): void { errorQueue.forEach((err) => sentry.captureException(err)); }
-    /** Добавляет ошибку в очередь */
     function push(error: unknown): void { errorQueue.push(error); }
     return { call, push };
 }
 ```
 
-**Comments inside functions:** ONLY for tool directives (@ts-ignore, @ts-expect-error, eslint-disable). No explanatory comments inside function bodies - refactor code for clarity instead.
+**Comments inside functions:** ONLY for tool directives (@ts-ignore, @ts-expect-error, eslint-disable).
 
-**Arrow functions vs function declarations:** Both OK, function preferred. AI writes function, notes const preference.
+**Arrow functions vs function declarations:** Both OK, function preferred.
 
 ```typescript
 // ✅ RECOMMENDED
 export function validateInput(input: unknown): ValidationResult { ... }
 
-// ⚠️ ACCEPTABLE
+// ✅ ACCEPTABLE
 export const validateInput = (input: unknown): ValidationResult => { ... };
 ```
 
@@ -836,15 +848,23 @@ export const validateInput = (input: unknown): ValidationResult => { ... };
 <checklist>
 **MANDATORY ELEMENTS:**
 
+**🚨 FILE STRUCTURE (CHECK FIRST):**
+
+- [ ] Is file `helpers.ts`? → Multiple functions OK
+- [ ] Is file `constants.ts`/`types.ts`/`schemas.ts`/`index.ts`? → Only that entity type
+- [ ] Otherwise → Exactly ONE exported function
+- [ ] No mixed entities (function + type/constant in same file)
+
+**CODE QUALITY:**
+
 - [ ] JSDoc in Russian for EVERY function (including private)
 - [ ] Single-line JSDoc only (no @param, @returns)
-- [ ] One file = one function (exceptions documented)
 - [ ] All types in types.ts, functions MUST NOT export types
 - [ ] All constants in constants.ts, functions MUST NOT export constants
 - [ ] Node.js imports with node: prefix
 - [ ] Named exports only (except Storybook)
 - [ ] No classes
-- [ ] No for/while loops (array methods only)
+- [ ] No for/while loops (array methods only, exception: math)
 - [ ] Guard clauses instead of deep nesting
 - [ ] Explicit comparisons (value === null, not !value)
 - [ ] 100% test coverage for new functions
