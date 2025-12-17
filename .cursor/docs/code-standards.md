@@ -87,6 +87,8 @@ react.conditional_return_null — Use guard clause with return null
 react.custom_hooks_prefix — Custom hooks MUST start with use prefix
 react.use_ref_patterns — Use useRef for mutable values and DOM access
 react.code_splitting_large_only — Use React.lazy() only for large components >100 lines
+react.no_nested_jsx — JSX outside return forbidden, extract to separate files (CRITICAL)
+react.no_inline_components — Nested functional components forbidden, extract to separate files (CRITICAL)
 organization.local_types_file — Component types MUST be in local types.ts file
 </rule_id_registry>
 
@@ -421,8 +423,54 @@ const CreateOrderModal = lazy(() => import('./modals/create-order-modal'));
 
 **Rules:** Use React.lazy() ONLY for large components (>100 lines) OR heavy dependencies. Always wrap in Suspense. Small UI components must be imported normally.
 
+**No Nested JSX (CRITICAL):**
+
+```typescript
+// ❌ FORBIDDEN - JSX in variables
+export function MetricCell({ title }: Props): React.ReactNode {
+    const titleContent = (<span>{title}</span>);  // CRITICAL violation
+    const button = condition && (<button>Click</button>);  // CRITICAL violation
+    return <div>{titleContent}{button}</div>;
+}
+
+// ❌ FORBIDDEN - Nested functional components
+export function Dashboard(): React.ReactNode {
+    const InfoButton = () => (<button>ⓘ</button>);  // CRITICAL violation
+    return <div><InfoButton /></div>;
+}
+
+// ✅ CORRECT - Extract to separate files in same folder
+// metric-cell/title-content.tsx
+/** Отображает заголовок ячейки метрики */
+export function TitleContent({ title }: TitleContentProps): React.ReactNode {
+    return <span>{title}</span>;
+}
+
+// metric-cell/info-button.tsx
+/** Кнопка информации с иконкой */
+export function InfoButton({ onClick }: InfoButtonProps): React.ReactNode {
+    return <button onClick={onClick}>ⓘ</button>;
+}
+
+// metric-cell/index.tsx
+import { TitleContent } from './title-content';
+import { InfoButton } from './info-button';
+
+/** Ячейка метрики с прогресс-баром */
+export function MetricCell({ title, onInfoClick }: MetricCellProps): React.ReactNode {
+    return (
+        <div>
+            <TitleContent title={title} />
+            <InfoButton onClick={onInfoClick} />
+        </div>
+    );
+}
+```
+
+**Rules:** ALL JSX must be in return statement only. Any JSX in variables or nested components MUST be extracted to separate files in the same folder.
+
 <completion_criteria>
-Components use ReactNode return type, props destructured in parameters, events explicitly typed, conditional rendering with guard clauses, custom hooks start with use prefix, React.lazy() only for large components with Suspense wrapper
+Components use ReactNode return type, props destructured in parameters, events explicitly typed, conditional rendering with guard clauses, custom hooks start with use prefix, React.lazy() only for large components with Suspense wrapper, no JSX outside return statement, no nested functional components
 </completion_criteria>
 
 </react_patterns>
@@ -742,6 +790,8 @@ describe('validatePackageName', () => {
 17. Function type - use concrete function signatures
 18. any type - use unknown with type guards or concrete types
 19. JSX.Element, JSX.IntrinsicElements - use ReactNode or ReactElement
+20. Nested JSX outside return - extract to separate component files in same folder
+21. Inline functional components inside components - extract to separate files
 
 **Violation = Task Failure**
 

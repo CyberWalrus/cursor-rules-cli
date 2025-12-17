@@ -81,6 +81,8 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 - Event typing: `onClick: (event: React.MouseEvent<HTMLButtonElement>) => void` (explicit types)
 - Conditional: `if (!visible) return null; return <div>...</div>;` not `visible ? <div>...</div> : null`
 - Component types in local types.ts, NOT in global types file
+- No JSX outside return (CRITICAL) - `const el = (<div/>)` forbidden, extract to separate files in same folder
+- No nested functional components (CRITICAL) - `const Inner = () => <div/>` forbidden, extract to separate files
 
 **Hooks:**
 
@@ -130,6 +132,7 @@ Read full reference: `.cursor/docs/code-standards.md` for detailed examples.
 15. JSX.Element - use ReactNode
 16. **Mixing entities** - function file exporting types/constants (CRITICAL)
 17. **Multiple exports** - 2+ functions in one file (CRITICAL)
+18. **Nested JSX/components** - JSX outside return or nested components, extract to separate files (CRITICAL)
 
 Violation = Task Failure
 

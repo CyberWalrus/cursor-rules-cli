@@ -51,7 +51,8 @@ Think step-by-step: read context, classify type, design structure, validate, the
 2. **CLASSIFY TYPE** → compact/command/algorithm/reference/combo
 3. **DESIGN STRUCTURE** → YAML, XML tags, TIER, anchors per type
 4. **VALIDATE** → MCP prompts check (≥85)
-5. **CREATE PLAN** → Only after steps 1-4 complete
+5. **ALIGN** → State understanding (from research), get user confirmation, agree scope
+6. **CREATE PLAN** → Only after steps 1-5 complete
 
 **FORBIDDEN (INSTANT VIOLATION):**
 
@@ -60,6 +61,9 @@ Think step-by-step: read context, classify type, design structure, validate, the
 - ❌ create_plan without structural requirements in plan
 - ❌ create_plan before understanding type-specific rules
 - ❌ Assuming type without classification
+- ❌ create_plan without stating understanding first
+- ❌ create_plan without user confirmation of understanding
+- ❌ Skipping alignment ("task is obvious")
 
 **SELF-CHECK:** If type reasoning is unclear OR mandatory checks incomplete → restart at step 1.
 
@@ -114,6 +118,31 @@ mcp_mcp-validator_validate({
 - Record current score
 - Identify structural issues to fix
 
+**1.5 Alignment Phase (MANDATORY - ZERO TOLERANCE)**
+
+**🚨 BLOCKING - CANNOT SKIP, CANNOT ABBREVIATE 🚨**
+
+After research, BEFORE proceeding to Step 2:
+
+1. **STATE UNDERSTANDING** — Based on research, output summary in user language:
+   - Task interpretation (own words)
+   - Goal of changes (what behavior will change)
+   - Affected files with scope (file: ~N lines each)
+
+2. **ASK CONFIRMATION** — Request explicit user approval:
+   - Is understanding correct?
+   - What outcome do you want?
+   - Agree with change scope?
+
+3. **WAIT FOR RESPONSE** — Do NOT proceed until user confirms
+
+**WHY THIS MATTERS:**
+
+- Skipped alignment → wrong changes → wasted effort
+- 80% of failed prompts = misunderstood requirements
+
+**ANTI-SKIP:** "Task is obvious" = WRONG. "User will correct later" = WRONG. Alignment is MANDATORY even for "simple" tasks.
+
 <completion_criteria>
 Step 1 complete when:
 
@@ -121,6 +150,9 @@ Step 1 complete when:
 - [ ] Operation classified (CREATE/MAJOR EDIT/MINOR EDIT)
 - [ ] Prompt type determined with reasoning
 - [ ] Structural requirements identified from Reference section
+- [ ] Understanding stated (based on research)
+- [ ] User confirmed understanding
+- [ ] Scope agreed (files + approximate line counts)
 
 ❌ ANY unchecked → FORBIDDEN to proceed to Step 2
 </completion_criteria>
