@@ -1,5 +1,53 @@
 # Changelog
 
+## [0.5.1] - 2025-12-21
+
+<small>21.12.2025 16:16</small>
+
+### Added
+
+- **Global rules management commands**
+    - Added `set-global-rule` command for managing global Cursor rules with interactive variable input
+    - Added `set-mcp-server` command for managing MCP server configuration
+    - Added `cursor-config` module for determining Cursor configuration paths across different OS
+    - Added `cursor-rules` module for working with global Cursor rules and template variable substitution
+    - Added `mcp-config` module for reading and writing MCP server configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/35005c5" target="_blank">35005c5</a>
+
+### Changed
+
+- **Package configuration**
+    - Updated executable paths and repository URL in package.json
+    - Updated knip.json configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/35005c5" target="_blank">35005c5</a>
+
+- **i18n translations**
+    - Added translations for set-global-rule and set-mcp-server commands
+    - Updated interactive menu translations
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Model layer**
+    - Added types and schemas for MCP configuration and template variables
+    - Updated model exports
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **CLI main**
+    - Updated interactive menu to include new commands
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Tests
+
+- **Interactive menu tests**
+    - Updated tests to include new commands
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Docs
+
+- **Package AI documentation**
+    - Updated documentation with set-global-rule and set-mcp-server commands
+    - Added architecture overview for new modules
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
 ## [0.5.0] - 2025-12-02
 
 <small>02.12.2025</small>
