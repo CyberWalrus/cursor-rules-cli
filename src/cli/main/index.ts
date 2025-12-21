@@ -5,6 +5,8 @@ import { t } from '../../lib/i18n';
 import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { replaceAllCommand } from '../commands/replace-all';
+import { setGlobalRuleCommand } from '../commands/set-global-rule';
+import { setMcpServerCommand } from '../commands/set-mcp-server';
 import { upgradeCommand } from '../commands/upgrade';
 import { ensureLatestVersion } from './ensure-latest-version';
 import { getPackageDir } from './get-package-dir';
@@ -54,6 +56,26 @@ const main = defineCommand({
                 const targetDir = getTargetDir();
                 await replaceAllCommand(packageDir, targetDir);
                 console.log(t('cli.main.replace-all.success'));
+            },
+        }),
+        'set-global-rule': defineCommand({
+            meta: {
+                description: 'Add or update global Cursor rule',
+                name: 'set-global-rule',
+            },
+            /** Запускает установку глобального правила */
+            async run(): Promise<void> {
+                await setGlobalRuleCommand();
+            },
+        }),
+        'set-mcp-server': defineCommand({
+            meta: {
+                description: 'Add or update MCP server configuration',
+                name: 'set-mcp-server',
+            },
+            /** Запускает установку MCP сервера */
+            async run(): Promise<void> {
+                await setMcpServerCommand();
             },
         }),
         upgrade: defineCommand({

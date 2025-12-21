@@ -2,7 +2,7 @@ import { cancel, isCancel, select } from '@clack/prompts';
 
 import { t } from '../../../lib/i18n';
 import { readUserConfig, writeUserConfig } from '../../../lib/user-config';
-import type { UserConfig } from '../../../model/types/main';
+import type { UserConfig } from '../../../model';
 
 /** Команда настройки глобальной конфигурации */
 export async function configCommand(): Promise<void> {
