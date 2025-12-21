@@ -30,11 +30,14 @@
 			<unit path="src/cli/commands/init" layer="cli" />
 			<unit path="src/cli/commands/upgrade" layer="cli" />
 			<unit path="src/cli/commands/replace-all" layer="cli" />
+			<unit path="src/cli/commands/set-global-rule" layer="cli" />
 			<unit path="src/cli/main" layer="cli" />
 			<unit path="src/lib/file-operations" layer="lib" />
 			<unit path="src/lib/version-manager" layer="lib" />
 			<unit path="src/lib/version-manager/respawn-process" layer="lib" />
 			<unit path="src/lib/diff-calculator" layer="lib" />
+			<unit path="src/lib/cursor-config" layer="lib" />
+			<unit path="src/lib/cursor-rules" layer="lib" />
 			<unit path="scripts" layer="scripts" />
 		</module_units>
 		<entrypoints>
@@ -71,6 +74,12 @@
 								<test name="replace-all.test.ts" role="unit_test" />
 							</directory>
 						</module>
+						<module name="set-global-rule">
+							<facade name="index.ts" role="unit_facade" purpose="Команда установки глобального правила Cursor" exports="setGlobalRuleCommand" />
+							<directory name="__tests__">
+								<test name="set-global-rule.test.ts" role="unit_test" />
+							</directory>
+						</module>
 					</directory>
 					<directory name="main">
 						<module name="main">
@@ -105,6 +114,29 @@
 							<facade name="index.ts" role="unit_facade" purpose="Расчет diff между версиями" exports="calculateDiff, getFilesToAdd, getFilesToUpdate, getFilesToDelete" />
 							<directory name="__tests__">
 								<test name="diff-calculator.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+					<directory name="cursor-config">
+						<module name="cursor-config">
+							<facade name="index.ts" role="unit_facade" purpose="Определение путей конфигурации Cursor" exports="getCursorConfigDir, getCursorMcpConfigPath, getCursorRulesDir, getCursorUserSettingsPath" />
+							<directory name="__tests__">
+								<test name="get-cursor-config-dir.test.ts" role="unit_test" />
+								<test name="get-cursor-mcp-config-path.test.ts" role="unit_test" />
+								<test name="get-cursor-rules-dir.test.ts" role="unit_test" />
+								<test name="get-cursor-user-settings-path.test.ts" role="unit_test" />
+							</directory>
+						</module>
+					</directory>
+					<directory name="cursor-rules">
+						<module name="cursor-rules">
+							<facade name="index.ts" role="unit_facade" purpose="Работа с глобальными правилами Cursor" exports="getMetaInfoTemplatePath, readGlobalRule, readUserRules, substituteTemplateVars, writeGlobalRule, writeUserRules" />
+							<directory name="__tests__">
+								<test name="read-global-rule.test.ts" role="unit_test" />
+								<test name="read-user-rules.test.ts" role="unit_test" />
+								<test name="substitute-template-vars.test.ts" role="unit_test" />
+								<test name="write-global-rule.test.ts" role="unit_test" />
+								<test name="write-user-rules.test.ts" role="unit_test" />
 							</directory>
 						</module>
 					</directory>

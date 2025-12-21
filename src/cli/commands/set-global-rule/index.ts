@@ -2,9 +2,9 @@ import { cancel, confirm, isCancel, text } from '@clack/prompts';
 
 import {
     getMetaInfoTemplatePath,
-    readGlobalRule,
+    readUserRules,
     substituteTemplateVars,
-    writeGlobalRule,
+    writeUserRules,
 } from '../../../lib/cursor-rules';
 import { t } from '../../../lib/i18n';
 import type { TemplateVariables } from '../../../model';
@@ -32,26 +32,32 @@ export async function setGlobalRuleCommand(): Promise<void> {
         throw new Error(t('command.set-global-rule.error.empty-rule-name'));
     }
 
-    const existingContent = await readGlobalRule(ruleName);
+    const existingRules = await readUserRules();
     let existingVariables: Partial<TemplateVariables> = {};
+    let existingRuleIndex = -1;
 
-    if (existingContent !== null) {
-        existingVariables = extractVariablesFromContent(existingContent);
-        const shouldUpdate = await confirm({
-            initialValue: true,
-            message: t('command.set-global-rule.prompt.update-existing'),
-        });
+    if (existingRules !== null) {
+        existingRuleIndex = existingRules.findIndex((rule) => rule.name === ruleName);
 
-        if (isCancel(shouldUpdate)) {
-            cancel(t(CANCELLED_MESSAGE_KEY));
+        if (existingRuleIndex >= 0) {
+            const existingContent = existingRules[existingRuleIndex].content;
+            existingVariables = extractVariablesFromContent(existingContent);
+            const shouldUpdate = await confirm({
+                initialValue: true,
+                message: t('command.set-global-rule.prompt.update-existing'),
+            });
 
-            return;
-        }
+            if (isCancel(shouldUpdate)) {
+                cancel(t(CANCELLED_MESSAGE_KEY));
 
-        if (shouldUpdate === false) {
-            cancel(t('command.set-global-rule.cancelled'));
+                return;
+            }
 
-            return;
+            if (shouldUpdate === false) {
+                cancel(t('command.set-global-rule.cancelled'));
+
+                return;
+            }
         }
     }
 
@@ -59,7 +65,22 @@ export async function setGlobalRuleCommand(): Promise<void> {
     const templatePath = getMetaInfoTemplatePath();
     const substitutedContent = await substituteTemplateVars(templatePath, variables);
 
-    await writeGlobalRule(ruleName, substitutedContent);
+    const newRule = {
+        content: substitutedContent,
+        name: ruleName,
+    };
+
+    let updatedRules: Array<{ content: string; name: string }>;
+
+    if (existingRules === null) {
+        updatedRules = [newRule];
+    } else if (existingRuleIndex >= 0) {
+        updatedRules = existingRules.map((rule, index) => (index === existingRuleIndex ? newRule : rule));
+    } else {
+        updatedRules = [...existingRules, newRule];
+    }
+
+    await writeUserRules(updatedRules);
 
     console.log(t('command.set-global-rule.success', { ruleName }));
 }

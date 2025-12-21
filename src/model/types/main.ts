@@ -146,3 +146,19 @@ export type GlobalRuleParams = {
     /** Переменные для подстановки */
     variables: TemplateVariables;
 };
+
+/** Правило пользователя Cursor */
+export type UserRule = {
+    /** Содержимое правила */
+    content: string;
+    /** Имя правила */
+    name: string;
+};
+
+/** Настройки пользователя Cursor */
+export type CursorUserSettings = {
+    /** Дополнительные настройки */
+    [key: string]: unknown;
+    /** Правила пользователя Cursor */
+    'cursor.userRules'?: UserRule[];
+};

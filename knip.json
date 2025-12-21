@@ -12,6 +12,7 @@
         "src/lib/helpers/ask-confirmation.ts",
         "src/lib/helpers/index.ts",
         "src/lib/cursor-config/index.ts",
+        "src/lib/cursor-rules/index.ts",
         "src/model/schemas/main.ts"
     ],
     "ignoreDependencies": [
