@@ -1,5 +1,79 @@
 # Changelog
 
+## [0.5.0] - 2025-12-02
+
+<small>02.12.2025</small>
+
+### Added
+
+- **Internationalization (i18n) support**
+    - Added i18n module with support for Russian and English languages
+    - Added `translate` function for localized messages
+    - Added `detectLanguage` function for automatic language detection
+    - Added `getTranslations` function for loading translations
+    - Added locale files for `en` and `ru` languages
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Global user configuration**
+    - Added `user-config` module for managing global user settings
+    - Added `readUserConfig` and `writeUserConfig` functions
+    - Added `getUserConfigDir` function for configuration directory
+    - Added `UserConfig` type for configuration structure
+    - Added `userConfigSchema` for validation
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Config command**
+    - Added `config` command for global settings configuration
+    - Added interactive menu for language selection (ru/en)
+    - Added integration with user-config module
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Changed
+
+- **CLI commands internationalization**
+    - Updated all CLI commands to use i18n for messages
+    - Updated `init`, `upgrade`, and `replace-all` commands with localized messages
+    - Updated `interactive-menu` to use i18n
+    - Updated `ask-confirmation` helper to use i18n
+    - Updated `notify-update` to use i18n
+    - Updated `get-latest-prompts-version` to use i18n
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **CLI entry point**
+    - Updated `cli.ts` to initialize i18n before running CLI
+    - Updated error handling to use localized messages
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Model layer**
+    - Added i18n constants to model
+    - Added user-config types and schemas
+    - Updated model exports
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Tests
+
+- **i18n module tests**
+    - Added unit tests for `translate`, `detectLanguage`, and `getTranslations` functions
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **user-config module tests**
+    - Added unit tests for `readUserConfig`, `writeUserConfig`, and `getUserConfigDir` functions
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Updated existing tests**
+    - Updated `init.test.ts` to work with i18n
+    - Updated `interactive-menu.test.ts` to work with i18n
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Docs
+
+- **README updates**
+    - Added CLI tool documentation section
+    - Added installation instructions
+    - Added commands documentation
+    - Added global configuration section
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
 ## [0.4.3] - 2025-11-18
 
 <small>18.11.2025 10:48</small>
