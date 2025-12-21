@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { posix } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { writeGlobalRule } from '../write-global-rule';
@@ -34,7 +34,21 @@ describe('writeGlobalRule', () => {
 
         await writeGlobalRule(ruleName, ruleContent);
 
-        expect(mockMkdir).toHaveBeenCalledWith(mockRulesDir, { recursive: true });
-        expect(mockWriteFile).toHaveBeenCalledWith(join(mockRulesDir, ruleName), ruleContent, 'utf-8');
+        const expectedRulePath = posix.join(mockRulesDir, ruleName);
+        const actualMkdirCall = mockMkdir.mock.calls[0]?.[0] as string | undefined;
+        const actualWriteFileCall = mockWriteFile.mock.calls[0]?.[0] as string | undefined;
+
+        expect(actualMkdirCall).toBeDefined();
+        if (!actualMkdirCall) {
+            throw new Error('mockMkdir was not called');
+        }
+        expect(posix.normalize(actualMkdirCall.replace(/\\/g, '/'))).toBe(posix.normalize(mockRulesDir));
+        expect(mockMkdir).toHaveBeenCalledWith(expect.any(String), { recursive: true });
+        expect(actualWriteFileCall).toBeDefined();
+        if (!actualWriteFileCall) {
+            throw new Error('mockWriteFile was not called');
+        }
+        expect(posix.normalize(actualWriteFileCall.replace(/\\/g, '/'))).toBe(posix.normalize(expectedRulePath));
+        expect(mockWriteFile).toHaveBeenCalledWith(expect.any(String), ruleContent, 'utf-8');
     });
 });

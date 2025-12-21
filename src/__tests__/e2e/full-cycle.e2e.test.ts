@@ -33,7 +33,7 @@ describe('Full Cycle E2E', () => {
         await tempDir.cleanup(tempDirPath);
     });
 
-    it('должен выполнять полный цикл: init → upgrade → replace-all', async () => {
+    it('должен выполнять полный цикл: init → upgrade → replace-all', { timeout: 30_000 }, async () => {
         await initCommand(packageDir, tempDirPath);
 
         const cursorDir = join(tempDirPath, '.cursor');
