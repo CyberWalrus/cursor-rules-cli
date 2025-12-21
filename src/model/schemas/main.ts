@@ -46,22 +46,6 @@ export const userConfigSchema = z
     })
     .passthrough();
 
-/** Схема валидации переменных для подстановки в шаблон */
-export const templateVariablesSchema = z.object({
-    AGE: z.string().optional(),
-    COMMUNICATION_STYLE: z.string().optional(),
-    CURRENT_DATE: z.string().optional(),
-    DEVICE: z.string().optional(),
-    LANGUAGE: z.string().optional(),
-    LOCATION: z.string().optional(),
-    NAME: z.string().optional(),
-    OS: z.string().optional(),
-    ROLE: z.string().optional(),
-    STACK: z.string().optional(),
-    TOOL_VERSIONS: z.string().optional(),
-    // Keys are already sorted alphabetically
-});
-
 /** Схема валидации конфигурации MCP сервера */
 export const mcpServerConfigSchema = z.object({
     args: z.array(z.string()).optional(),
@@ -72,10 +56,4 @@ export const mcpServerConfigSchema = z.object({
 /** Схема валидации конфигурации MCP серверов */
 export const mcpConfigSchema = z.object({
     mcpServers: z.record(z.string(), mcpServerConfigSchema),
-});
-
-/** Схема валидации параметров для команды установки глобального правила */
-export const globalRuleParamsSchema = z.object({
-    ruleName: z.string().min(1, 'Rule name cannot be empty'),
-    variables: templateVariablesSchema,
 });

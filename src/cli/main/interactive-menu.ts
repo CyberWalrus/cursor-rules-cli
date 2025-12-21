@@ -5,7 +5,6 @@ import type { InteractiveMenuAction } from '../../model/types/main';
 import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { replaceAllCommand } from '../commands/replace-all';
-import { setGlobalRuleCommand } from '../commands/set-global-rule';
 import { setMcpServerCommand } from '../commands/set-mcp-server';
 import { upgradeCommand } from '../commands/upgrade';
 import { getPackageDir } from './get-package-dir';
@@ -22,7 +21,6 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
             { label: t('cli.interactive-menu.upgrade'), value: 'upgrade' },
             { label: t('cli.interactive-menu.replace-all'), value: 'replace-all' },
             { label: t('cli.interactive-menu.config'), value: 'config' },
-            { label: t('cli.interactive-menu.set-global-rule'), value: 'set-global-rule' },
             { label: t('cli.interactive-menu.set-mcp-server'), value: 'set-mcp-server' },
             { label: t('cli.interactive-menu.exit'), value: 'exit' },
         ],
@@ -66,9 +64,6 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
             case 'config':
                 await configCommand();
                 outro(t('cli.main.config.success'));
-                break;
-            case 'set-global-rule':
-                await setGlobalRuleCommand();
                 break;
             case 'set-mcp-server':
                 await setMcpServerCommand();
