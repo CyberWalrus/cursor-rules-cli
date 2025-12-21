@@ -6,6 +6,7 @@ import { calculateDiff } from '../../../lib/diff-calculator/calculate-diff';
 import { copyRulesToTarget, readConfigFile, writeConfigFile } from '../../../lib/file-operations';
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
 import { askConfirmation } from '../../../lib/helpers';
+import { t } from '../../../lib/i18n';
 import { compareCalVerVersions } from '../../../lib/version-manager/compare-calver-versions';
 import { getCurrentVersion } from '../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
@@ -32,12 +33,12 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
 
     const currentVersion = await getCurrentVersion(targetDir);
     if (currentVersion === null) {
-        throw new Error('Rules not initialized. Run init command first.');
+        throw new Error(t('command.upgrade.not-initialized'));
     }
 
     const config = await readConfigFile(targetDir);
     if (config === null) {
-        throw new Error('Config file not found');
+        throw new Error(t('command.upgrade.config-not-found'));
     }
 
     const ruleSetsToUpdate = config.ruleSets.filter((ruleSet) => ruleSet.update);
@@ -50,9 +51,7 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
     const unknownRuleSets = ruleSetsToUpdate.filter((ruleSet) => !knownRuleSetIds.includes(ruleSet.id));
 
     if (unknownRuleSets.length > 0) {
-        console.warn(
-            `Warning: Unknown rule set IDs found: ${unknownRuleSets.map((rs) => rs.id).join(', ')}. Proceeding anyway.`,
-        );
+        console.warn(t('command.upgrade.unknown-rule-sets', { ids: unknownRuleSets.map((rs) => rs.id).join(', ') }));
     }
 
     const currentPromptsVersion = config.promptsVersion ?? config.version;
@@ -64,23 +63,21 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
     const latestPromptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
 
     if (latestPromptsVersion == null) {
-        console.warn(
-            `⚠️ No internet connection. Cannot fetch latest version from GitHub. Current version: ${currentPromptsVersion}`,
-        );
+        console.warn(t('command.upgrade.no-internet', { version: currentPromptsVersion }));
 
-        const shouldUseLocal = await askConfirmation('Do you want to continue with the current local version?');
+        const shouldUseLocal = await askConfirmation(t('command.upgrade.use-local'));
 
         if (!shouldUseLocal) {
-            throw new Error('Upgrade cancelled by user');
+            throw new Error(t('command.upgrade.use-local.no'));
         }
 
-        console.log(`✓ Using current local version ${currentPromptsVersion}`);
+        console.log(t('command.upgrade.use-local.yes', { version: currentPromptsVersion }));
 
         return;
     }
 
     if (currentPromptsVersion === latestPromptsVersion) {
-        console.log('✓ Prompts are up to date');
+        console.log(t('command.upgrade.up-to-date'));
 
         return;
     }
@@ -89,14 +86,16 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
     const reverseComparison = compareCalVerVersions(latestPromptsVersion, currentPromptsVersion);
 
     if (versionComparison.changeType === 'none' && reverseComparison.changeType !== 'none') {
-        console.warn(`⚠️ Local version ${currentPromptsVersion} is newer than GitHub version ${latestPromptsVersion}.`);
+        console.warn(
+            t('command.upgrade.local-newer', { current: currentPromptsVersion, latest: latestPromptsVersion }),
+        );
 
         const shouldDowngrade = await askConfirmation(
-            `Do you want to downgrade from ${currentPromptsVersion} to ${latestPromptsVersion}?`,
+            t('command.upgrade.downgrade', { current: currentPromptsVersion, latest: latestPromptsVersion }),
         );
 
         if (!shouldDowngrade) {
-            throw new Error('Upgrade cancelled by user');
+            throw new Error(t('command.upgrade.use-local.no'));
         }
     }
 
@@ -113,7 +112,7 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
         config.updatedAt = new Date().toISOString();
         await writeConfigFile(targetDir, config);
 
-        console.log(`✓ Upgraded from ${currentPromptsVersion} to ${latestPromptsVersion}`);
+        console.log(t('command.upgrade.success', { current: currentPromptsVersion, latest: latestPromptsVersion }));
     } finally {
         await rm(tmpDir, { force: true, recursive: true });
     }

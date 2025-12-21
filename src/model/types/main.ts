@@ -1,8 +1,8 @@
 /** Тип команды CLI */
-export type CommandType = 'init' | 'replace-all' | 'upgrade';
+export type CommandType = 'config' | 'init' | 'replace-all' | 'upgrade';
 
 /** Тип действия интерактивного меню */
-export type InteractiveMenuAction = 'exit' | 'init' | 'replace-all' | 'upgrade';
+export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'replace-all' | 'upgrade';
 
 /** Конфигурация правил */
 export type RulesConfig = {
@@ -80,4 +80,12 @@ export type CheckAndUpdateOptions = {
     isRespawn?: boolean;
     /** Пропустить автоматическое обновление */
     isSkipUpdate?: boolean;
+};
+
+/** Глобальная конфигурация пользователя */
+export type UserConfig = {
+    /** Дополнительные настройки */
+    [key: string]: unknown;
+    /** Язык интерфейса */
+    language: 'en' | 'ru';
 };

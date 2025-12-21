@@ -10,6 +10,8 @@ import {
 } from '../../../lib/file-operations';
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
 import { askConfirmation } from '../../../lib/helpers';
+import { t } from '../../../lib/i18n';
+import { readUserConfig } from '../../../lib/user-config';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
 import type { RulesConfig } from '../../../model';
 import { GITHUB_REPO, replaceAllCommandParamsSchema } from '../../../model';
@@ -39,26 +41,23 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
 
     if (promptsVersion == null) {
         if (existingConfig !== null && existingConfig.promptsVersion !== undefined) {
-            console.warn(
-                `⚠️ No internet connection. Cannot fetch latest version from GitHub. Using current local version: ${existingConfig.promptsVersion}`,
-            );
+            console.warn(t('command.replace-all.no-internet', { version: existingConfig.promptsVersion }));
 
-            const shouldUseLocal = await askConfirmation('Do you want to continue with the current local version?');
+            const shouldUseLocal = await askConfirmation(t('command.replace-all.use-local'));
 
             if (!shouldUseLocal) {
-                throw new Error('Replace-all cancelled by user');
+                throw new Error(t('command.replace-all.use-local.no'));
             }
 
             promptsVersion = existingConfig.promptsVersion;
         } else {
-            throw new Error(
-                'Failed to fetch latest prompts version from GitHub. No internet connection and no existing config found.',
-            );
+            throw new Error(t('command.replace-all.fetch-failed'));
         }
     }
 
     const currentTimestamp = new Date().toISOString();
 
+    const userConfig = await readUserConfig();
     let config: RulesConfig;
 
     if (existingConfig !== null) {
@@ -83,7 +82,7 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
                 },
             ],
             settings: {
-                language: 'ru',
+                language: userConfig?.language ?? 'en',
             },
             source: 'cursor-rules',
             updatedAt: currentTimestamp,
@@ -98,7 +97,7 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
         await copyRulesToTarget(tmpDir, targetDir, config.ignoreList ?? [], config.fileOverrides ?? []);
         await writeConfigFile(targetDir, config);
 
-        console.log(`✓ Replaced prompts to version ${promptsVersion}`);
+        console.log(t('command.replace-all.success', { version: promptsVersion }));
     } finally {
         await rm(tmpDir, { force: true, recursive: true });
     }

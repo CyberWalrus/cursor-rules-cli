@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { copyRulesToTarget } from '../../../../lib/file-operations/copy-rules-to-target';
 import { writeConfigFile } from '../../../../lib/file-operations/write-config-file';
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../../lib/github-fetcher';
+import { readUserConfig } from '../../../../lib/user-config';
 import { getCurrentVersion } from '../../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../../lib/version-manager/get-package-version';
 import { initCommand } from '../index';
@@ -11,6 +12,7 @@ vi.mock('node:fs/promises');
 vi.mock('../../../../lib/file-operations/copy-rules-to-target');
 vi.mock('../../../../lib/file-operations/write-config-file');
 vi.mock('../../../../lib/github-fetcher');
+vi.mock('../../../../lib/user-config');
 vi.mock('../../../../lib/version-manager/get-current-version');
 vi.mock('../../../../lib/version-manager/get-package-version');
 
@@ -20,10 +22,12 @@ const mockGetPackageVersion = vi.mocked(getPackageVersion);
 const mockWriteConfigFile = vi.mocked(writeConfigFile);
 const mockFetchPromptsTarball = vi.mocked(fetchPromptsTarball);
 const mockGetLatestPromptsVersion = vi.mocked(getLatestPromptsVersion);
+const mockReadUserConfig = vi.mocked(readUserConfig);
 
 describe('initCommand', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        mockReadUserConfig.mockResolvedValue(null);
     });
 
     it('должен успешно инициализировать правила в чистой директории', async () => {
@@ -59,7 +63,7 @@ describe('initCommand', () => {
                 },
             ],
             settings: {
-                language: 'ru',
+                language: 'en',
             },
             source: 'cursor-rules',
             updatedAt: expect.any(String),
@@ -130,7 +134,7 @@ describe('initCommand', () => {
                 },
             ],
             settings: {
-                language: 'ru',
+                language: 'en',
             },
             source: 'cursor-rules',
             updatedAt: expect.any(String),

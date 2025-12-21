@@ -8,8 +8,10 @@ const mockIsCancel = vi.hoisted(() => vi.fn());
 const mockInitCommand = vi.hoisted(() => vi.fn());
 const mockUpgradeCommand = vi.hoisted(() => vi.fn());
 const mockReplaceAllCommand = vi.hoisted(() => vi.fn());
+const mockConfigCommand = vi.hoisted(() => vi.fn());
 const mockGetPackageDir = vi.hoisted(() => vi.fn());
 const mockGetTargetDir = vi.hoisted(() => vi.fn());
+const mockT = vi.hoisted(() => vi.fn((key: string) => key));
 
 vi.mock('@clack/prompts', () => ({
     cancel: mockCancel,
@@ -31,12 +33,20 @@ vi.mock('../../commands/replace-all', () => ({
     replaceAllCommand: mockReplaceAllCommand,
 }));
 
+vi.mock('../../commands/config', () => ({
+    configCommand: mockConfigCommand,
+}));
+
 vi.mock('../get-package-dir', () => ({
     getPackageDir: mockGetPackageDir,
 }));
 
 vi.mock('../get-target-dir', () => ({
     getTargetDir: mockGetTargetDir,
+}));
+
+vi.mock('../../../lib/i18n', () => ({
+    t: mockT,
 }));
 
 describe('showInteractiveMenu', () => {
@@ -52,6 +62,28 @@ describe('showInteractiveMenu', () => {
         mockInitCommand.mockResolvedValue(undefined);
         mockUpgradeCommand.mockResolvedValue(undefined);
         mockReplaceAllCommand.mockResolvedValue(undefined);
+        mockConfigCommand.mockResolvedValue(undefined);
+        mockT.mockImplementation((key: string) => {
+            const translations: Record<string, string> = {
+                'cli.interactive-menu.cancelled': 'Операция отменена',
+                'cli.interactive-menu.config': 'Настроить конфигурацию (config)',
+                'cli.interactive-menu.exit': 'Выход',
+                'cli.interactive-menu.goodbye': 'До свидания! 👋',
+                'cli.interactive-menu.init': 'Инициализировать правила (init)',
+                'cli.interactive-menu.replace-all': 'Заменить все правила (replace-all)',
+                'cli.interactive-menu.select-action': 'Выберите действие:',
+                'cli.interactive-menu.target-dir-not-found': 'Target directory not found',
+                'cli.interactive-menu.title': 'cursor-rules-cli',
+                'cli.interactive-menu.upgrade': 'Обновить правила (upgrade)',
+                'cli.main.config.success': '✅ Конфигурация успешно сохранена',
+                'cli.main.init.success': '✅ Rules initialized successfully',
+                'cli.main.package-dir-not-found': 'Package directory not found',
+                'cli.main.replace-all.success': '✅ Rules replaced successfully',
+                'cli.main.upgrade.success': '✅ Rules upgraded successfully',
+            };
+
+            return translations[key] ?? key;
+        });
     });
 
     it('должен показывать intro при запуске', async () => {
@@ -75,6 +107,7 @@ describe('showInteractiveMenu', () => {
                 { label: 'Инициализировать правила (init)', value: 'init' },
                 { label: 'Обновить правила (upgrade)', value: 'upgrade' },
                 { label: 'Заменить все правила (replace-all)', value: 'replace-all' },
+                { label: 'Настроить конфигурацию (config)', value: 'config' },
                 { label: 'Выход', value: 'exit' },
             ],
         });
@@ -136,6 +169,15 @@ describe('showInteractiveMenu', () => {
         expect(mockGetTargetDir).toHaveBeenCalledTimes(1);
         expect(mockReplaceAllCommand).toHaveBeenCalledWith(mockPackageDir, mockTargetDir);
         expect(mockOutro).toHaveBeenCalledWith('✅ Rules replaced successfully');
+    });
+
+    it('должен вызывать configCommand при выборе config', async () => {
+        mockSelect.mockResolvedValue('config');
+
+        await showInteractiveMenu(mockFilePath);
+
+        expect(mockConfigCommand).toHaveBeenCalledTimes(1);
+        expect(mockOutro).toHaveBeenCalledWith('✅ Конфигурация успешно сохранена');
     });
 
     it('должен выбрасывать ошибку если packageDir не найден', async () => {

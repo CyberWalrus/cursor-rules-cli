@@ -1,6 +1,8 @@
 import { cancel, intro, isCancel, outro, select } from '@clack/prompts';
 
+import { t } from '../../lib/i18n';
 import type { InteractiveMenuAction } from '../../model/types/main';
+import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { replaceAllCommand } from '../commands/replace-all';
 import { upgradeCommand } from '../commands/upgrade';
@@ -9,52 +11,57 @@ import { getTargetDir } from './get-target-dir';
 
 /** Показывает интерактивное меню выбора команды */
 export async function showInteractiveMenu(currentFilePath: string): Promise<void> {
-    intro('cursor-rules-cli');
+    intro(t('cli.interactive-menu.title'));
 
     const action = await select<InteractiveMenuAction>({
-        message: 'Выберите действие:',
+        message: t('cli.interactive-menu.select-action'),
         options: [
-            { label: 'Инициализировать правила (init)', value: 'init' },
-            { label: 'Обновить правила (upgrade)', value: 'upgrade' },
-            { label: 'Заменить все правила (replace-all)', value: 'replace-all' },
-            { label: 'Выход', value: 'exit' },
+            { label: t('cli.interactive-menu.init'), value: 'init' },
+            { label: t('cli.interactive-menu.upgrade'), value: 'upgrade' },
+            { label: t('cli.interactive-menu.replace-all'), value: 'replace-all' },
+            { label: t('cli.interactive-menu.config'), value: 'config' },
+            { label: t('cli.interactive-menu.exit'), value: 'exit' },
         ],
     });
 
     if (isCancel(action)) {
-        cancel('Операция отменена');
+        cancel(t('cli.interactive-menu.cancelled'));
         process.exit(0);
     }
 
     if (action === 'exit') {
-        outro('До свидания! 👋');
+        outro(t('cli.interactive-menu.goodbye'));
 
         return;
     }
 
     const packageDir = getPackageDir(currentFilePath);
     if (packageDir === null || packageDir === undefined) {
-        throw new Error('Package directory not found');
+        throw new Error(t('cli.main.package-dir-not-found'));
     }
 
     const targetDir = getTargetDir();
     if (targetDir === null || targetDir === undefined) {
-        throw new Error('Target directory not found');
+        throw new Error(t('cli.interactive-menu.target-dir-not-found'));
     }
 
     try {
         switch (action) {
             case 'init':
                 await initCommand(packageDir, targetDir);
-                outro('✅ Rules initialized successfully');
+                outro(t('cli.main.init.success'));
                 break;
             case 'upgrade':
                 await upgradeCommand(packageDir, targetDir);
-                outro('✅ Rules upgraded successfully');
+                outro(t('cli.main.upgrade.success'));
                 break;
             case 'replace-all':
                 await replaceAllCommand(packageDir, targetDir);
-                outro('✅ Rules replaced successfully');
+                outro(t('cli.main.replace-all.success'));
+                break;
+            case 'config':
+                await configCommand();
+                outro(t('cli.main.config.success'));
                 break;
         }
     } catch (error) {

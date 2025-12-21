@@ -1,6 +1,8 @@
 import { stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 
+import { t } from '../i18n';
+
 /** Запрашивает подтверждение у пользователя через интерактивный ввод */
 export async function askConfirmation(question: string): Promise<boolean> {
     if (question === null || question === undefined || question === '') {
@@ -13,7 +15,7 @@ export async function askConfirmation(question: string): Promise<boolean> {
     });
 
     try {
-        const answer = await rl.question(`${question} (y/n): `);
+        const answer = await rl.question(t('helpers.confirmation.prompt', { question }));
         const normalized = answer.trim().toLowerCase();
 
         return normalized === 'y' || normalized === 'yes';

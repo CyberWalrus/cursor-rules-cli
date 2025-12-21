@@ -38,3 +38,10 @@ export const rulesConfigSchema = z.object({
         .regex(/^\d+\.\d+\.\d+$/, 'Version must be in semver format (x.y.z)')
         .optional(),
 });
+
+/** Схема валидации глобальной конфигурации пользователя */
+export const userConfigSchema = z
+    .object({
+        language: z.enum(['en', 'ru'], { message: 'Language must be "en" or "ru"' }),
+    })
+    .passthrough();

@@ -14,6 +14,7 @@ export type {
     FileOverride,
     RulesConfig,
     RuleSet,
+    UserConfig,
     VersionComparison,
     VersionDiff,
 } from './types/main';

@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { copyRulesToTarget } from '../../../lib/file-operations/copy-rules-to-target';
 import { writeConfigFile } from '../../../lib/file-operations/write-config-file';
 import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
+import { t } from '../../../lib/i18n';
+import { readUserConfig } from '../../../lib/user-config';
 import { getCurrentVersion } from '../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
 import type { RulesConfig } from '../../../model';
@@ -31,14 +33,12 @@ export async function initCommand(packageDir: string, targetDir: string): Promis
 
     const existingVersion = await getCurrentVersion(targetDir);
     if (existingVersion !== null) {
-        throw new Error(`Rules already initialized with version ${existingVersion}`);
+        throw new Error(t('command.init.already-initialized', { version: existingVersion }));
     }
 
     const promptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
     if (promptsVersion === null) {
-        throw new Error(
-            'Failed to fetch latest prompts version from GitHub. No internet connection or GitHub API unavailable.',
-        );
+        throw new Error(t('command.init.fetch-failed'));
     }
 
     const tmpDir = join(tmpdir(), `cursor-rules-${Date.now()}`);
@@ -49,6 +49,7 @@ export async function initCommand(packageDir: string, targetDir: string): Promis
 
         const cliVersion = await getPackageVersion(packageDir);
         const currentTimestamp = new Date().toISOString();
+        const userConfig = await readUserConfig();
         const config: RulesConfig = {
             cliVersion,
             configVersion: '1.0.0',
@@ -63,14 +64,14 @@ export async function initCommand(packageDir: string, targetDir: string): Promis
                 },
             ],
             settings: {
-                language: 'ru',
+                language: userConfig?.language ?? 'en',
             },
             source: 'cursor-rules',
             updatedAt: currentTimestamp,
         };
         await writeConfigFile(targetDir, config);
 
-        console.log(`✓ Initialized prompts version ${promptsVersion}`);
+        console.log(t('command.init.success', { version: promptsVersion }));
     } finally {
         await rm(tmpDir, { force: true, recursive: true });
     }

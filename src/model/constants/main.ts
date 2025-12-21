@@ -12,3 +12,6 @@ export const NPM_REGISTRY_URL = 'https://registry.npmjs.org' as const;
 
 /** Timeout для HTTP запросов к npm registry (в миллисекундах) */
 export const NPM_REQUEST_TIMEOUT = 5_000 as const;
+
+/** Имя файла для хранения глобальной конфигурации пользователя */
+export const USER_CONFIG_FILE_NAME = 'config.json' as const;

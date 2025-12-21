@@ -1,6 +1,8 @@
 import { defineCommand, runMain } from 'citty';
 import { fileURLToPath } from 'node:url';
 
+import { t } from '../../lib/i18n';
+import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { replaceAllCommand } from '../commands/replace-all';
 import { upgradeCommand } from '../commands/upgrade';
@@ -20,6 +22,16 @@ const main = defineCommand({
         version: '0.1.3',
     },
     subCommands: {
+        config: defineCommand({
+            meta: {
+                description: 'Configure global settings',
+                name: 'config',
+            },
+            /** Запускает настройку глобальной конфигурации */
+            async run(): Promise<void> {
+                await configCommand();
+            },
+        }),
         init: defineCommand({
             meta: {
                 description: 'Initialize .cursor rules in the project',
@@ -29,7 +41,7 @@ const main = defineCommand({
             async run(): Promise<void> {
                 const targetDir = getTargetDir();
                 await initCommand(packageDir, targetDir);
-                console.log('✅ Rules initialized successfully');
+                console.log(t('cli.main.init.success'));
             },
         }),
         'replace-all': defineCommand({
@@ -41,7 +53,7 @@ const main = defineCommand({
             async run(): Promise<void> {
                 const targetDir = getTargetDir();
                 await replaceAllCommand(packageDir, targetDir);
-                console.log('✅ Rules replaced successfully');
+                console.log(t('cli.main.replace-all.success'));
             },
         }),
         upgrade: defineCommand({
@@ -53,7 +65,7 @@ const main = defineCommand({
             async run(): Promise<void> {
                 const targetDir = getTargetDir();
                 await upgradeCommand(packageDir, targetDir);
-                console.log('✅ Rules upgraded successfully');
+                console.log(t('cli.main.upgrade.success'));
             },
         }),
     },
@@ -62,12 +74,12 @@ const main = defineCommand({
 /** Запускает CLI приложение */
 export async function runCli(): Promise<void> {
     if (packageDir === null || packageDir === undefined) {
-        throw new Error('Package directory not found');
+        throw new Error(t('cli.main.package-dir-not-found'));
     }
 
     ensureLatestVersion(packageDir).catch((error) => {
         const message: string = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Failed to check for updates: ${message}`);
+        console.warn(t('cli.main.update-check.failed', { message }));
     });
 
     if (process.argv.length <= 2) {

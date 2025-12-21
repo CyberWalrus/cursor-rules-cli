@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 /** Получает последнюю версию промптов из GitHub репозитория. Возвращает null при сетевых ошибках */
 export async function getLatestPromptsVersion(repo: string): Promise<string | null> {
     if (repo === null || repo === undefined) {
@@ -18,7 +20,7 @@ export async function getLatestPromptsVersion(repo: string): Promise<string | nu
         });
     } catch (error: unknown) {
         const message: string = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Failed to fetch latest prompts version from GitHub: ${message}`);
+        console.warn(t('github-fetcher.fetch-failed', { message }));
 
         return null;
     }
@@ -33,7 +35,7 @@ export async function getLatestPromptsVersion(repo: string): Promise<string | nu
 
             return null;
         }
-        console.warn(`⚠️ GitHub API error: ${response.status}`);
+        console.warn(t('github-fetcher.api-error', { status: String(response.status) }));
 
         return null;
     }
@@ -44,15 +46,15 @@ export async function getLatestPromptsVersion(repo: string): Promise<string | nu
         tags = (await response.json()) as Array<{ name: string }>;
     } catch (error: unknown) {
         const message: string = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Failed to parse GitHub API response: ${message}`);
+        console.warn(t('github-fetcher.parse-error', { message }));
 
         return null;
     }
 
-    const promptTags = tags.filter((t) => t.name.startsWith('prompts/v'));
+    const promptTags = tags.filter((tag) => tag.name.startsWith('prompts/v'));
 
     if (promptTags.length === 0) {
-        console.warn('⚠️ No prompts version found in GitHub repository');
+        console.warn(t('github-fetcher.no-version'));
 
         return null;
     }
