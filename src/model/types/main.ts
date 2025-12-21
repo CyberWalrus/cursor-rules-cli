@@ -1,8 +1,15 @@
 /** Тип команды CLI */
-export type CommandType = 'config' | 'init' | 'replace-all' | 'upgrade';
+export type CommandType = 'config' | 'init' | 'replace-all' | 'set-global-rule' | 'set-mcp-server' | 'upgrade';
 
 /** Тип действия интерактивного меню */
-export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'replace-all' | 'upgrade';
+export type InteractiveMenuAction =
+    | 'config'
+    | 'exit'
+    | 'init'
+    | 'replace-all'
+    | 'set-global-rule'
+    | 'set-mcp-server'
+    | 'upgrade';
 
 /** Конфигурация правил */
 export type RulesConfig = {
@@ -88,4 +95,54 @@ export type UserConfig = {
     [key: string]: unknown;
     /** Язык интерфейса */
     language: 'en' | 'ru';
+};
+
+/** Переменные для подстановки в шаблон meta-info.template.md */
+export type TemplateVariables = {
+    /** Возраст */
+    AGE?: string;
+    /** Стиль общения */
+    COMMUNICATION_STYLE?: string;
+    /** Текущая дата */
+    CURRENT_DATE?: string;
+    /** Устройство */
+    DEVICE?: string;
+    /** Язык */
+    LANGUAGE?: string;
+    /** Местоположение */
+    LOCATION?: string;
+    /** Имя пользователя */
+    NAME?: string;
+    /** Операционная система */
+    OS?: string;
+    /** Роль */
+    ROLE?: string;
+    /** Технологический стек */
+    STACK?: string;
+    /** Версии инструментов */
+    TOOL_VERSIONS?: string;
+};
+
+/** Конфигурация MCP сервера */
+export type McpServerConfig = {
+    /** Команда запуска */
+    command: string;
+    /** Аргументы команды */
+    args?: string[];
+    /** Переменные окружения */
+    env?: Record<string, string>;
+};
+
+/** Конфигурация MCP серверов */
+export type McpConfig = {
+    /** MCP серверы */
+    mcpServers: Record<string, McpServerConfig>;
+};
+
+/** Параметры для команды установки глобального правила */
+export type GlobalRuleParams = {
+    /** Имя файла правила */
+    ruleName: string;
+    /** Переменные для подстановки */
+    variables: TemplateVariables;
 };
