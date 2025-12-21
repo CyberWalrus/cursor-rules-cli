@@ -10,7 +10,9 @@
         "src/lib/diff-calculator/index.ts",
         "src/lib/version-manager/index.ts",
         "src/lib/helpers/ask-confirmation.ts",
-        "src/lib/helpers/index.ts"
+        "src/lib/helpers/index.ts",
+        "src/lib/cursor-config/index.ts",
+        "src/model/schemas/main.ts"
     ],
     "ignoreDependencies": [
         "eslint-walrus-config"
