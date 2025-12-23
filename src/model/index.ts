@@ -17,6 +17,7 @@ export type {
     RulesConfig,
     RuleSet,
     UserConfig,
+    UserMetaInfo,
     VersionComparison,
     VersionDiff,
 } from './types/main';
