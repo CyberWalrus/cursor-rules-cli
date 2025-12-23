@@ -39,10 +39,27 @@ export const rulesConfigSchema = z.object({
         .optional(),
 });
 
+/** Схема валидации метаинформации пользователя */
+export const userMetaInfoSchema = z
+    .object({
+        age: z.number().int().positive().optional(),
+        communicationStyle: z.string().optional(),
+        device: z.string().optional(),
+        language: z.string().optional(),
+        location: z.string().optional(),
+        name: z.string().optional(),
+        os: z.string().optional(),
+        role: z.string().optional(),
+        stack: z.string().optional(),
+        toolVersions: z.string().optional(),
+    })
+    .passthrough();
+
 /** Схема валидации глобальной конфигурации пользователя */
 export const userConfigSchema = z
     .object({
         language: z.enum(['en', 'ru'], { message: 'Language must be "en" or "ru"' }),
+        metaInfo: userMetaInfoSchema.optional(),
     })
     .passthrough();
 

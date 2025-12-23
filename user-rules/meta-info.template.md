@@ -2,7 +2,6 @@
 id: user-meta-info
 type: compact
 alwaysApply: true
-current_date: "${CURRENT_DATE}"
 ---
 
 # User Meta Info
@@ -10,8 +9,6 @@ current_date: "${CURRENT_DATE}"
 <user_meta>
 
 **SOURCE OF TRUTH:** Treat this context as authoritative; always prefer it over assumptions.
-
-**CURRENT DATE:** ${CURRENT_DATE} (apply to all time-sensitive operations, versioning, timestamps)
 
 **User Profile:**
 
@@ -36,7 +33,7 @@ current_date: "${CURRENT_DATE}"
 **ВАЖНО: Все ответы должны быть на русском языке.**
 
 <completion_criteria>
-Context internalized, tool versions verified, current date (${CURRENT_DATE}) applied to temporal operations.
+Context internalized, tool versions verified.
 </completion_criteria>
 
 </user_meta>

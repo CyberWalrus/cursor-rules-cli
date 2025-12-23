@@ -5,14 +5,24 @@ import { configCommand } from '../index';
 const mockSelect = vi.hoisted(() => vi.fn());
 const mockCancel = vi.hoisted(() => vi.fn());
 const mockIsCancel = vi.hoisted(() => vi.fn());
+const mockLog = vi.hoisted(() => ({
+    error: vi.fn(),
+    success: vi.fn(),
+}));
+const mockText = vi.hoisted(() => vi.fn());
 const mockReadUserConfig = vi.hoisted(() => vi.fn());
 const mockWriteUserConfig = vi.hoisted(() => vi.fn());
 const mockT = vi.hoisted(() =>
     vi.fn((key: string, params?: Record<string, string>) => {
         const translations: Record<string, string> = {
             'cli.interactive-menu.cancelled': 'Операция отменена',
+            'command.config.field.finish': 'Завершить',
+            'command.config.field.language': 'Язык',
+            'command.config.field.mcp-config': 'MCP конфигурация',
+            'command.config.field.meta-info': 'Метаинформация',
             'command.config.language.en': 'English',
             'command.config.language.ru': 'Русский',
+            'command.config.select-field': 'Выберите поле:',
             'command.config.select-language': 'Выберите язык интерфейса:',
             'command.config.success': `✓ Язык интерфейса установлен: ${params?.language ?? ''}`,
         };
@@ -24,7 +34,9 @@ const mockT = vi.hoisted(() =>
 vi.mock('@clack/prompts', () => ({
     cancel: mockCancel,
     isCancel: mockIsCancel,
+    log: mockLog,
     select: mockSelect,
+    text: mockText,
 }));
 
 vi.mock('../../../../lib/user-config', () => ({
@@ -43,17 +55,21 @@ describe('configCommand', () => {
         vi.clearAllMocks();
         mockIsCancel.mockReturnValue(false);
         mockCancel.mockImplementation(() => {});
+        mockLog.error.mockImplementation(() => {});
+        mockLog.success.mockImplementation(() => {});
         mockConsoleLog.mockClear();
+        mockReadUserConfig.mockResolvedValue(null);
+        mockWriteUserConfig.mockResolvedValue(undefined);
+        mockSelect.mockResolvedValue('finish');
     });
 
     it('должен сохранять выбранный язык', async () => {
         mockReadUserConfig.mockResolvedValue(null);
-        mockSelect.mockResolvedValue('ru');
-        mockWriteUserConfig.mockResolvedValue(undefined);
+        mockSelect.mockResolvedValueOnce('language').mockResolvedValueOnce('ru').mockResolvedValue('finish');
 
         await configCommand();
 
-        expect(mockReadUserConfig).toHaveBeenCalledTimes(1);
+        expect(mockReadUserConfig).toHaveBeenCalled();
         expect(mockSelect).toHaveBeenCalledWith({
             initialValue: 'en',
             message: expect.any(String),
@@ -69,8 +85,7 @@ describe('configCommand', () => {
 
     it('должен использовать текущий язык из конфига как initialValue', async () => {
         mockReadUserConfig.mockResolvedValue({ language: 'ru' });
-        mockSelect.mockResolvedValue('en');
-        mockWriteUserConfig.mockResolvedValue(undefined);
+        mockSelect.mockResolvedValueOnce('language').mockResolvedValueOnce('en').mockResolvedValue('finish');
 
         await configCommand();
 
@@ -87,8 +102,7 @@ describe('configCommand', () => {
             language: 'en' as const,
         };
         mockReadUserConfig.mockResolvedValue(existingConfig);
-        mockSelect.mockResolvedValue('ru');
-        mockWriteUserConfig.mockResolvedValue(undefined);
+        mockSelect.mockResolvedValueOnce('language').mockResolvedValueOnce('ru').mockResolvedValue('finish');
 
         await configCommand();
 
@@ -99,7 +113,6 @@ describe('configCommand', () => {
     });
 
     it('должен отменять операцию если пользователь отменил выбор', async () => {
-        mockReadUserConfig.mockResolvedValue(null);
         mockIsCancel.mockReturnValue(true);
         mockSelect.mockResolvedValue(null);
 
@@ -110,9 +123,7 @@ describe('configCommand', () => {
     });
 
     it('должен использовать en как язык по умолчанию если конфиг отсутствует', async () => {
-        mockReadUserConfig.mockResolvedValue(null);
-        mockSelect.mockResolvedValue('en');
-        mockWriteUserConfig.mockResolvedValue(undefined);
+        mockSelect.mockResolvedValueOnce('language').mockResolvedValueOnce('en').mockResolvedValue('finish');
 
         await configCommand();
 
