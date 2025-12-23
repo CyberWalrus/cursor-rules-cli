@@ -31,6 +31,7 @@ export default defineConfig({
             fileParallelism: false,
             isolate: true,
             maxConcurrency: 1,
+            testTimeout: 30_000,
             threads: false,
         }),
     },

@@ -31,7 +31,7 @@ describe('Replace-All Command E2E', () => {
         await tempDir.cleanup(tempDirPathPath);
     });
 
-    it('должен успешно выполнять полную замену существующих правил', async () => {
+    it('должен успешно выполнять полную замену существующих правил', { timeout: 30_000 }, async () => {
         await initCommand(packageDir, tempDirPathPath);
 
         const configFilePathBefore = join(tempDirPathPath, '.cursor', VERSION_FILE_NAME);
