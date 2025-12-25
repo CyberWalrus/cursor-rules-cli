@@ -70,8 +70,8 @@ Let's analyze naming conventions step by step to ensure code consistency.
 - API integrations: follow external API conventions
 - Legacy code migration: document deviations and standardization plan
 - Technical constraints: find compromise solution with minimal deviation from standards
-</exception_handling>
-</reference_scope>
+  </exception_handling>
+  </reference_scope>
 
 ## TIER 3: Core Naming Rules
 
@@ -272,27 +272,58 @@ type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 <react_naming>
 **Rule:** Specific conventions for React code
 
-**DOM refs:** prefix `$`
+**HTML elements (DOM):** prefix `$` + suffix `Ref`
 
-- `$image` — image ref
-- `$containerRef` — container ref
-- `$element` — DOM element ref
-- `$inputRef` — input ref
+- `$inputRef` — input element ref
+- `$containerRef` — container element ref
+- `$imageRef` — image element ref
+- `$elementRef` — DOM element ref
 
-**useRef values:** suffix `Ref`
+**Other values (boolean, number, object, etc.):** suffix `Ref` only
 
+- `timerRef` — timer ID
 - `mountedRef` — mounting flag
-- `timerIdRef` — timer ID
-- `savedCallback` — saved callback
+- `savedCallbackRef` — saved callback
 - `previousPropsRef` — previous props
 
+**Combined refs:** suffix `Ref` only (no `$` prefix). If inside there is a parameter that is a reference to an HTML element, then that parameter has prefix `$` + suffix `Ref`
+
+```typescript
+const formRef = useRef<{
+    $inputRef: HTMLInputElement | null;
+    submit: () => void;
+} | null>(null);
+```
+
+**In props/hook parameters:** one ref → always `ref`, multiple refs → apply naming rules
+
+```typescript
+// Single ref in props
+<Input ref={$inputRef} />
+
+// Multiple refs in props
+<Form $inputRef={$inputRef} timerRef={timerRef} />
+```
+
+**forwardRef:** standard name `ref` (React API requirement)
+
+```typescript
+const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  return <button ref={ref}>Click</button>;
+});
+```
+
 <completion_criteria>
-**Completion criteria:** All refs named with $ prefix (DOM) or Ref suffix (values)
+**Completion criteria:** All refs named according to their type: HTML elements with $ prefix + Ref suffix, other values with Ref suffix only, combined refs with Ref suffix only, single ref in props as `ref`, forwardRef as `ref`
 </completion_criteria>
 
 <exception_handling>
-**Ambiguity:** DOM refs always with $, mutable values with Ref
-**Simple cases:** just `ref` acceptable if context is clear
+**HTML elements:** always use `$` prefix + `Ref` suffix
+**Other values:** use `Ref` suffix only (no `$` prefix)
+**Combined refs:** use `Ref` suffix only, inner HTML element parameters use `$` prefix + `Ref` suffix
+**Props with single ref:** always use `ref` name
+**Props with multiple refs:** apply naming rules
+**forwardRef:** always use `ref` name (React API requirement)
 </exception_handling>
 </react_naming>
 
@@ -345,10 +376,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 **Action creators:** use `createAction` helper
 
 ```typescript
-export const loginSuccess = createAction(
-    '@@lib-ui__account/LOGIN_SUCCESS',
-    (payload) => ({ payload })
-);
+export const loginSuccess = createAction('@@lib-ui__account/LOGIN_SUCCESS', (payload) => ({ payload }));
 ```
 
 **Saga functions:** prefix `watch` for watchers
@@ -480,7 +508,7 @@ import BaseButton from './base-button';
 2. **Consistency:** same suffixes for same type
 3. **Full words:** `button` > `btn` (except established: `props`, `ref`, `config`)
 4. **Descriptiveness:** name should explain purpose
-</naming_principles>
+   </naming_principles>
 
 ### Quick Validation Checklist
 

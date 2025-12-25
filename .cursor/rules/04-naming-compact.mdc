@@ -52,13 +52,16 @@ Read full reference: `.cursor/docs/naming.md` for detailed examples and edge cas
 **Constants:** SCREAMING_SNAKE_CASE
 
 - `API_ENDPOINTS`, `BUTTON_SIZES`, `MAX_RETRY_COUNT`
-- Regex: `EMAIL_REGEX`, `ID_PART_RX` (_REGEX or_RX suffix)
+- Regex: `EMAIL_REGEX`, `ID_PART_RX` (\_REGEX or_RX suffix)
 - Numeric: `60_000`, `1_800_000` (underscores for readability)
 
 **React Naming:**
 
-- DOM refs: `$image`, `$containerRef`, `$element` ($ prefix)
-- useRef values: `mountedRef`, `timerIdRef`, `savedCallback` (Ref suffix)
+- HTML elements (DOM): `$inputRef`, `$containerRef` ($ prefix + Ref suffix)
+- Other values: `timerRef`, `mountedRef` (Ref suffix only)
+- Combined refs: `formRef` (Ref suffix only, inner HTML elements with $ prefix)
+- Props: one ref → `ref`, multiple refs → apply naming rules
+- forwardRef: `ref` (standard name, React API requirement)
 
 **Redux Patterns:**
 
