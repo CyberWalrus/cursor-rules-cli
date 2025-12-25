@@ -73,15 +73,24 @@ describe('showInteractiveMenu', () => {
             const translations: Record<string, string> = {
                 'cli.interactive-menu.cancelled': 'Операция отменена',
                 'cli.interactive-menu.config': 'Настроить конфигурацию (config)',
+                'cli.interactive-menu.config.hint': 'Настройка языка интерфейса, метаинформации и MCP конфигурации',
                 'cli.interactive-menu.exit': 'Выход',
                 'cli.interactive-menu.goodbye': 'До свидания! 👋',
                 'cli.interactive-menu.init': 'Инициализировать правила (init)',
+                'cli.interactive-menu.init.hint':
+                    'Первая установка правил в проект. Скачивает последнюю версию из GitHub и создает конфигурацию',
                 'cli.interactive-menu.replace-all': 'Заменить все правила (replace-all)',
+                'cli.interactive-menu.replace-all.hint':
+                    'Полная замена всех файлов правил. Сохраняет ignoreList и fileOverrides из конфига',
                 'cli.interactive-menu.select-action': 'Выберите действие:',
                 'cli.interactive-menu.system-files': 'Системные файлы (system-files)',
+                'cli.interactive-menu.system-files.hint':
+                    'Копирование промптов и правил для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
                 'cli.interactive-menu.target-dir-not-found': 'Target directory not found',
                 'cli.interactive-menu.title': 'cursor-rules-cli',
                 'cli.interactive-menu.upgrade': 'Обновить правила (upgrade)',
+                'cli.interactive-menu.upgrade.hint':
+                    'Обновление с сохранением ignoreList и fileOverrides. Файлы правил перезаписываются новыми версиями',
                 'cli.main.config.success': '✅ Конфигурация успешно сохранена',
                 'cli.main.init.success': '✅ Rules initialized successfully',
                 'cli.main.package-dir-not-found': 'Package directory not found',
@@ -111,11 +120,31 @@ describe('showInteractiveMenu', () => {
         expect(mockSelect).toHaveBeenCalledWith({
             message: 'Выберите действие:',
             options: [
-                { label: 'Инициализировать правила (init)', value: 'init' },
-                { label: 'Обновить правила (upgrade)', value: 'upgrade' },
-                { label: 'Заменить все правила (replace-all)', value: 'replace-all' },
-                { label: 'Настроить конфигурацию (config)', value: 'config' },
-                { label: 'Системные файлы (system-files)', value: 'system-files' },
+                {
+                    hint: 'Первая установка правил в проект. Скачивает последнюю версию из GitHub и создает конфигурацию',
+                    label: 'Инициализировать правила (init)',
+                    value: 'init',
+                },
+                {
+                    hint: 'Обновление с сохранением ignoreList и fileOverrides. Файлы правил перезаписываются новыми версиями',
+                    label: 'Обновить правила (upgrade)',
+                    value: 'upgrade',
+                },
+                {
+                    hint: 'Полная замена всех файлов правил. Сохраняет ignoreList и fileOverrides из конфига',
+                    label: 'Заменить все правила (replace-all)',
+                    value: 'replace-all',
+                },
+                {
+                    hint: 'Настройка языка интерфейса, метаинформации и MCP конфигурации',
+                    label: 'Настроить конфигурацию (config)',
+                    value: 'config',
+                },
+                {
+                    hint: 'Копирование промптов и правил для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
+                    label: 'Системные файлы (system-files)',
+                    value: 'system-files',
+                },
                 { label: 'Выход', value: 'exit' },
             ],
         });

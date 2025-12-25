@@ -5,13 +5,13 @@ import { copyToClipboard } from '../../../lib/clipboard';
 import { t } from '../../../lib/i18n';
 import { generateMcpConfig } from '../../../lib/prompts';
 import { readUserConfig, writeUserConfig } from '../../../lib/user-config';
-import type { UserConfig, UserMetaInfo } from '../../../model';
+import type { McpSettings, UserConfig, UserMetaInfo } from '../../../model';
 import { getPackageDir } from '../../main/get-package-dir';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
 
 /** Тип поля конфигурации для редактирования */
-type ConfigField = 'finish' | 'language' | 'mcp-config' | 'meta-info';
+type ConfigField = 'finish' | 'language' | 'mcp-config' | 'mcp-settings' | 'meta-info';
 
 /** Тип поля метаинформации для редактирования */
 type MetaInfoField =
@@ -26,6 +26,9 @@ type MetaInfoField =
     | 'role'
     | 'stack'
     | 'tool-versions';
+
+/** Тип поля настроек MCP для редактирования */
+type McpSettingsField = 'ai-model' | 'api-key' | 'api-providers' | 'finish';
 
 const NOT_SET_LABEL = '(не задано)';
 
@@ -189,14 +192,103 @@ async function editMetaInfo(currentMetaInfo: UserMetaInfo | null | undefined): P
     return Object.keys(metaInfo).length === 0 ? undefined : metaInfo;
 }
 
+/** Редактирует настройки MCP серверов */
+// eslint-disable-next-line sonarjs/cognitive-complexity -- интерактивное меню требует множественных условий
+async function editMcpSettings(currentMcpSettings: McpSettings | null | undefined): Promise<McpSettings | undefined> {
+    const DEFAULT_AI_MODEL = 'openai/gpt-oss-120b';
+    const mcpSettings: McpSettings = currentMcpSettings
+        ? { ...currentMcpSettings }
+        : {
+              aiModel: DEFAULT_AI_MODEL,
+              apiKey: '',
+          };
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+        const currentApiKey = mcpSettings.apiKey ?? '';
+        const currentAiModel = mcpSettings.aiModel ?? DEFAULT_AI_MODEL;
+        const currentApiProviders = mcpSettings.apiProviders ?? '';
+
+        const field = await select<McpSettingsField>({
+            message: t('command.config.mcp-settings.select-field'),
+            options: [
+                {
+                    label: `${t('command.config.mcp-settings.field.api-key')}: ${formatValue(currentApiKey)}`,
+                    value: 'api-key',
+                },
+                {
+                    label: `${t('command.config.mcp-settings.field.ai-model')}: ${formatValue(currentAiModel)}`,
+                    value: 'ai-model',
+                },
+                {
+                    label: `${t('command.config.mcp-settings.field.api-providers')}: ${formatValue(currentApiProviders)}`,
+                    value: 'api-providers',
+                },
+                { label: t('command.config.mcp-settings.field.finish'), value: 'finish' },
+            ],
+        });
+
+        if (isCancel(field)) {
+            cancel(t('cli.interactive-menu.cancelled'));
+
+            return currentMcpSettings ?? undefined;
+        }
+
+        if (field === 'finish') {
+            break;
+        }
+
+        const prompts: Record<string, string> = {
+            'ai-model': t('command.config.mcp-settings.prompt.ai-model'),
+            'api-key': t('command.config.mcp-settings.prompt.api-key'),
+            'api-providers': t('command.config.mcp-settings.prompt.api-providers'),
+        };
+
+        let initialValue = '';
+        if (field === 'api-key') {
+            initialValue = currentApiKey;
+        } else if (field === 'ai-model') {
+            initialValue = currentAiModel;
+        } else {
+            initialValue = currentApiProviders;
+        }
+
+        const fieldInput = await text({
+            initialValue,
+            message: prompts[field],
+        });
+
+        if (isCancel(fieldInput)) {
+            continue;
+        }
+
+        const value = fieldInput.trim();
+
+        if (field === 'api-key') {
+            mcpSettings.apiKey = value;
+        } else if (field === 'ai-model') {
+            mcpSettings.aiModel = value === '' ? DEFAULT_AI_MODEL : value;
+        } else if (field === 'api-providers') {
+            mcpSettings.apiProviders = value === '' ? undefined : value;
+        }
+    }
+
+    if (mcpSettings.apiKey === '' || mcpSettings.aiModel === '') {
+        return undefined;
+    }
+
+    return mcpSettings;
+}
+
 /** Команда настройки глобальной конфигурации */
-// eslint-disable-next-line sonarjs/cognitive-complexity
+// eslint-disable-next-line sonarjs/cognitive-complexity -- интерактивное меню требует множественных условий
 export async function configCommand(): Promise<void> {
     // eslint-disable-next-line no-constant-condition
     while (true) {
         const currentConfig = await readUserConfig();
         const currentLanguage = currentConfig?.language ?? 'en';
         const currentMetaInfo = currentConfig?.metaInfo;
+        const currentMcpSettings = currentConfig?.mcpSettings;
 
         const field = await select<ConfigField>({
             message: t('command.config.select-field'),
@@ -205,6 +297,10 @@ export async function configCommand(): Promise<void> {
                 {
                     label: `${t('command.config.field.meta-info')}: ${currentMetaInfo ? '(настроено)' : '(не настроено)'}`,
                     value: 'meta-info',
+                },
+                {
+                    label: `${t('command.config.field.mcp-settings')}: ${currentMcpSettings ? '(настроено)' : '(не настроено)'}`,
+                    value: 'mcp-settings',
                 },
                 { label: t('command.config.field.mcp-config'), value: 'mcp-config' },
                 { label: t('command.config.field.finish'), value: 'finish' },
@@ -253,6 +349,17 @@ export async function configCommand(): Promise<void> {
 
             await writeUserConfig(config);
             log.success(t('command.config.meta-info.success'));
+        } else if (field === 'mcp-settings') {
+            const mcpSettings = await editMcpSettings(currentMcpSettings);
+
+            const config: UserConfig = {
+                language: currentConfig?.language ?? 'en',
+                ...currentConfig,
+                mcpSettings,
+            };
+
+            await writeUserConfig(config);
+            log.success(t('command.config.mcp-settings.success'));
         } else if (field === 'mcp-config') {
             try {
                 const packageDir = getPackageDir(currentFilePath);
@@ -260,7 +367,7 @@ export async function configCommand(): Promise<void> {
                     throw new Error(t('cli.main.package-dir-not-found'));
                 }
 
-                const content = await generateMcpConfig(packageDir);
+                const content = await generateMcpConfig(packageDir, currentMcpSettings);
                 await copyToClipboard(content);
                 log.success(t('command.config.mcp-config.copied'));
             } catch (error) {

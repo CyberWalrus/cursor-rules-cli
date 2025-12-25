@@ -14,6 +14,7 @@ export type {
     FileOverride,
     McpConfig,
     McpServerConfig,
+    McpSettings,
     RulesConfig,
     RuleSet,
     UserConfig,

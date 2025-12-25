@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { initCommandParamsSchema, replaceAllCommandParamsSchema, upgradeCommandParamsSchema } from '../command-params';
-import { fileOverrideSchema, rulesConfigSchema, ruleSetSchema } from '../main';
+import { fileOverrideSchema, mcpSettingsSchema, rulesConfigSchema, ruleSetSchema, userConfigSchema } from '../main';
 
 describe('ruleSetSchema', () => {
     it('должен успешно валидировать корректные данные набора правил', () => {
@@ -247,6 +247,120 @@ describe('upgradeCommandParamsSchema', () => {
         };
 
         const result = upgradeCommandParamsSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+});
+
+describe('mcpSettingsSchema', () => {
+    it('должен успешно валидировать корректные данные настроек MCP', () => {
+        const validData = {
+            aiModel: 'openai/gpt-oss-120b',
+            apiKey: 'sk-or-v1-test-key',
+        };
+
+        const result = mcpSettingsSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data).toEqual(validData);
+        }
+    });
+
+    it('должен успешно валидировать настройки MCP с apiProviders', () => {
+        const validData = {
+            aiModel: 'openai/gpt-oss-120b',
+            apiKey: 'sk-or-v1-test-key',
+            apiProviders: 'Cerebras',
+        };
+
+        const result = mcpSettingsSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data).toEqual(validData);
+        }
+    });
+
+    it('должен отклонять пустой apiKey', () => {
+        const invalidData = {
+            aiModel: 'openai/gpt-oss-120b',
+            apiKey: '',
+        };
+
+        const result = mcpSettingsSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+
+    it('должен отклонять отсутствующий apiKey', () => {
+        const invalidData = {
+            aiModel: 'openai/gpt-oss-120b',
+        };
+
+        const result = mcpSettingsSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+
+    it('должен отклонять пустой aiModel', () => {
+        const invalidData = {
+            aiModel: '',
+            apiKey: 'sk-or-v1-test-key',
+        };
+
+        const result = mcpSettingsSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+
+    it('должен отклонять отсутствующий aiModel', () => {
+        const invalidData = {
+            apiKey: 'sk-or-v1-test-key',
+        };
+
+        const result = mcpSettingsSchema.safeParse(invalidData);
+
+        expect(result.success).toBe(false);
+    });
+});
+
+describe('userConfigSchema', () => {
+    it('должен успешно валидировать конфигурацию с mcpSettings', () => {
+        const validData = {
+            language: 'ru' as const,
+            mcpSettings: {
+                aiModel: 'openai/gpt-oss-120b',
+                apiKey: 'sk-or-v1-test-key',
+                apiProviders: 'Cerebras',
+            },
+        };
+
+        const result = userConfigSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+    });
+
+    it('должен успешно валидировать конфигурацию без mcpSettings', () => {
+        const validData = {
+            language: 'en' as const,
+        };
+
+        const result = userConfigSchema.safeParse(validData);
+
+        expect(result.success).toBe(true);
+    });
+
+    it('должен отклонять невалидные mcpSettings', () => {
+        const invalidData = {
+            language: 'ru' as const,
+            mcpSettings: {
+                aiModel: 'openai/gpt-oss-120b',
+                apiKey: '',
+            },
+        };
+
+        const result = userConfigSchema.safeParse(invalidData);
 
         expect(result.success).toBe(false);
     });

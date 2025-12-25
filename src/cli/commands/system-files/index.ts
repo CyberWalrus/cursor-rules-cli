@@ -9,7 +9,7 @@ import {
     generateMetaInfoPrompt,
     getCoreSystemInstructions,
 } from '../../../lib/prompts';
-import { readUserConfig } from '../../../lib/user-config';
+import { fillMissingMetaInfo, readUserConfig, validateMetaInfo, writeUserConfig } from '../../../lib/user-config';
 import { getPackageDir } from '../../main/get-package-dir';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
@@ -27,10 +27,26 @@ export async function systemFilesCommand(): Promise<void> {
     const fileType = await select<SystemFileType>({
         message: t('command.system-files.select-type'),
         options: [
-            { label: t('command.system-files.core-instructions'), value: 'core-instructions' },
-            { label: t('command.system-files.meta-info'), value: 'meta-info' },
-            { label: t('command.system-files.current-date'), value: 'current-date' },
-            { label: t('command.system-files.mcp-config'), value: 'mcp-config' },
+            {
+                hint: t('command.system-files.core-instructions.hint'),
+                label: t('command.system-files.core-instructions'),
+                value: 'core-instructions',
+            },
+            {
+                hint: t('command.system-files.meta-info.hint'),
+                label: t('command.system-files.meta-info'),
+                value: 'meta-info',
+            },
+            {
+                hint: t('command.system-files.current-date.hint'),
+                label: t('command.system-files.current-date'),
+                value: 'current-date',
+            },
+            {
+                hint: t('command.system-files.mcp-config.hint'),
+                label: t('command.system-files.mcp-config'),
+                value: 'mcp-config',
+            },
         ],
     });
 
@@ -48,16 +64,40 @@ export async function systemFilesCommand(): Promise<void> {
                 content = await getCoreSystemInstructions(packageDir);
                 break;
             case 'meta-info': {
-                const userConfig = await readUserConfig();
+                let userConfig = await readUserConfig();
+                const validation = validateMetaInfo(userConfig?.metaInfo);
+
+                if (!validation.isValid) {
+                    log.info(t('command.system-files.meta-info.missing-fields'));
+
+                    const filledMetaInfo = await fillMissingMetaInfo(userConfig?.metaInfo, validation.missingFields);
+
+                    if (filledMetaInfo === null) {
+                        cancel(t('cli.interactive-menu.cancelled'));
+
+                        return;
+                    }
+
+                    userConfig = {
+                        language: userConfig?.language ?? 'en',
+                        ...userConfig,
+                        metaInfo: filledMetaInfo,
+                    };
+
+                    await writeUserConfig(userConfig);
+                }
+
                 content = await generateMetaInfoPrompt(packageDir, userConfig?.metaInfo);
                 break;
             }
             case 'current-date':
                 content = await generateCurrentDatePrompt(packageDir);
                 break;
-            case 'mcp-config':
-                content = await generateMcpConfig(packageDir);
+            case 'mcp-config': {
+                const userConfig = await readUserConfig();
+                content = await generateMcpConfig(packageDir, userConfig?.mcpSettings);
                 break;
+            }
         }
 
         await copyToClipboard(content);

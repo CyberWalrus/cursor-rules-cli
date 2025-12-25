@@ -17,11 +17,23 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
     const action = await select<InteractiveMenuAction>({
         message: t('cli.interactive-menu.select-action'),
         options: [
-            { label: t('cli.interactive-menu.init'), value: 'init' },
-            { label: t('cli.interactive-menu.upgrade'), value: 'upgrade' },
-            { label: t('cli.interactive-menu.replace-all'), value: 'replace-all' },
-            { label: t('cli.interactive-menu.config'), value: 'config' },
-            { label: t('cli.interactive-menu.system-files'), value: 'system-files' },
+            { hint: t('cli.interactive-menu.init.hint'), label: t('cli.interactive-menu.init'), value: 'init' },
+            {
+                hint: t('cli.interactive-menu.upgrade.hint'),
+                label: t('cli.interactive-menu.upgrade'),
+                value: 'upgrade',
+            },
+            {
+                hint: t('cli.interactive-menu.replace-all.hint'),
+                label: t('cli.interactive-menu.replace-all'),
+                value: 'replace-all',
+            },
+            { hint: t('cli.interactive-menu.config.hint'), label: t('cli.interactive-menu.config'), value: 'config' },
+            {
+                hint: t('cli.interactive-menu.system-files.hint'),
+                label: t('cli.interactive-menu.system-files'),
+                value: 'system-files',
+            },
             { label: t('cli.interactive-menu.exit'), value: 'exit' },
         ],
     });

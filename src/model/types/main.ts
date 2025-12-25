@@ -106,12 +106,24 @@ export type UserMetaInfo = {
     toolVersions?: string;
 };
 
+/** Настройки MCP серверов */
+export type McpSettings = {
+    /** AI модель */
+    aiModel: string;
+    /** API ключ */
+    apiKey: string;
+    /** API провайдеры */
+    apiProviders?: string;
+};
+
 /** Глобальная конфигурация пользователя */
 export type UserConfig = {
     /** Дополнительные настройки */
     [key: string]: unknown;
     /** Язык интерфейса */
     language: 'en' | 'ru';
+    /** Настройки MCP серверов */
+    mcpSettings?: McpSettings;
     /** Метаинформация пользователя */
     metaInfo?: UserMetaInfo;
 };

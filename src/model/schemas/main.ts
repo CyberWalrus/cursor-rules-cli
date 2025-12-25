@@ -55,10 +55,18 @@ export const userMetaInfoSchema = z
     })
     .passthrough();
 
+/** Схема валидации настроек MCP серверов */
+export const mcpSettingsSchema = z.object({
+    aiModel: z.string().min(1, 'AI model cannot be empty'),
+    apiKey: z.string().min(1, 'API key cannot be empty'),
+    apiProviders: z.string().optional(),
+});
+
 /** Схема валидации глобальной конфигурации пользователя */
 export const userConfigSchema = z
     .object({
         language: z.enum(['en', 'ru'], { message: 'Language must be "en" or "ru"' }),
+        mcpSettings: mcpSettingsSchema.optional(),
         metaInfo: userMetaInfoSchema.optional(),
     })
     .passthrough();
