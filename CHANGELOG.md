@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.6.0] - 2025-12-25
+
+<small>25.12.2025</small>
+
+### Added
+
+- **User config validation and filling**
+    - Added `validateMetaInfo` function for checking required meta-info fields
+    - Added `fillMissingMetaInfo` function for interactive filling of missing fields
+    - Integrated validation and filling into system-files command for meta-info generation
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Changed
+
+- **System files command enhancements**
+    - Added hints for system file type selection in interactive menu
+    - Added automatic validation and filling of missing meta-info fields
+    - Improved user experience with better prompts and validation
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+- **Package configuration**
+    - Updated package version to 0.6.0
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+### Docs
+
+- **Package AI documentation**
+    - Updated MCP server management documentation with new configuration approach
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/UNCOMMITTED" target="_blank">UNCOMMITTED</a>
+
+## [0.5.5] - 2025-12-23
+
+<small>23.12.2025 09:59</small>
+
+### Tests
+
+- **Test configuration**
+    - Set test timeout to 30 seconds and updated Vitest configuration
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/3ee7c1d" target="_blank">3ee7c1d</a>
+
+### Changed
+
+- **Package configuration**
+    - Updated package version to 0.5.5
+    - Added user-rules directory to files list
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/c401835" target="_blank">c401835</a>
+
 ## [0.5.4] - 2025-12-23
 
 <small>23.12.2025 09:41</small>
