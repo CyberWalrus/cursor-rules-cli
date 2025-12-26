@@ -2,7 +2,7 @@
 export type CommandType = 'config' | 'init' | 'replace-all' | 'system-files' | 'upgrade';
 
 /** Тип действия интерактивного меню */
-export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'replace-all' | 'system-files' | 'upgrade';
+export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'system-files' | 'upgrade';
 
 /** Конфигурация правил */
 export type RulesConfig = {

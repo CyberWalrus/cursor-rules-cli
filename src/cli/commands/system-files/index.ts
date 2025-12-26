@@ -8,8 +8,16 @@ import {
     generateMcpConfig,
     generateMetaInfoPrompt,
     getCoreSystemInstructions,
+    removeYamlFrontmatter,
 } from '../../../lib/prompts';
-import { fillMissingMetaInfo, readUserConfig, validateMetaInfo, writeUserConfig } from '../../../lib/user-config';
+import {
+    fillMissingMcpSettings,
+    fillMissingMetaInfo,
+    readUserConfig,
+    validateMcpSettings,
+    validateMetaInfo,
+    writeUserConfig,
+} from '../../../lib/user-config';
 import { getPackageDir } from '../../main/get-package-dir';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
@@ -60,9 +68,11 @@ export async function systemFilesCommand(): Promise<void> {
         let content: string;
 
         switch (fileType) {
-            case 'core-instructions':
-                content = await getCoreSystemInstructions(packageDir);
+            case 'core-instructions': {
+                const rawContent = await getCoreSystemInstructions(packageDir);
+                content = removeYamlFrontmatter(rawContent);
                 break;
+            }
             case 'meta-info': {
                 let userConfig = await readUserConfig();
                 const validation = validateMetaInfo(userConfig?.metaInfo);
@@ -87,21 +97,57 @@ export async function systemFilesCommand(): Promise<void> {
                     await writeUserConfig(userConfig);
                 }
 
-                content = await generateMetaInfoPrompt(packageDir, userConfig?.metaInfo);
+                const rawContent = await generateMetaInfoPrompt(packageDir, userConfig?.metaInfo);
+                content = removeYamlFrontmatter(rawContent);
                 break;
             }
-            case 'current-date':
-                content = await generateCurrentDatePrompt(packageDir);
+            case 'current-date': {
+                const rawContent = await generateCurrentDatePrompt(packageDir);
+                content = removeYamlFrontmatter(rawContent);
                 break;
+            }
             case 'mcp-config': {
-                const userConfig = await readUserConfig();
+                let userConfig = await readUserConfig();
+                const validation = validateMcpSettings(userConfig?.mcpSettings);
+
+                if (!validation.isValid) {
+                    log.info(t('command.system-files.mcp-config.missing-fields'));
+
+                    const filledMcpSettings = await fillMissingMcpSettings(
+                        userConfig?.mcpSettings,
+                        validation.missingFields,
+                    );
+
+                    if (filledMcpSettings === null) {
+                        cancel(t('cli.interactive-menu.cancelled'));
+
+                        return;
+                    }
+
+                    userConfig = {
+                        language: userConfig?.language ?? 'en',
+                        ...userConfig,
+                        mcpSettings: filledMcpSettings,
+                    };
+
+                    await writeUserConfig(userConfig);
+                }
+
                 content = await generateMcpConfig(packageDir, userConfig?.mcpSettings);
                 break;
             }
         }
 
         await copyToClipboard(content);
-        log.success(t('command.system-files.copied'));
+
+        const copyMessages: Record<SystemFileType, string> = {
+            'core-instructions': t('command.system-files.copied.core-instructions'),
+            'current-date': t('command.system-files.copied.current-date'),
+            'mcp-config': t('command.system-files.copied.mcp-config'),
+            'meta-info': t('command.system-files.copied.meta-info'),
+        };
+
+        log.success(copyMessages[fileType]);
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(t('command.system-files.error', { message }));

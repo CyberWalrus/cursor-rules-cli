@@ -13,7 +13,7 @@ export const ru = {
     'cli.interactive-menu.replace-all.hint':
         'Полная замена всех файлов правил. Сохраняет ignoreList и fileOverrides из конфига',
     'cli.interactive-menu.select-action': 'Выберите действие:',
-    'cli.interactive-menu.system-files': 'Системные файлы (system-files)',
+    'cli.interactive-menu.system-files': 'Глобальные промпты и конфиги для Cursor (system-files)',
     'cli.interactive-menu.system-files.hint':
         'Копирование промптов и правил для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
     'cli.interactive-menu.target-dir-not-found': 'Целевая директория не найдена',
@@ -82,6 +82,14 @@ export const ru = {
     'command.replace-all.use-local': 'Хотите продолжить с текущей локальной версией?',
     'command.replace-all.use-local.no': 'Замена всех правил отменена пользователем',
     'command.system-files.copied': '✓ Скопировано в буфер обмена. Вставьте в Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.core-instructions':
+        '✓ Скопировано в буфер обмена. Вставьте в Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.current-date':
+        '✓ Скопировано в буфер обмена. Вставьте в Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.mcp-config':
+        '✓ Скопировано в буфер обмена. Вставьте в Cursor: Settings -> Tools & MCP -> mcp.json',
+    'command.system-files.copied.meta-info':
+        '✓ Скопировано в буфер обмена. Вставьте в Cursor: Rules and Commands -> User Rules',
     'command.system-files.core-instructions': 'База системного промпта',
     'command.system-files.core-instructions.hint':
         'Промпт с базовыми правилами для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
@@ -90,7 +98,10 @@ export const ru = {
         'Промпт с текущей датой для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
     'command.system-files.error': 'Ошибка: {message}',
     'command.system-files.mcp-config': 'Конфиг для MCP сервера',
+    'command.system-files.mcp-config.filled': '✓ MCP настройки заполнены',
+    'command.system-files.mcp-config.filling-fields': 'Заполнение недостающих полей MCP настроек...',
     'command.system-files.mcp-config.hint': 'Конфигурация для MCP сервера. Используйте в настройках MCP',
+    'command.system-files.mcp-config.missing-fields': 'Необходимо заполнить недостающие поля MCP настроек',
     'command.system-files.meta-info': 'Системный промпт с метаинформацией',
     'command.system-files.meta-info.filled': '✓ Метаинформация заполнена',
     'command.system-files.meta-info.filling-fields': 'Заполнение недостающих полей метаинформации...',

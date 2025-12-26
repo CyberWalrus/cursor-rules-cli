@@ -1,10 +1,10 @@
 import { cancel, intro, isCancel, outro, select } from '@clack/prompts';
 
 import { t } from '../../lib/i18n';
+import { getCurrentVersion } from '../../lib/version-manager/get-current-version';
 import type { InteractiveMenuAction } from '../../model/types/main';
 import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
-import { replaceAllCommand } from '../commands/replace-all';
 import { systemFilesCommand } from '../commands/system-files';
 import { upgradeCommand } from '../commands/upgrade';
 import { getPackageDir } from './get-package-dir';
@@ -14,28 +14,45 @@ import { getTargetDir } from './get-target-dir';
 export async function showInteractiveMenu(currentFilePath: string): Promise<void> {
     intro(t('cli.interactive-menu.title'));
 
+    const targetDir = getTargetDir();
+    if (targetDir === null || targetDir === undefined) {
+        throw new Error(t('cli.interactive-menu.target-dir-not-found'));
+    }
+
+    const currentVersion = await getCurrentVersion(targetDir);
+    const isInitialized = currentVersion !== null;
+
+    const options: Array<{ label: string; value: InteractiveMenuAction; hint?: string }> = [];
+
+    if (!isInitialized) {
+        options.push({
+            hint: t('cli.interactive-menu.init.hint'),
+            label: t('cli.interactive-menu.init'),
+            value: 'init',
+        });
+    }
+
+    if (isInitialized) {
+        options.push({
+            hint: t('cli.interactive-menu.upgrade.hint'),
+            label: t('cli.interactive-menu.upgrade'),
+            value: 'upgrade',
+        });
+    }
+
+    options.push(
+        {
+            hint: t('cli.interactive-menu.system-files.hint'),
+            label: t('cli.interactive-menu.system-files'),
+            value: 'system-files',
+        },
+        { hint: t('cli.interactive-menu.config.hint'), label: t('cli.interactive-menu.config'), value: 'config' },
+        { label: t('cli.interactive-menu.exit'), value: 'exit' },
+    );
+
     const action = await select<InteractiveMenuAction>({
         message: t('cli.interactive-menu.select-action'),
-        options: [
-            { hint: t('cli.interactive-menu.init.hint'), label: t('cli.interactive-menu.init'), value: 'init' },
-            {
-                hint: t('cli.interactive-menu.upgrade.hint'),
-                label: t('cli.interactive-menu.upgrade'),
-                value: 'upgrade',
-            },
-            {
-                hint: t('cli.interactive-menu.replace-all.hint'),
-                label: t('cli.interactive-menu.replace-all'),
-                value: 'replace-all',
-            },
-            { hint: t('cli.interactive-menu.config.hint'), label: t('cli.interactive-menu.config'), value: 'config' },
-            {
-                hint: t('cli.interactive-menu.system-files.hint'),
-                label: t('cli.interactive-menu.system-files'),
-                value: 'system-files',
-            },
-            { label: t('cli.interactive-menu.exit'), value: 'exit' },
-        ],
+        options,
     });
 
     if (isCancel(action)) {
@@ -54,11 +71,6 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
         throw new Error(t('cli.main.package-dir-not-found'));
     }
 
-    const targetDir = getTargetDir();
-    if (targetDir === null || targetDir === undefined) {
-        throw new Error(t('cli.interactive-menu.target-dir-not-found'));
-    }
-
     try {
         switch (action) {
             case 'init':
@@ -68,10 +80,6 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
             case 'upgrade':
                 await upgradeCommand(packageDir, targetDir);
                 outro(t('cli.main.upgrade.success'));
-                break;
-            case 'replace-all':
-                await replaceAllCommand(packageDir, targetDir);
-                outro(t('cli.main.replace-all.success'));
                 break;
             case 'config':
                 await configCommand();

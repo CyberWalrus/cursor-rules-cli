@@ -13,7 +13,7 @@ export const en = {
     'cli.interactive-menu.replace-all.hint':
         'Complete replacement of all rule files. Preserves ignoreList and fileOverrides from config',
     'cli.interactive-menu.select-action': 'Select action:',
-    'cli.interactive-menu.system-files': 'System files (system-files)',
+    'cli.interactive-menu.system-files': 'Global prompts and configs for Cursor (system-files)',
     'cli.interactive-menu.system-files.hint':
         'Copy prompts and rules for user. Paste in Cursor: Rules and Commands -> User Rules',
     'cli.interactive-menu.target-dir-not-found': 'Target directory not found',
@@ -82,6 +82,13 @@ export const en = {
     'command.replace-all.use-local': 'Do you want to continue with the current local version?',
     'command.replace-all.use-local.no': 'Replace-all cancelled by user',
     'command.system-files.copied': '✓ Copied to clipboard. Paste in Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.core-instructions':
+        '✓ Copied to clipboard. Paste in Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.current-date':
+        '✓ Copied to clipboard. Paste in Cursor: Rules and Commands -> User Rules',
+    'command.system-files.copied.mcp-config':
+        '✓ Copied to clipboard. Paste in Cursor: Settings -> Tools & MCP -> mcp.json',
+    'command.system-files.copied.meta-info': '✓ Copied to clipboard. Paste in Cursor: Rules and Commands -> User Rules',
     'command.system-files.core-instructions': 'Core system prompt',
     'command.system-files.core-instructions.hint':
         'Prompt with core rules for user. Paste in Cursor: Rules and Commands -> User Rules',
@@ -90,7 +97,10 @@ export const en = {
         'Prompt with current date for user. Paste in Cursor: Rules and Commands -> User Rules',
     'command.system-files.error': 'Error: {message}',
     'command.system-files.mcp-config': 'MCP server config',
+    'command.system-files.mcp-config.filled': '✓ MCP settings filled',
+    'command.system-files.mcp-config.filling-fields': 'Filling missing MCP settings fields...',
     'command.system-files.mcp-config.hint': 'Configuration for MCP server. Use in MCP settings',
+    'command.system-files.mcp-config.missing-fields': 'Missing MCP settings fields need to be filled',
     'command.system-files.meta-info': 'System prompt with meta information',
     'command.system-files.meta-info.filled': '✓ Meta information filled',
     'command.system-files.meta-info.filling-fields': 'Filling missing meta information fields...',
