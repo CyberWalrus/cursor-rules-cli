@@ -16,23 +16,20 @@ export async function generateMcpConfig(packageDir: string, mcpSettings?: McpSet
 
     const config = parsed as McpConfig;
 
-    if (mcpSettings !== null && mcpSettings !== undefined) {
+    if (mcpSettings != null) {
         const DEFAULT_AI_MODEL = 'openai/gpt-oss-120b';
+        const server = config.mcpServers['mcp-validator'];
 
-        for (const serverName of Object.keys(config.mcpServers)) {
-            const server = config.mcpServers[serverName];
-
+        if (server !== null && server !== undefined) {
             if (server.env === null || server.env === undefined) {
                 server.env = {};
             }
 
             server.env.API_KEY = mcpSettings.apiKey;
-            server.env.AI_MODEL =
-                mcpSettings.aiModel === null || mcpSettings.aiModel === undefined || mcpSettings.aiModel === ''
-                    ? DEFAULT_AI_MODEL
-                    : mcpSettings.aiModel;
+            const aiModel = mcpSettings.aiModel?.trim() || DEFAULT_AI_MODEL;
+            server.env.AI_MODEL = aiModel;
 
-            if (mcpSettings.apiProviders !== null && mcpSettings.apiProviders !== undefined) {
+            if (mcpSettings.apiProviders != null) {
                 server.env.API_PROVIDERS = mcpSettings.apiProviders;
             }
         }

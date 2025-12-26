@@ -39,7 +39,7 @@ describe('generateMcpConfig', () => {
         expect(result).toBe(JSON.stringify(mcpConfig, null, 4));
     });
 
-    it('должен подставлять значения из mcpSettings в env всех серверов', async () => {
+    it('должен подставлять значения из mcpSettings в env только для mcp-validator', async () => {
         const mcpSettings: McpSettings = {
             aiModel: 'openai/gpt-oss-120b',
             apiKey: 'sk-or-v1-test-key',
@@ -49,11 +49,7 @@ describe('generateMcpConfig', () => {
         const result = await generateMcpConfig(packageDir, mcpSettings);
         const parsed = JSON.parse(result);
 
-        expect(parsed.mcpServers.context7.env).toEqual({
-            AI_MODEL: 'openai/gpt-oss-120b',
-            API_KEY: 'sk-or-v1-test-key',
-            API_PROVIDERS: 'Cerebras',
-        });
+        expect(parsed.mcpServers.context7.env).toBeUndefined();
         expect(parsed.mcpServers['mcp-validator'].env).toEqual({
             AI_MODEL: 'openai/gpt-oss-120b',
             API_KEY: 'sk-or-v1-test-key',
@@ -70,7 +66,7 @@ describe('generateMcpConfig', () => {
         const result = await generateMcpConfig(packageDir, mcpSettings);
         const parsed = JSON.parse(result);
 
-        expect(parsed.mcpServers.context7.env.AI_MODEL).toBe('openai/gpt-oss-120b');
+        expect(parsed.mcpServers['mcp-validator'].env.AI_MODEL).toBe('openai/gpt-oss-120b');
     });
 
     it('должен использовать значение по умолчанию для AI_MODEL если null', async () => {
@@ -82,7 +78,7 @@ describe('generateMcpConfig', () => {
         const result = await generateMcpConfig(packageDir, mcpSettings);
         const parsed = JSON.parse(result);
 
-        expect(parsed.mcpServers.context7.env.AI_MODEL).toBe('openai/gpt-oss-120b');
+        expect(parsed.mcpServers['mcp-validator'].env.AI_MODEL).toBe('openai/gpt-oss-120b');
     });
 
     it('должен не добавлять API_PROVIDERS если не задано', async () => {
@@ -94,7 +90,7 @@ describe('generateMcpConfig', () => {
         const result = await generateMcpConfig(packageDir, mcpSettings);
         const parsed = JSON.parse(result);
 
-        expect(parsed.mcpServers.context7.env.API_PROVIDERS).toBeUndefined();
+        expect(parsed.mcpServers['mcp-validator'].env.API_PROVIDERS).toBeUndefined();
     });
 
     it('должен выбрасывать ошибку если packageDir пустой', async () => {
