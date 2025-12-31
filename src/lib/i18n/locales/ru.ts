@@ -90,7 +90,7 @@ export const ru = {
         '✓ Скопировано в буфер обмена. Вставьте в Cursor: Settings -> Tools & MCP -> mcp.json',
     'command.system-files.copied.meta-info':
         '✓ Скопировано в буфер обмена. Вставьте в Cursor: Rules and Commands -> User Rules',
-    'command.system-files.core-instructions': 'База системного промпта',
+    'command.system-files.core-instructions': 'Системный промпт с базовыми правилами',
     'command.system-files.core-instructions.hint':
         'Промпт с базовыми правилами для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
     'command.system-files.current-date': 'Системный промпт для ключей даты',
