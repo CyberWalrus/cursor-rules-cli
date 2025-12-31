@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.6.7] - 2025-12-31
+
+<small>31.12.2025 16:03</small>
+
+### Fixed
+
+- **File operations path handling**
+    - Fixed path processing in tests for copyRulesToTarget
+    - Fixed directory filtering in copy-rules-to-target
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/e999bbf" target="_blank">e999bbf</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/1370d09" target="_blank">1370d09</a>
+
+### Changed
+
+- **Uncommitted changes in current version**
+    - Changes in .cursor/cursor-rules-config-1.0.0.schema.json
+    - Changes in package.json
+    - Changes in src/__tests__/e2e/upgrade-command.e2e.test.ts
+    - Changes in src/lib/file-operations/__tests__/copy-rules-to-target.test.ts
+    - Changes in src/lib/file-operations/__tests__/should-ignore-file.test.ts
+    - Changes in src/lib/file-operations/copy-rules-to-target.ts
+    - Changes in src/lib/file-operations/should-ignore-file.ts
+
 ## [0.6.6] - 2025-12-31
 
 <small>31.12.2025 10:17</small>
