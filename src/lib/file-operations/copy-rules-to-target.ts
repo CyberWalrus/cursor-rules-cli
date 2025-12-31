@@ -72,7 +72,10 @@ export async function copyRulesToTarget(
             const baseDir = join(packageDir, '.cursor');
             const relativeRuleDir = relative(baseDir, sourcePath).replace(/\\/g, '/');
 
-            if (!shouldIgnoreFile(relativeRuleDir, ignoreList)) {
+            const hasNegationPatterns = ignoreList.some((pattern) => pattern.startsWith('!'));
+            const shouldIgnoreDir = shouldIgnoreFile(relativeRuleDir, ignoreList);
+
+            if (!shouldIgnoreDir || hasNegationPatterns) {
                 await copyDirectoryRecursive(sourcePath, targetPath, baseDir, ignoreList);
             }
         }),

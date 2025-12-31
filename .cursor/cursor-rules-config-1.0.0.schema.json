@@ -114,14 +114,16 @@
     },
     "ignoreList": {
       "type": "array",
-      "description": "File paths (exact or glob patterns) relative to .cursor/ to ignore during updates",
+      "description": "File paths (exact or glob patterns) relative to .cursor/ to ignore during updates. Supports negation patterns with '!' prefix to exclude files from ignore rules (e.g., ignore 'rules/**' but update 'rules/prompt-workflow.mdc' with 'rules/**' and '!rules/prompt-workflow.mdc')",
       "items": {
         "type": "string",
         "minLength": 1,
         "examples": [
           "rules/custom-project-rule.mdc",
           "rules/**/*.custom.mdc",
-          "**/*.backup.*"
+          "**/*.backup.*",
+          "rules/**",
+          "!rules/prompt-workflow.mdc"
         ]
       },
       "default": []

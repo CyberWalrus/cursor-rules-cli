@@ -1,9 +1,10 @@
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { initCommand } from '../../cli/commands/init/index';
 import { upgradeCommand } from '../../cli/commands/upgrade/index';
+import { pathExists } from '../../lib/file-operations/path-exists';
 import type { RulesConfig } from '../../model';
 import { VERSION_FILE_NAME } from '../../model';
 import { copyRulesFixtures } from './helpers/copy-rules-fixtures';
@@ -84,5 +85,50 @@ describe('Upgrade Command E2E', () => {
         const timestampAfter = new Date(contentAfter.updatedAt).getTime();
 
         expect(timestampAfter).toBeGreaterThan(timestampBefore);
+    });
+
+    it('должен добавлять файлы исключённые отрицательными паттернами при обновлении', async () => {
+        const currentTimestamp = new Date().toISOString();
+        const config: RulesConfig = {
+            cliVersion: '1.0.0',
+            configVersion: '1.0.0',
+            fileOverrides: [],
+            ignoreList: ['rules/**', '!rules/prompt-workflow.mdc'],
+            installedAt: currentTimestamp,
+            promptsVersion: '2025.11.9.1',
+            ruleSets: [
+                {
+                    id: 'base',
+                    update: true,
+                },
+            ],
+            settings: {
+                language: 'ru',
+            },
+            source: 'cursor-rules',
+            updatedAt: currentTimestamp,
+        };
+
+        const cursorDir = join(tempDirPathPath, '.cursor');
+        const configFilePath = join(cursorDir, VERSION_FILE_NAME);
+        const rulesDir = join(cursorDir, 'rules');
+        const promptWorkflowPath = join(rulesDir, 'prompt-workflow.mdc');
+
+        await mkdir(cursorDir, { recursive: true });
+        await writeFile(configFilePath, JSON.stringify(config, null, 2), 'utf-8');
+
+        if (await pathExists(promptWorkflowPath)) {
+            await rm(promptWorkflowPath);
+        }
+
+        const promptWorkflowExistsBefore = await pathExists(promptWorkflowPath);
+
+        expect(promptWorkflowExistsBefore).toBe(false);
+
+        await upgradeCommand(packageDir, tempDirPathPath);
+
+        const promptWorkflowExistsAfter = await pathExists(promptWorkflowPath);
+
+        expect(promptWorkflowExistsAfter).toBe(true);
     });
 });

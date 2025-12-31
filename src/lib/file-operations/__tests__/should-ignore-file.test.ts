@@ -54,4 +54,84 @@ describe('shouldIgnoreFile', () => {
 
         expect(result).toBe(true);
     });
+
+    it('должен поддерживать отрицательные паттерны - игнорировать rules/** но не rules/prompt-workflow.mdc', () => {
+        const result1 = shouldIgnoreFile('rules/prompt-workflow.mdc', ['rules/**', '!rules/prompt-workflow.mdc']);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules/other-file.mdc', ['rules/**', '!rules/prompt-workflow.mdc']);
+
+        expect(result2).toBe(true);
+    });
+
+    it('должен поддерживать отрицательные паттерны для поддиректорий', () => {
+        const result1 = shouldIgnoreFile('rules/subdir/file.mdc', ['rules/**', '!rules/subdir/**']);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules/other-dir/file.mdc', ['rules/**', '!rules/subdir/**']);
+
+        expect(result2).toBe(true);
+    });
+
+    it('должен поддерживать несколько отрицательных паттернов', () => {
+        const result1 = shouldIgnoreFile('rules/prompt-workflow.mdc', [
+            'rules/**',
+            '!rules/prompt-workflow.mdc',
+            '!rules/another-file.mdc',
+        ]);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules/another-file.mdc', [
+            'rules/**',
+            '!rules/prompt-workflow.mdc',
+            '!rules/another-file.mdc',
+        ]);
+
+        expect(result2).toBe(false);
+
+        const result3 = shouldIgnoreFile('rules/third-file.mdc', [
+            'rules/**',
+            '!rules/prompt-workflow.mdc',
+            '!rules/another-file.mdc',
+        ]);
+
+        expect(result3).toBe(true);
+    });
+
+    it('должен нормализовать Windows-пути в отрицательных паттернах', () => {
+        const result1 = shouldIgnoreFile('rules\\prompt-workflow.mdc', ['rules/**', '!rules/prompt-workflow.mdc']);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules\\other-file.mdc', ['rules/**', '!rules/prompt-workflow.mdc']);
+
+        expect(result2).toBe(true);
+    });
+
+    it('должен нормализовать Windows-пути в паттернах ignoreList', () => {
+        const result1 = shouldIgnoreFile('rules/prompt-workflow.mdc', ['rules\\**', '!rules\\prompt-workflow.mdc']);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules/other-file.mdc', ['rules\\**', '!rules\\prompt-workflow.mdc']);
+
+        expect(result2).toBe(true);
+    });
+
+    it('должен нормализовать Windows-пути в отрицательных паттернах для поддиректорий', () => {
+        const result1 = shouldIgnoreFile('rules\\subdir\\file.mdc', ['rules/**', '!rules/subdir/**']);
+
+        expect(result1).toBe(false);
+
+        const result2 = shouldIgnoreFile('rules/subdir/file.mdc', ['rules\\**', '!rules\\subdir\\**']);
+
+        expect(result2).toBe(false);
+
+        const result3 = shouldIgnoreFile('rules\\other-dir\\file.mdc', ['rules/**', '!rules/subdir/**']);
+
+        expect(result3).toBe(true);
+    });
 });

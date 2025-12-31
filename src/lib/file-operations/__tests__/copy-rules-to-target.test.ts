@@ -214,4 +214,42 @@ describe('copyRulesToTarget', () => {
         expect(rulesDirCalls).toHaveLength(1);
         expect(mockCp).toHaveBeenCalledTimes(RULES_DIRS.length);
     });
+
+    it('должен копировать файлы исключённые отрицательными паттернами', async () => {
+        mockReaddir
+            .mockResolvedValueOnce([
+                { isDirectory: () => false, isFile: () => true, name: 'prompt-workflow.mdc' },
+                { isDirectory: () => false, isFile: () => true, name: 'other-file.mdc' },
+            ])
+            .mockResolvedValueOnce([{ isDirectory: () => false, isFile: () => true, name: 'file1.mdc' }])
+            .mockResolvedValueOnce([{ isDirectory: () => false, isFile: () => true, name: 'file2.mdc' }]);
+        mockShouldIgnoreFile.mockImplementation((path: string) => {
+            if (path === 'rules/prompt-workflow.mdc') {
+                return false;
+            }
+            if (path === 'rules/other-file.mdc') {
+                return true;
+            }
+            if (path === 'rules') {
+                return false;
+            }
+
+            return false;
+        });
+        mockMkdir.mockResolvedValue(undefined);
+        mockCp.mockResolvedValue(undefined);
+
+        const packageDir = getTestPath('package');
+        const targetDir = getTestPath('target');
+
+        await copyRulesToTarget(packageDir, targetDir, ['rules/**', '!rules/prompt-workflow.mdc']);
+
+        const promptWorkflowCalls = mockCp.mock.calls.filter((call) => call[0].includes('prompt-workflow.mdc'));
+
+        expect(promptWorkflowCalls.length).toBeGreaterThan(0);
+
+        const otherFileCalls = mockCp.mock.calls.filter((call) => call[0].includes('other-file.mdc'));
+
+        expect(otherFileCalls).toHaveLength(0);
+    });
 });
