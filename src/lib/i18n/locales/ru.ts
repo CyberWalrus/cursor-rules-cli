@@ -93,7 +93,7 @@ export const ru = {
     'command.system-files.core-instructions': 'Системный промпт с базовыми правилами',
     'command.system-files.core-instructions.hint':
         'Промпт с базовыми правилами для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
-    'command.system-files.current-date': 'Системный промпт для ключей даты',
+    'command.system-files.current-date': 'Промпт с текущей датой',
     'command.system-files.current-date.hint':
         'Промпт с текущей датой для пользователя. Вставьте в Cursor: Rules and Commands -> User Rules',
     'command.system-files.error': 'Ошибка: {message}',

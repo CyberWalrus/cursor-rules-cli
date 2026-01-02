@@ -1,17 +1,11 @@
 import { cancel, isCancel, log, select, text } from '@clack/prompts';
-import { fileURLToPath } from 'node:url';
 
-import { copyToClipboard } from '../../../lib/clipboard';
 import { t } from '../../../lib/i18n';
-import { generateMcpConfig } from '../../../lib/prompts';
 import { readUserConfig, writeUserConfig } from '../../../lib/user-config';
 import type { McpSettings, UserConfig, UserMetaInfo } from '../../../model';
-import { getPackageDir } from '../../main/get-package-dir';
-
-const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
 
 /** Тип поля конфигурации для редактирования */
-type ConfigField = 'finish' | 'language' | 'mcp-config' | 'mcp-settings' | 'meta-info';
+type ConfigField = 'finish' | 'language' | 'mcp-settings' | 'meta-info';
 
 /** Тип поля метаинформации для редактирования */
 type MetaInfoField =
@@ -123,7 +117,12 @@ async function editMetaInfo(currentMetaInfo: UserMetaInfo | null | undefined): P
             }
 
             const ageValue = ageInput.trim();
-            value = ageValue === '' ? undefined : Number.parseInt(ageValue, 10);
+            if (ageValue === '') {
+                value = undefined;
+            } else {
+                const parsed = Number.parseInt(ageValue, 10);
+                value = Number.isNaN(parsed) ? undefined : parsed;
+            }
         } else {
             const prompts: Record<string, string> = {
                 'communication-style': t('command.config.meta-info.prompt.communication-style'),
@@ -273,7 +272,7 @@ async function editMcpSettings(currentMcpSettings: McpSettings | null | undefine
         }
     }
 
-    if (mcpSettings.apiKey === '' || mcpSettings.aiModel === '') {
+    if (mcpSettings.apiKey === '') {
         return undefined;
     }
 
@@ -302,7 +301,6 @@ export async function configCommand(): Promise<void> {
                     label: `${t('command.config.field.mcp-settings')}: ${currentMcpSettings ? '(настроено)' : '(не настроено)'}`,
                     value: 'mcp-settings',
                 },
-                { label: t('command.config.field.mcp-config'), value: 'mcp-config' },
                 { label: t('command.config.field.finish'), value: 'finish' },
             ],
         });
@@ -360,20 +358,6 @@ export async function configCommand(): Promise<void> {
 
             await writeUserConfig(config);
             log.success(t('command.config.mcp-settings.success'));
-        } else if (field === 'mcp-config') {
-            try {
-                const packageDir = getPackageDir(currentFilePath);
-                if (packageDir === null || packageDir === undefined) {
-                    throw new Error(t('cli.main.package-dir-not-found'));
-                }
-
-                const content = await generateMcpConfig(packageDir, currentMcpSettings);
-                await copyToClipboard(content);
-                log.success(t('command.config.mcp-config.copied'));
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                log.error(t('command.system-files.error', { message }));
-            }
         }
     }
 }

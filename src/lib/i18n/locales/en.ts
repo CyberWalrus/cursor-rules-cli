@@ -92,7 +92,7 @@ export const en = {
     'command.system-files.core-instructions': 'Core system prompt',
     'command.system-files.core-instructions.hint':
         'Prompt with core rules for user. Paste in Cursor: Rules and Commands -> User Rules',
-    'command.system-files.current-date': 'System prompt for date keys',
+    'command.system-files.current-date': 'Prompt with current date',
     'command.system-files.current-date.hint':
         'Prompt with current date for user. Paste in Cursor: Rules and Commands -> User Rules',
     'command.system-files.error': 'Error: {message}',
