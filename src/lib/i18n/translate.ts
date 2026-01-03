@@ -1,6 +1,6 @@
 import { detectLanguage } from './detect-language';
-import type { Translations } from './get-translations';
 import { getTranslations } from './get-translations';
+import type { Translations } from './types';
 
 let currentLanguage: 'en' | 'ru' | null = null;
 let translations: Record<keyof Translations, string> | null = null;

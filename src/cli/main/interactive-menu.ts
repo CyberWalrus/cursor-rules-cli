@@ -51,11 +51,47 @@ function buildMenuOptions(
     return options;
 }
 
+/** Обрабатывает выбранное действие */
+async function handleMenuAction(
+    action: InteractiveMenuAction,
+    packageDir: string,
+    targetDir: string,
+): Promise<boolean> {
+    switch (action) {
+        case 'init':
+            await initCommand(packageDir, targetDir);
+            outro(t('cli.main.init.success'));
+
+            return false;
+        case 'upgrade':
+            await upgradeCommand(packageDir, targetDir);
+            outro(t('cli.main.upgrade.success'));
+
+            return false;
+        case 'config': {
+            const result = await configCommand();
+
+            return result === 'finish';
+        }
+        case 'system-files': {
+            const result = await systemFilesCommand();
+
+            return result === 'finish';
+        }
+        case 'versions': {
+            const result = await versionsCommand();
+
+            return result === 'finish';
+        }
+        default:
+            return false;
+    }
+}
+
 /** Показывает интерактивное меню выбора команды */
 export async function showInteractiveMenu(currentFilePath: string): Promise<void> {
     intro(t('cli.interactive-menu.title'));
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const targetDir = getTargetDir();
         if (targetDir === null || targetDir === undefined) {
@@ -88,34 +124,9 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
         }
 
         try {
-            switch (action) {
-                case 'init':
-                    await initCommand(packageDir, targetDir);
-                    outro(t('cli.main.init.success'));
-                    break;
-                case 'upgrade':
-                    await upgradeCommand(packageDir, targetDir);
-                    outro(t('cli.main.upgrade.success'));
-                    break;
-                case 'config': {
-                    const result = await configCommand();
-                    if (result === 'finish') {
-                        return;
-                    }
-
-                    break;
-                }
-                case 'system-files':
-                    await systemFilesCommand();
-                    break;
-                case 'versions': {
-                    const result = await versionsCommand();
-                    if (result === 'finish') {
-                        return;
-                    }
-
-                    break;
-                }
+            const shouldExit = await handleMenuAction(action, packageDir, targetDir);
+            if (shouldExit) {
+                return;
             }
         } catch (error) {
             cancel(error instanceof Error ? error.message : String(error));

@@ -1,13 +1,7 @@
-import { en } from './locales/en';
-import { ru } from './locales/ru';
-
-export type Translations = typeof en;
+import { EN_TRANSLATIONS } from './locales/en';
+import { RU_TRANSLATIONS } from './locales/ru';
 
 /** Получает объект переводов для указанного языка */
-export function getTranslations(language: 'en' | 'ru'): Record<keyof typeof en, string> {
-    if (language === 'ru') {
-        return ru as Record<keyof typeof en, string>;
-    }
-
-    return en as Record<keyof typeof en, string>;
+export function getTranslations(language: 'en' | 'ru'): Record<keyof typeof EN_TRANSLATIONS, string> {
+    return (language === 'ru' ? RU_TRANSLATIONS : EN_TRANSLATIONS) as Record<keyof typeof EN_TRANSLATIONS, string>;
 }

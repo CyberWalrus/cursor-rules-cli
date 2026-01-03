@@ -1,4 +1,4 @@
-import { cancel, isCancel, log, select } from '@clack/prompts';
+import { cancel, isCancel, log, outro, select } from '@clack/prompts';
 
 import { copyToClipboard } from '../../../lib/clipboard';
 import { getLatestSystemRulesVersion } from '../../../lib/github-fetcher/get-latest-system-rules-version';
@@ -19,12 +19,11 @@ import {
     writeUserConfig,
 } from '../../../lib/user-config';
 import { GITHUB_REPO } from '../../../model';
+import { COPY_MESSAGES } from './constants';
+import type { SystemFilesAction, SystemFilesCommandResult, SystemFileType } from './types';
 
-/** Тип системного файла для копирования */
-type SystemFileType = 'core-instructions' | 'current-date' | 'mcp-config' | 'meta-info';
-
-/** Команда работы с системными файлами */
-export async function systemFilesCommand(): Promise<void> {
+/** Выполняет команду работы с системными файлами */
+export async function systemFilesCommand(): Promise<SystemFilesCommandResult> {
     let isGithubError = false;
 
     try {
@@ -65,17 +64,15 @@ export async function systemFilesCommand(): Promise<void> {
     if (isCancel(fileType)) {
         cancel(t('cli.interactive-menu.cancelled'));
 
-        return;
+        return 'back-to-menu';
     }
 
     try {
-        const forceRefresh = isGithubError;
-
         let content: string;
 
         switch (fileType) {
             case 'core-instructions': {
-                const rawContent = await getCoreSystemInstructions(forceRefresh);
+                const rawContent = await getCoreSystemInstructions(isGithubError);
                 content = removeYamlFrontmatter(rawContent);
                 break;
             }
@@ -91,24 +88,24 @@ export async function systemFilesCommand(): Promise<void> {
                     if (filledMetaInfo === null) {
                         cancel(t('cli.interactive-menu.cancelled'));
 
-                        return;
+                        return 'back-to-menu';
                     }
 
                     userConfig = {
-                        language: userConfig?.language ?? 'en',
                         ...userConfig,
+                        language: userConfig?.language ?? 'en',
                         metaInfo: filledMetaInfo,
                     };
 
                     await writeUserConfig(userConfig);
                 }
 
-                const rawContent = await generateMetaInfoPrompt(userConfig?.metaInfo, forceRefresh);
+                const rawContent = await generateMetaInfoPrompt(userConfig?.metaInfo, isGithubError);
                 content = removeYamlFrontmatter(rawContent);
                 break;
             }
             case 'current-date': {
-                const rawContent = await generateCurrentDatePrompt(forceRefresh);
+                const rawContent = await generateCurrentDatePrompt(isGithubError);
                 content = removeYamlFrontmatter(rawContent);
                 break;
             }
@@ -127,33 +124,47 @@ export async function systemFilesCommand(): Promise<void> {
                     if (filledMcpSettings === null) {
                         cancel(t('cli.interactive-menu.cancelled'));
 
-                        return;
+                        return 'back-to-menu';
                     }
 
                     userConfig = {
-                        language: userConfig?.language ?? 'en',
                         ...userConfig,
+                        language: userConfig?.language ?? 'en',
                         mcpSettings: filledMcpSettings,
                     };
 
                     await writeUserConfig(userConfig);
                 }
 
-                content = await generateMcpConfig(userConfig?.mcpSettings, forceRefresh);
+                content = await generateMcpConfig(userConfig?.mcpSettings, isGithubError);
                 break;
             }
         }
 
         await copyToClipboard(content);
 
-        const copyMessages: Record<SystemFileType, string> = {
-            'core-instructions': t('command.system-files.copied.core-instructions'),
-            'current-date': t('command.system-files.copied.current-date'),
-            'mcp-config': t('command.system-files.copied.mcp-config'),
-            'meta-info': t('command.system-files.copied.meta-info'),
-        };
+        log.success(COPY_MESSAGES[fileType]);
 
-        log.success(copyMessages[fileType]);
+        const action = await select<SystemFilesAction>({
+            message: t('command.system-files.select-action'),
+            options: [
+                { label: t('command.system-files.back-to-menu'), value: 'back-to-menu' },
+                { label: t('command.system-files.finish'), value: 'finish' },
+            ],
+        });
+
+        if (isCancel(action)) {
+            cancel(t('cli.interactive-menu.cancelled'));
+            process.exit(0);
+        }
+
+        if (action === 'finish') {
+            outro(t('cli.interactive-menu.goodbye'));
+
+            return 'finish';
+        }
+
+        return 'back-to-menu';
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(t('command.system-files.error', { message }));
