@@ -4,19 +4,22 @@ import { join } from 'node:path';
 
 import {
     copyRulesToTarget,
+    copySystemRulesToTarget,
     deleteRulesFromTarget,
     readConfigFile,
     writeConfigFile,
 } from '../../../lib/file-operations';
-import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
+import { fetchPromptsTarball, fetchSystemRulesTarball } from '../../../lib/github-fetcher';
 import { askConfirmation } from '../../../lib/helpers';
 import { t } from '../../../lib/i18n';
 import { readUserConfig } from '../../../lib/user-config';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
+import { getVersionsWithRetry } from '../../../lib/version-manager/get-versions-with-retry';
 import type { RulesConfig } from '../../../model';
 import { GITHUB_REPO, replaceAllCommandParamsSchema } from '../../../model';
 
 /** Команда полной замены правил */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export async function replaceAllCommand(packageDir: string, targetDir: string): Promise<void> {
     try {
         replaceAllCommandParamsSchema.parse({ packageDir, targetDir });
@@ -37,7 +40,9 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
 
     const existingConfig = await readConfigFile(targetDir);
     const cliVersion = await getPackageVersion(packageDir);
-    let promptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
+    const { promptsVersion: fetchedPromptsVersion, systemRulesVersion: fetchedSystemRulesVersion } =
+        await getVersionsWithRetry();
+    let promptsVersion = fetchedPromptsVersion;
 
     if (promptsVersion == null) {
         if (existingConfig !== null && existingConfig.promptsVersion !== undefined) {
@@ -60,11 +65,17 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
     const userConfig = await readUserConfig();
     let config: RulesConfig;
 
+    let systemRulesVersion: string | undefined = fetchedSystemRulesVersion ?? undefined;
+    if (systemRulesVersion === undefined && existingConfig?.systemRulesVersion !== undefined) {
+        systemRulesVersion = existingConfig.systemRulesVersion;
+    }
+
     if (existingConfig !== null) {
         config = {
             ...existingConfig,
             cliVersion,
             promptsVersion,
+            systemRulesVersion,
             updatedAt: currentTimestamp,
         };
     } else {
@@ -85,6 +96,7 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
                 language: userConfig?.language ?? 'en',
             },
             source: 'cursor-rules',
+            systemRulesVersion,
             updatedAt: currentTimestamp,
         };
     }
@@ -92,9 +104,17 @@ export async function replaceAllCommand(packageDir: string, targetDir: string): 
     const tmpDir = join(tmpdir(), `cursor-rules-${Date.now()}`);
 
     try {
-        await fetchPromptsTarball(GITHUB_REPO, promptsVersion, tmpDir);
+        await Promise.all([
+            fetchPromptsTarball(GITHUB_REPO, promptsVersion, tmpDir),
+            systemRulesVersion !== undefined
+                ? fetchSystemRulesTarball(GITHUB_REPO, systemRulesVersion, tmpDir)
+                : Promise.resolve(),
+        ]);
         await deleteRulesFromTarget(targetDir);
         await copyRulesToTarget(tmpDir, targetDir, config.ignoreList ?? [], config.fileOverrides ?? []);
+        if (systemRulesVersion !== undefined) {
+            await copySystemRulesToTarget(tmpDir, targetDir);
+        }
         await writeConfigFile(targetDir, config);
 
         console.log(t('command.replace-all.success', { version: promptsVersion }));

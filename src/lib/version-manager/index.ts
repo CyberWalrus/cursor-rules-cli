@@ -1,6 +1,9 @@
+export { checkVersionsInBackground } from './check-versions-background';
 export { compareCalVerVersions } from './compare-calver-versions';
 export { compareVersions } from './compare-versions';
 export { getCurrentVersion } from './get-current-version';
 export { getNpmVersion } from './get-npm-version';
 export { getPackageVersion } from './get-package-version';
+export { getVersionsWithRetry } from './get-versions-with-retry';
 export { notifyIfUpdateAvailable } from './notify-update';
+export { clearBackgroundError, getCachedVersions, hasBackgroundError, setCachedVersions } from './versions-cache';

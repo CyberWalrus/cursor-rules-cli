@@ -14,14 +14,15 @@ export async function calculateDiff(packageDir: string, targetDir: string): Prom
         throw new Error('targetDir is required');
     }
 
-    const toAdd: string[] = [];
-    const toDelete: string[] = [];
-    const toUpdate: string[] = [];
-
-    await Promise.all(
+    const results = await Promise.all(
         RULES_DIRS.map(async (ruleDir) => {
             const sourcePath = join(packageDir, ruleDir);
-            const targetPath = join(targetDir, ruleDir);
+            const targetRuleDir = ruleDir.replace(/^cursor\//, '.cursor/');
+            const targetPath = join(targetDir, targetRuleDir);
+
+            const adds: string[] = [];
+            const deletes: string[] = [];
+            const updates: string[] = [];
 
             try {
                 const sourceMap = await scanDirectory(sourcePath);
@@ -31,26 +32,32 @@ export async function calculateDiff(packageDir: string, targetDir: string): Prom
                     const targetHash = targetMap.get(relativePath);
 
                     if (targetHash === undefined) {
-                        toAdd.push(join(ruleDir, relativePath).replace(/\\/g, '/'));
+                        adds.push(join(targetRuleDir, relativePath).replace(/\\/g, '/'));
                     } else if (sourceHash !== targetHash) {
-                        toUpdate.push(join(ruleDir, relativePath).replace(/\\/g, '/'));
+                        updates.push(join(targetRuleDir, relativePath).replace(/\\/g, '/'));
                     }
                 });
 
                 targetMap.forEach((_, relativePath) => {
                     if (!sourceMap.has(relativePath)) {
-                        toDelete.push(join(ruleDir, relativePath).replace(/\\/g, '/'));
+                        deletes.push(join(targetRuleDir, relativePath).replace(/\\/g, '/'));
                     }
                 });
             } catch (error: unknown) {
                 console.error(`Failed to scan directory ${ruleDir}:`, error);
             }
+
+            return {
+                adds,
+                deletes,
+                updates,
+            };
         }),
     );
 
     return {
-        toAdd,
-        toDelete,
-        toUpdate,
+        toAdd: results.flatMap((r) => r.adds),
+        toDelete: results.flatMap((r) => r.deletes),
+        toUpdate: results.flatMap((r) => r.updates),
     };
 }

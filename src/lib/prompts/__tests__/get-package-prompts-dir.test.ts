@@ -3,9 +3,9 @@ import { join } from 'node:path';
 import { getPackagePromptsDir } from '../get-package-prompts-dir';
 
 describe('getPackagePromptsDir', () => {
-    it('должен возвращать путь к user-rules директории', () => {
+    it('должен возвращать путь к system-rules директории', () => {
         const packageDir = '/test/package';
-        const expected = join(packageDir, 'user-rules');
+        const expected = join(packageDir, 'system-rules');
 
         const result = getPackagePromptsDir(packageDir);
 

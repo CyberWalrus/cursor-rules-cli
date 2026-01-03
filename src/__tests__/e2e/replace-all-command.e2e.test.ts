@@ -15,7 +15,9 @@ vi.mock('../../lib/github-fetcher', () => ({
         const { copyRulesFixtures: copyFixtures } = await import('./helpers/copy-rules-fixtures');
         await copyFixtures(targetDir);
     }),
+    fetchSystemRulesTarball: vi.fn().mockResolvedValue(undefined),
     getLatestPromptsVersion: vi.fn().mockResolvedValue('2025.11.10.1'),
+    getLatestSystemRulesVersion: vi.fn().mockResolvedValue(null),
 }));
 
 describe('Replace-All Command E2E', () => {

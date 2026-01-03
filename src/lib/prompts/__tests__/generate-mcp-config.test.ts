@@ -12,7 +12,7 @@ const mockReadFile = vi.mocked(readFile);
 
 describe('generateMcpConfig', () => {
     const packageDir = '/test/package';
-    const mcpConfigPath = join(packageDir, 'mcp.json');
+    const mcpConfigPath = join(packageDir, 'system-rules', 'mcp.json');
     const mcpConfig = {
         mcpServers: {
             context7: {

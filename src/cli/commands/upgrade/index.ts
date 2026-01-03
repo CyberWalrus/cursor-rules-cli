@@ -3,16 +3,23 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { calculateDiff } from '../../../lib/diff-calculator/calculate-diff';
-import { copyRulesToTarget, readConfigFile, writeConfigFile } from '../../../lib/file-operations';
-import { fetchPromptsTarball, getLatestPromptsVersion } from '../../../lib/github-fetcher';
+import {
+    copyRulesToTarget,
+    copySystemRulesToTarget,
+    readConfigFile,
+    writeConfigFile,
+} from '../../../lib/file-operations';
+import { fetchPromptsTarball, fetchSystemRulesTarball } from '../../../lib/github-fetcher';
 import { askConfirmation } from '../../../lib/helpers';
 import { t } from '../../../lib/i18n';
 import { compareCalVerVersions } from '../../../lib/version-manager/compare-calver-versions';
 import { getCurrentVersion } from '../../../lib/version-manager/get-current-version';
 import { getPackageVersion } from '../../../lib/version-manager/get-package-version';
+import { getVersionsWithRetry } from '../../../lib/version-manager/get-versions-with-retry';
 import { GITHUB_REPO, upgradeCommandParamsSchema } from '../../../model';
 
 /** Обновляет правила до последней версии */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export async function upgradeCommand(packageDir: string, targetDir: string): Promise<void> {
     try {
         upgradeCommandParamsSchema.parse({ packageDir, targetDir });
@@ -60,7 +67,8 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
         throw new Error('Current prompts version not found in config');
     }
 
-    const latestPromptsVersion = await getLatestPromptsVersion(GITHUB_REPO);
+    const { promptsVersion: latestPromptsVersion, systemRulesVersion: latestSystemRulesVersion } =
+        await getVersionsWithRetry();
 
     if (latestPromptsVersion == null) {
         console.warn(t('command.upgrade.no-internet', { version: currentPromptsVersion }));
@@ -99,16 +107,32 @@ export async function upgradeCommand(packageDir: string, targetDir: string): Pro
         }
     }
 
+    const currentSystemRulesVersion = config.systemRulesVersion;
+    const shouldUpdateSystemRules =
+        latestSystemRulesVersion !== null &&
+        (currentSystemRulesVersion === undefined || currentSystemRulesVersion !== latestSystemRulesVersion);
+
     const tmpDir = join(tmpdir(), `cursor-rules-${Date.now()}`);
 
     try {
-        await fetchPromptsTarball(GITHUB_REPO, latestPromptsVersion, tmpDir);
+        await Promise.all([
+            fetchPromptsTarball(GITHUB_REPO, latestPromptsVersion, tmpDir),
+            shouldUpdateSystemRules
+                ? fetchSystemRulesTarball(GITHUB_REPO, latestSystemRulesVersion, tmpDir)
+                : Promise.resolve(),
+        ]);
         await calculateDiff(tmpDir, targetDir);
         await copyRulesToTarget(tmpDir, targetDir, config.ignoreList ?? [], config.fileOverrides ?? []);
+        if (shouldUpdateSystemRules) {
+            await copySystemRulesToTarget(tmpDir, targetDir);
+        }
 
         const cliVersion = await getPackageVersion(packageDir);
         config.cliVersion = cliVersion;
         config.promptsVersion = latestPromptsVersion;
+        if (shouldUpdateSystemRules) {
+            config.systemRulesVersion = latestSystemRulesVersion;
+        }
         config.updatedAt = new Date().toISOString();
         await writeConfigFile(targetDir, config);
 

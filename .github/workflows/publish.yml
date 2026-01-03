@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - ".cursor/**"
+      - "cursor/**"
       - "user-rules/**"
 
 permissions:

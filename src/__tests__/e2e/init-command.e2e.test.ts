@@ -12,7 +12,9 @@ vi.mock('../../lib/github-fetcher', () => ({
         const { copyRulesFixtures } = await import('./helpers/copy-rules-fixtures');
         await copyRulesFixtures(targetDir);
     }),
+    fetchSystemRulesTarball: vi.fn().mockResolvedValue(undefined),
     getLatestPromptsVersion: vi.fn().mockResolvedValue('2025.11.10.1'),
+    getLatestSystemRulesVersion: vi.fn().mockResolvedValue(null),
 }));
 
 describe('Init Command E2E', () => {

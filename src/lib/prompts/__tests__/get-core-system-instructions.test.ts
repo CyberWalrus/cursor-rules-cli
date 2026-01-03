@@ -8,14 +8,14 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'user-rules'),
+    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
 }));
 
 const mockReadFile = vi.mocked(readFile);
 
 describe('getCoreSystemInstructions', () => {
     const packageDir = '/test/package';
-    const filePath = join(packageDir, 'user-rules', 'core-system-instructions.md');
+    const filePath = join(packageDir, 'system-rules', 'core-system-instructions.md');
     const content = '# Core System Principles\n\nSome content here.';
 
     beforeEach(() => {

@@ -2,6 +2,7 @@ import { defineCommand, runMain } from 'citty';
 import { fileURLToPath } from 'node:url';
 
 import { t } from '../../lib/i18n';
+import { checkVersionsInBackground } from '../../lib/version-manager/check-versions-background';
 import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { replaceAllCommand } from '../commands/replace-all';
@@ -91,6 +92,10 @@ export async function runCli(): Promise<void> {
     ensureLatestVersion(packageDir).catch((error) => {
         const message: string = error instanceof Error ? error.message : String(error);
         console.warn(t('cli.main.update-check.failed', { message }));
+    });
+
+    checkVersionsInBackground().catch(() => {
+        // Игнорируем ошибки фоновой проверки - будет повторная попытка при командах
     });
 
     if (process.argv.length <= 2) {

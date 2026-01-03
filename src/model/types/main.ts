@@ -2,7 +2,7 @@
 export type CommandType = 'config' | 'init' | 'replace-all' | 'system-files' | 'upgrade';
 
 /** Тип действия интерактивного меню */
-export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'system-files' | 'upgrade';
+export type InteractiveMenuAction = 'config' | 'exit' | 'init' | 'system-files' | 'upgrade' | 'versions';
 
 /** Конфигурация правил */
 export type RulesConfig = {
@@ -29,6 +29,8 @@ export type RulesConfig = {
     fileOverrides?: FileOverride[];
     /** Список файлов для игнорирования */
     ignoreList?: string[];
+    /** Версия системных правил */
+    systemRulesVersion?: string;
     /** Версия правил (deprecated, используйте promptsVersion) */
     version?: string;
 };

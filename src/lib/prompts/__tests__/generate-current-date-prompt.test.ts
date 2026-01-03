@@ -8,14 +8,14 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'user-rules'),
+    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
 }));
 
 const mockReadFile = vi.mocked(readFile);
 
 describe('generateCurrentDatePrompt', () => {
     const packageDir = '/test/package';
-    const templatePath = join(packageDir, 'user-rules', 'current-date.template.md');
+    const templatePath = join(packageDir, 'system-rules', 'current-date.template.md');
     const template = `---
 id: current-date
 type: compact

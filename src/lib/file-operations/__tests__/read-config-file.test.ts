@@ -9,17 +9,29 @@ function getTestPath(...segments: string[]): string {
     return join(tmpdir(), 'cursor-rules-test', ...segments);
 }
 
-const { mockReadFile, mockPathExists } = vi.hoisted(() => ({
+const { mockReadFile, mockPathExists, mockWriteFile, mockMkdir } = vi.hoisted(() => ({
+    mockMkdir: vi.fn(),
     mockPathExists: vi.fn(),
     mockReadFile: vi.fn(),
+    mockWriteFile: vi.fn(),
 }));
 
 vi.mock('node:fs/promises', () => ({
+    mkdir: mockMkdir,
     readFile: mockReadFile,
+    writeFile: mockWriteFile,
 }));
 
 vi.mock('../path-exists', () => ({
     pathExists: mockPathExists,
+}));
+
+const { mockWriteConfigFile } = vi.hoisted(() => ({
+    mockWriteConfigFile: vi.fn(),
+}));
+
+vi.mock('../write-config-file', () => ({
+    writeConfigFile: mockWriteConfigFile,
 }));
 
 describe('readConfigFile', () => {
@@ -82,5 +94,29 @@ describe('readConfigFile', () => {
 
     it('должен выбрасывать ошибку если targetDir пустой', async () => {
         await expect(readConfigFile('')).rejects.toThrow('targetDir is required');
+    });
+
+    it('должен обновлять старую ссылку на схему при чтении конфига', async () => {
+        const config: RulesConfig = createTestConfig();
+        const oldConfigContent = {
+            $schema:
+                'https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/.cursor/cursor-rules-config-1.0.0.schema.json',
+            ...config,
+        };
+
+        mockPathExists.mockResolvedValue(true);
+        mockReadFile.mockResolvedValue(JSON.stringify(oldConfigContent));
+        mockWriteConfigFile.mockResolvedValue(undefined);
+
+        const targetDir = getTestPath('target');
+
+        const result = await readConfigFile(targetDir);
+
+        expect(result).not.toBeNull();
+        expect(result?.configVersion).toBe(config.configVersion);
+        expect(mockWriteConfigFile).toHaveBeenCalledWith(
+            targetDir,
+            expect.objectContaining({ configVersion: '1.0.0' }),
+        );
     });
 });

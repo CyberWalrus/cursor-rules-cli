@@ -32,6 +32,10 @@ export const rulesConfigSchema = z.object({
         language: z.enum(['ru', 'en'], { message: 'Language must be "ru" or "en"' }),
     }),
     source: z.string().min(1, 'Source cannot be empty'),
+    systemRulesVersion: z
+        .string()
+        .regex(/^\d{4}\.\d{1,2}\.\d{1,2}\.\d+$/, 'System rules version must be in CalVer format (YYYY.M.D.N)')
+        .optional(),
     updatedAt: z.string().datetime({ message: 'updatedAt must be a valid ISO 8601 datetime' }),
     version: z
         .string()

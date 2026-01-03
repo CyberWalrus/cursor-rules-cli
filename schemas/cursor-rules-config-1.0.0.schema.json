@@ -58,6 +58,30 @@
         "1.2.3"
       ]
     },
+    "cliVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "CLI tool version (semver)",
+      "examples": [
+        "0.1.0"
+      ]
+    },
+    "promptsVersion": {
+      "type": "string",
+      "pattern": "^\\d{4}\\.\\d{1,2}\\.\\d{1,2}\\.\\d+$",
+      "description": "Prompts version (CalVer format YYYY.M.D.N)",
+      "examples": [
+        "2025.1.15.1"
+      ]
+    },
+    "systemRulesVersion": {
+      "type": "string",
+      "pattern": "^\\d{4}\\.\\d{1,2}\\.\\d{1,2}\\.\\d+$",
+      "description": "System rules version (CalVer format YYYY.M.D.N)",
+      "examples": [
+        "2025.1.15.1"
+      ]
+    },
     "settings": {
       "type": "object",
       "required": [

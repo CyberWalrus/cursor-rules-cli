@@ -21,6 +21,8 @@ export const ru = {
     'cli.interactive-menu.upgrade': 'Обновить правила',
     'cli.interactive-menu.upgrade.hint':
         'Обновление с сохранением ignoreList и fileOverrides. Файлы правил перезаписываются новыми версиями',
+    'cli.interactive-menu.versions': 'Просмотр версий',
+    'cli.interactive-menu.versions.hint': 'Показать актуальные версии CLI, промптов и системных правил',
     'cli.main.config.success': '✅ Конфигурация успешно сохранена',
     'cli.main.init.success': '✅ Правила успешно инициализированы',
     'cli.main.package-dir-not-found': 'Директория пакета не найдена',

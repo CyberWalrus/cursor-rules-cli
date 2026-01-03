@@ -9,14 +9,14 @@ vi.mock('node:fs/promises', () => ({
 }));
 
 vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'user-rules'),
+    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
 }));
 
 const mockReadFile = vi.mocked(readFile);
 
 describe('generateMetaInfoPrompt', () => {
     const packageDir = '/test/package';
-    const templatePath = join(packageDir, 'user-rules', 'meta-info.template.md');
+    const templatePath = join(packageDir, 'system-rules', 'meta-info.template.md');
     const template = `---
 id: user-meta-info
 type: compact

@@ -7,6 +7,7 @@ import { configCommand } from '../commands/config';
 import { initCommand } from '../commands/init';
 import { systemFilesCommand } from '../commands/system-files';
 import { upgradeCommand } from '../commands/upgrade';
+import { versionsCommand } from '../commands/versions';
 import { getPackageDir } from './get-package-dir';
 import { getTargetDir } from './get-target-dir';
 
@@ -47,6 +48,7 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
             value: 'system-files',
         },
         { hint: t('cli.interactive-menu.config.hint'), label: t('cli.interactive-menu.config'), value: 'config' },
+        { hint: t('cli.interactive-menu.versions.hint'), label: t('cli.interactive-menu.versions'), value: 'versions' },
         { label: t('cli.interactive-menu.exit'), value: 'exit' },
     );
 
@@ -87,6 +89,9 @@ export async function showInteractiveMenu(currentFilePath: string): Promise<void
                 break;
             case 'system-files':
                 await systemFilesCommand();
+                break;
+            case 'versions':
+                await versionsCommand();
                 break;
         }
     } catch (error) {

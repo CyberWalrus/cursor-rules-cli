@@ -133,6 +133,11 @@ describe('showInteractiveMenu', () => {
                     label: 'Настроить конфигурацию',
                     value: 'config',
                 },
+                {
+                    hint: 'cli.interactive-menu.versions.hint',
+                    label: 'cli.interactive-menu.versions',
+                    value: 'versions',
+                },
                 { label: 'Выход', value: 'exit' },
             ],
         });
@@ -163,6 +168,11 @@ describe('showInteractiveMenu', () => {
                     hint: 'Настройка языка интерфейса, метаинформации и MCP конфигурации',
                     label: 'Настроить конфигурацию',
                     value: 'config',
+                },
+                {
+                    hint: 'cli.interactive-menu.versions.hint',
+                    label: 'cli.interactive-menu.versions',
+                    value: 'versions',
                 },
                 { label: 'Выход', value: 'exit' },
             ],

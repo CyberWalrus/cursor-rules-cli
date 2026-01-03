@@ -28,21 +28,27 @@ async function copyDirectoryRecursive(
     baseDir: string,
     ignoreList: string[],
 ): Promise<void> {
+    const hasNegationPatterns = ignoreList.some((pattern) => pattern.startsWith('!'));
+    await mkdir(targetDir, { recursive: true });
+
     const entries = await readdir(sourceDir, { withFileTypes: true });
 
-    for (const entry of entries) {
-        const sourcePath = join(sourceDir, entry.name);
-        const relativePath = relative(baseDir, sourcePath).replace(/\\/g, '/');
-        const targetPath = join(targetDir, entry.name);
+    await Promise.all(
+        entries.map(async (entry) => {
+            const sourcePath = join(sourceDir, entry.name);
+            const relativePath = relative(baseDir, sourcePath).replace(/\\/g, '/');
+            const targetPath = join(targetDir, entry.name);
+            const shouldIgnore = shouldIgnoreFile(relativePath, ignoreList);
 
-        if (entry.isDirectory()) {
-            if (!shouldIgnoreFile(relativePath, ignoreList)) {
-                await copyDirectoryRecursive(sourcePath, targetPath, baseDir, ignoreList);
+            if (entry.isDirectory()) {
+                if (!shouldIgnore || hasNegationPatterns) {
+                    await copyDirectoryRecursive(sourcePath, targetPath, baseDir, ignoreList);
+                }
+            } else if (entry.isFile() && !shouldIgnore) {
+                await copyFile(sourcePath, targetPath);
             }
-        } else if (entry.isFile() && !shouldIgnoreFile(relativePath, ignoreList)) {
-            await copyFile(sourcePath, targetPath);
-        }
-    }
+        }),
+    );
 }
 
 /** Копирует правила из пакета в целевую директорию */
@@ -59,20 +65,22 @@ export async function copyRulesToTarget(
         throw new Error('targetDir is required');
     }
 
+    const hasNegationPatterns = ignoreList.some((pattern) => pattern.startsWith('!'));
+
     await Promise.all(
         RULES_DIRS.map(async (ruleDir) => {
             const sourcePath = join(packageDir, ruleDir);
-            const targetPath = join(targetDir, ruleDir);
+            const targetRuleDir = ruleDir.replace(/^cursor\//, '.cursor/');
+            const targetPath = join(targetDir, targetRuleDir);
             const sourceExists = await pathExists(sourcePath);
 
             if (!sourceExists) {
                 return;
             }
 
-            const baseDir = join(packageDir, '.cursor');
+            const baseDir = join(packageDir, 'cursor');
             const relativeRuleDir = relative(baseDir, sourcePath).replace(/\\/g, '/');
 
-            const hasNegationPatterns = ignoreList.some((pattern) => pattern.startsWith('!'));
             const shouldIgnoreDir = shouldIgnoreFile(relativeRuleDir, ignoreList);
 
             if (!shouldIgnoreDir || hasNegationPatterns) {

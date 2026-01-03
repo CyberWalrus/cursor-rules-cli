@@ -146,7 +146,7 @@ describe('file-operations', () => {
 
             expect(mockMkdir).toHaveBeenCalledWith(join(targetDir, '.cursor'), { recursive: true });
             const expectedConfig = {
-                $schema: `https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/.cursor/cursor-rules-config-${config.configVersion}.schema.json`,
+                $schema: `https://raw.githubusercontent.com/CyberWalrus/cursor-rules-cli/main/schemas/cursor-rules-config-${config.configVersion}.schema.json`,
                 ...config,
             };
             expect(mockWriteFile).toHaveBeenCalledWith(

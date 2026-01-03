@@ -21,6 +21,8 @@ export const en = {
     'cli.interactive-menu.upgrade': 'Update rules',
     'cli.interactive-menu.upgrade.hint':
         'Update preserving ignoreList and fileOverrides. Rule files are overwritten with new versions',
+    'cli.interactive-menu.versions': 'View versions',
+    'cli.interactive-menu.versions.hint': 'Show current versions of CLI, prompts and system rules',
     'cli.main.config.success': '✅ Configuration saved successfully',
     'cli.main.init.success': '✅ Rules initialized successfully',
     'cli.main.package-dir-not-found': 'Package directory not found',

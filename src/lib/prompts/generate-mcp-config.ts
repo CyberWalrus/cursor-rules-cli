@@ -10,7 +10,7 @@ export async function generateMcpConfig(packageDir: string, mcpSettings?: McpSet
         throw new Error('packageDir is required');
     }
 
-    const mcpConfigPath = join(packageDir, 'mcp.json');
+    const mcpConfigPath = join(packageDir, 'system-rules', 'mcp.json');
     const content = await readFile(mcpConfigPath, 'utf-8');
     const parsed = JSON.parse(content) as unknown;
 
