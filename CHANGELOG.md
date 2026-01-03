@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.7.0] - 2026-01-03
+
+<small>03.01.2026 22:19</small>
+
+### Changed
+
+- **System files command refactoring**
+    - Refactored system-files command with improved code structure and separation of concerns
+    - Extracted helper functions for better code organization and maintainability
+    - Improved menu handling with better error handling and user experience
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/ffc588a" target="_blank">ffc588a</a>
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/502b1a5" target="_blank">502b1a5</a>
+    - Changes in package.json (version update to 0.7.0)
+    - Changes in src/cli/commands/system-files/index.ts (code refactoring)
+    - Changes in src/cli/commands/system-files/types.ts (type updates)
+
 ## [0.6.13] - 2026-01-02
 
 <small>03.01.2026 21:30</small>
