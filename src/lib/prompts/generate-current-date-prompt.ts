@@ -1,7 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
-import { getPackagePromptsDir } from './get-package-prompts-dir';
+import { getSystemRulesFile } from '../system-rules-cache';
 
 /** Форматирует текущую дату в формате YYYY-M-D */
 function formatCurrentDate(): string {
@@ -14,10 +11,8 @@ function formatCurrentDate(): string {
 }
 
 /** Генерирует промпт текущей даты с подстановкой значения */
-export async function generateCurrentDatePrompt(packageDir: string): Promise<string> {
-    const promptsDir = getPackagePromptsDir(packageDir);
-    const templatePath = join(promptsDir, 'current-date.template.md');
-    const template = await readFile(templatePath, 'utf-8');
+export async function generateCurrentDatePrompt(forceRefresh: boolean = false): Promise<string> {
+    const template = await getSystemRulesFile('current-date.template.md', forceRefresh);
     const currentDate = formatCurrentDate();
 
     return template.replace(/\$\{CURRENT_DATE\}/g, currentDate);

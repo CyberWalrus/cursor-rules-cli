@@ -1,21 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import { generateCurrentDatePrompt } from '../generate-current-date-prompt';
 
-vi.mock('node:fs/promises', () => ({
-    readFile: vi.fn(),
-}));
+const mockGetSystemRulesFile = vi.hoisted(() => vi.fn());
 
-vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
+vi.mock('../../system-rules-cache', () => ({
+    getSystemRulesFile: mockGetSystemRulesFile,
 }));
-
-const mockReadFile = vi.mocked(readFile);
 
 describe('generateCurrentDatePrompt', () => {
-    const packageDir = '/test/package';
-    const templatePath = join(packageDir, 'system-rules', 'current-date.template.md');
     const template = `---
 id: current-date
 type: compact
@@ -36,7 +27,7 @@ current_date: "\${CURRENT_DATE}"
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockReadFile.mockResolvedValue(template);
+        mockGetSystemRulesFile.mockResolvedValue(template);
         vi.useFakeTimers();
     });
 
@@ -48,19 +39,19 @@ current_date: "\${CURRENT_DATE}"
         const testDate = new Date('2025-01-15T10:00:00Z');
         vi.setSystemTime(testDate);
 
-        const result = await generateCurrentDatePrompt(packageDir);
+        const result = await generateCurrentDatePrompt();
 
-        expect(mockReadFile).toHaveBeenCalledWith(templatePath, 'utf-8');
+        expect(mockGetSystemRulesFile).toHaveBeenCalledWith('current-date.template.md', false);
         expect(result).toContain('current_date: "2025-1-15"');
         expect(result).toContain('**CURRENT DATE:** 2025-1-15');
-        expect(result).not.toContain('${CURRENT_DATE}'); // eslint-disable-line no-template-curly-in-string
+        expect(result).not.toMatch(/\$\{CURRENT_DATE\}/);
     });
 
     it('должен форматировать дату в формате YYYY-M-D', async () => {
         const testDate = new Date('2025-12-25T10:00:00Z');
         vi.setSystemTime(testDate);
 
-        const result = await generateCurrentDatePrompt(packageDir);
+        const result = await generateCurrentDatePrompt();
 
         expect(result).toContain('2025-12-25');
     });

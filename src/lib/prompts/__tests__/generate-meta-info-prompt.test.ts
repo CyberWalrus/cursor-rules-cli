@@ -1,22 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { UserMetaInfo } from '../../../model/types/main';
 import { generateMetaInfoPrompt } from '../generate-meta-info-prompt';
 
-vi.mock('node:fs/promises', () => ({
-    readFile: vi.fn(),
-}));
+const mockGetSystemRulesFile = vi.hoisted(() => vi.fn());
 
-vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
+vi.mock('../../system-rules-cache', () => ({
+    getSystemRulesFile: mockGetSystemRulesFile,
 }));
-
-const mockReadFile = vi.mocked(readFile);
 
 describe('generateMetaInfoPrompt', () => {
-    const packageDir = '/test/package';
-    const templatePath = join(packageDir, 'system-rules', 'meta-info.template.md');
     const template = `---
 id: user-meta-info
 type: compact
@@ -60,7 +51,7 @@ Context internalized, tool versions verified.
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockReadFile.mockResolvedValue(template);
+        mockGetSystemRulesFile.mockResolvedValue(template);
     });
 
     it('должен генерировать промпт с подстановкой значений', async () => {
@@ -77,9 +68,9 @@ Context internalized, tool versions verified.
             toolVersions: 'Node.js v20',
         };
 
-        const result = await generateMetaInfoPrompt(packageDir, metaInfo);
+        const result = await generateMetaInfoPrompt(metaInfo);
 
-        expect(mockReadFile).toHaveBeenCalledWith(templatePath, 'utf-8');
+        expect(mockGetSystemRulesFile).toHaveBeenCalledWith('meta-info.template.md', false);
         expect(result).toContain('Name: Test User');
         expect(result).toContain('Age: 30');
         expect(result).toContain('Role: Developer');
@@ -93,7 +84,7 @@ Context internalized, tool versions verified.
     });
 
     it('должен генерировать промпт с пустыми значениями если metaInfo не передан', async () => {
-        const result = await generateMetaInfoPrompt(packageDir, null);
+        const result = await generateMetaInfoPrompt(null);
 
         expect(result).toContain('Name: ');
         expect(result).toContain('Age: ');
@@ -101,7 +92,7 @@ Context internalized, tool versions verified.
     });
 
     it('должен генерировать промпт с пустыми значениями если metaInfo undefined', async () => {
-        const result = await generateMetaInfoPrompt(packageDir, undefined);
+        const result = await generateMetaInfoPrompt(undefined);
 
         expect(result).toContain('Name: ');
         expect(result).toContain('Age: ');
@@ -113,7 +104,7 @@ Context internalized, tool versions verified.
             role: 'Developer',
         };
 
-        const result = await generateMetaInfoPrompt(packageDir, metaInfo);
+        const result = await generateMetaInfoPrompt(metaInfo);
 
         expect(result).toContain('Name: Test User');
         expect(result).toContain('Age: ');

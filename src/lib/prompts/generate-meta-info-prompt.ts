@@ -1,17 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { UserMetaInfo } from '../../model/types/main';
-import { getPackagePromptsDir } from './get-package-prompts-dir';
+import { getSystemRulesFile } from '../system-rules-cache';
 
 /** Генерирует промпт метаинформации с подстановкой значений */
 export async function generateMetaInfoPrompt(
-    packageDir: string,
     metaInfo: UserMetaInfo | null | undefined,
+    forceRefresh: boolean = false,
 ): Promise<string> {
-    const promptsDir = getPackagePromptsDir(packageDir);
-    const templatePath = join(promptsDir, 'meta-info.template.md');
-    const template = await readFile(templatePath, 'utf-8');
+    const template = await getSystemRulesFile('meta-info.template.md', forceRefresh);
 
     const name = metaInfo?.name ?? '';
     const age = metaInfo?.age?.toString() ?? '';

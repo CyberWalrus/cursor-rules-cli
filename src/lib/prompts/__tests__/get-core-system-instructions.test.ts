@@ -1,32 +1,23 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import { getCoreSystemInstructions } from '../get-core-system-instructions';
 
-vi.mock('node:fs/promises', () => ({
-    readFile: vi.fn(),
-}));
+const mockGetSystemRulesFile = vi.hoisted(() => vi.fn());
 
-vi.mock('../get-package-prompts-dir', () => ({
-    getPackagePromptsDir: (packageDir: string) => join(packageDir, 'system-rules'),
+vi.mock('../../system-rules-cache', () => ({
+    getSystemRulesFile: mockGetSystemRulesFile,
 }));
-
-const mockReadFile = vi.mocked(readFile);
 
 describe('getCoreSystemInstructions', () => {
-    const packageDir = '/test/package';
-    const filePath = join(packageDir, 'system-rules', 'core-system-instructions.md');
     const content = '# Core System Principles\n\nSome content here.';
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockReadFile.mockResolvedValue(content);
+        mockGetSystemRulesFile.mockResolvedValue(content);
     });
 
     it('должен читать файл core-system-instructions.md', async () => {
-        const result = await getCoreSystemInstructions(packageDir);
+        const result = await getCoreSystemInstructions();
 
-        expect(mockReadFile).toHaveBeenCalledWith(filePath, 'utf-8');
+        expect(mockGetSystemRulesFile).toHaveBeenCalledWith('core-system-instructions.md', false);
         expect(result).toBe(content);
     });
 });

@@ -1,18 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { McpSettings } from '../../../model/types/main';
 import { generateMcpConfig } from '../generate-mcp-config';
 
-vi.mock('node:fs/promises', () => ({
-    readFile: vi.fn(),
+const mockGetSystemRulesFile = vi.hoisted(() => vi.fn());
+
+vi.mock('../../system-rules-cache', () => ({
+    getSystemRulesFile: mockGetSystemRulesFile,
 }));
 
-const mockReadFile = vi.mocked(readFile);
-
 describe('generateMcpConfig', () => {
-    const packageDir = '/test/package';
-    const mcpConfigPath = join(packageDir, 'system-rules', 'mcp.json');
     const mcpConfig = {
         mcpServers: {
             context7: {
@@ -29,13 +24,13 @@ describe('generateMcpConfig', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        mockReadFile.mockResolvedValue(JSON.stringify(mcpConfig));
+        mockGetSystemRulesFile.mockResolvedValue(JSON.stringify(mcpConfig));
     });
 
     it('должен генерировать конфиг MCP сервера в виде JSON строки', async () => {
-        const result = await generateMcpConfig(packageDir);
+        const result = await generateMcpConfig();
 
-        expect(mockReadFile).toHaveBeenCalledWith(mcpConfigPath, 'utf-8');
+        expect(mockGetSystemRulesFile).toHaveBeenCalledWith('mcp.json', false);
         expect(result).toBe(JSON.stringify(mcpConfig, null, 4));
     });
 
@@ -46,7 +41,7 @@ describe('generateMcpConfig', () => {
             apiProviders: 'Cerebras',
         };
 
-        const result = await generateMcpConfig(packageDir, mcpSettings);
+        const result = await generateMcpConfig(mcpSettings);
         const parsed = JSON.parse(result);
 
         expect(parsed.mcpServers.context7.env).toBeUndefined();
@@ -63,7 +58,7 @@ describe('generateMcpConfig', () => {
             apiKey: 'sk-or-v1-test-key',
         };
 
-        const result = await generateMcpConfig(packageDir, mcpSettings);
+        const result = await generateMcpConfig(mcpSettings);
         const parsed = JSON.parse(result);
 
         expect(parsed.mcpServers['mcp-validator'].env.AI_MODEL).toBe('openai/gpt-oss-120b');
@@ -75,7 +70,7 @@ describe('generateMcpConfig', () => {
             apiKey: 'sk-or-v1-test-key',
         };
 
-        const result = await generateMcpConfig(packageDir, mcpSettings);
+        const result = await generateMcpConfig(mcpSettings);
         const parsed = JSON.parse(result);
 
         expect(parsed.mcpServers['mcp-validator'].env.AI_MODEL).toBe('openai/gpt-oss-120b');
@@ -87,21 +82,9 @@ describe('generateMcpConfig', () => {
             apiKey: 'sk-or-v1-test-key',
         };
 
-        const result = await generateMcpConfig(packageDir, mcpSettings);
+        const result = await generateMcpConfig(mcpSettings);
         const parsed = JSON.parse(result);
 
         expect(parsed.mcpServers['mcp-validator'].env.API_PROVIDERS).toBeUndefined();
-    });
-
-    it('должен выбрасывать ошибку если packageDir пустой', async () => {
-        await expect(generateMcpConfig('')).rejects.toThrow('packageDir is required');
-    });
-
-    it('должен выбрасывать ошибку если packageDir null', async () => {
-        await expect(generateMcpConfig(null as never)).rejects.toThrow('packageDir is required');
-    });
-
-    it('должен выбрасывать ошибку если packageDir undefined', async () => {
-        await expect(generateMcpConfig(undefined as never)).rejects.toThrow('packageDir is required');
     });
 });

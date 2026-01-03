@@ -1,17 +1,12 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import type { McpConfig, McpSettings } from '../../model/types/main';
-import { isEmptyString } from '../helpers';
+import { getSystemRulesFile } from '../system-rules-cache';
 
 /** Генерирует конфиг MCP сервера в виде JSON строки */
-export async function generateMcpConfig(packageDir: string, mcpSettings?: McpSettings | null): Promise<string> {
-    if (isEmptyString(packageDir)) {
-        throw new Error('packageDir is required');
-    }
-
-    const mcpConfigPath = join(packageDir, 'system-rules', 'mcp.json');
-    const content = await readFile(mcpConfigPath, 'utf-8');
+export async function generateMcpConfig(
+    mcpSettings?: McpSettings | null,
+    forceRefresh: boolean = false,
+): Promise<string> {
+    const content = await getSystemRulesFile('mcp.json', forceRefresh);
     const parsed = JSON.parse(content) as unknown;
 
     const config = parsed as McpConfig;
