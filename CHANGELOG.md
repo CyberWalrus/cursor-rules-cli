@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.7.1] - 2026-01-04
+
+<small>04.01.2026 22:27</small>
+
+### Added
+
+- **Dependency replacements**
+    - Replaced micromatch with picomatch and picocolors with ansis for improved performance and security
+    - Updated file operations and version manager modules to use new dependencies
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/94295ea" target="_blank">94295ea</a>
+
+### Changed
+
+- **System files command refactoring**
+    - Refactored system-files command with improved code structure
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/6de5c59" target="_blank">6de5c59</a>
+
+- **Configuration updates**
+    - Updated TypeScript and Vitest configuration for new dependencies
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/68c4eed" target="_blank">68c4eed</a>
+
+### Style
+
+- **Code cleanup**
+    - Removed unnecessary comments
+    - <a href="https://github.com/CyberWalrus/cursor-rules-cli/commit/9f9c0f8" target="_blank">9f9c0f8</a>
+
 ## [0.7.0] - 2026-01-03
 
 <small>03.01.2026 22:19</small>

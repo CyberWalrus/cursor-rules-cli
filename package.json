@@ -1,6 +1,6 @@
 {
     "name": "cursor-rules-cli",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "CLI tool for managing .cursor rules in projects",
     "bin": {
         "cursor-rules-cli": "dist/cli.cjs",
@@ -10,7 +10,7 @@
     "_comment": "MANDATORY for AI agents: ALWAYS check this comment before running quality checks. ALWAYS use 'yarn lint' to run all tests and linters. This unified command works better than individual lint/test scripts - prefer it over separate commands. Individual commands (lint:eslint, lint:ts, etc.) are for debugging only, NOT for final validation.",
     "scripts": {
         "build": "tsup",
-        "start": "tsx src/cli.ts",
+        "start": "tsx src/index.ts",
         "lint": "aifr \"yarn lint:eslint\" \"yarn lint:ts\" \"yarn lint:knip\" \"yarn lint:test-unit\" \"yarn lint:test-e2e\"",
         "lint:test-unit": "cross-env NODE_OPTIONS=--max-old-space-size=4096 NODE_ENV=test TZ=Europe/Moscow vitest --run",
         "lint:test-e2e": "yarn build && cross-env NODE_ENV=test TZ=Europe/Moscow TEST_TYPE=e2e vitest --run",
@@ -38,13 +38,13 @@
         "ansis": "4.2.0",
         "citty": "0.1.6",
         "gray-matter": "4.0.3",
-        "picomatch": "4.0.3",
+        "micromatch": "4.0.8",
         "tar": "7.5.2",
         "zod": "4.3.5"
     },
     "devDependencies": {
+        "@types/micromatch": "4.0.10",
         "@types/node": "25.0.3",
-        "@types/picomatch": "^4.0.2",
         "ai-friendly-runner": "0.4.2",
         "cross-env": "10.1.0",
         "eslint-walrus-config": "1.1.0",
