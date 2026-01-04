@@ -17,7 +17,7 @@ export default defineConfig({
     },
     external: [...builtinModules, ...builtinModules.map((m) => `node:${m}`)],
     format: ['cjs'],
-    noExternal: ['citty', 'gray-matter', 'micromatch', 'picocolors', 'zod'],
+    noExternal: ['ansis', 'citty', 'gray-matter', 'micromatch', 'zod'],
     outDir: 'dist',
     platform: 'node',
     sourcemap: false,

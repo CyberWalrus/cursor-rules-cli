@@ -1,4 +1,4 @@
-import { bold, cyan, green, red } from 'picocolors';
+import { bold, cyan, green, red } from 'ansis';
 
 import { t } from '../i18n';
 import { compareVersions } from './compare-versions';

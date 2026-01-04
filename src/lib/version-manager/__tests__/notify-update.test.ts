@@ -4,7 +4,7 @@ import { compareVersions } from '../compare-versions';
 import { getNpmVersion } from '../get-npm-version';
 import { notifyIfUpdateAvailable } from '../notify-update';
 
-vi.mock('picocolors', () => ({
+vi.mock('ansis', () => ({
     bold: (str: string) => str,
     cyan: (str: string) => str,
     green: (str: string) => str,
