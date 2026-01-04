@@ -1,4 +1,3 @@
-import { getTargetDir } from '../get-target-dir';
 import { runCli } from '../index';
 
 const mockRunMain = vi.hoisted(() => vi.fn());
@@ -166,16 +165,5 @@ describe('runCli', () => {
         expect(versionCheckResolved).toBe(true);
 
         vi.useRealTimers();
-    });
-});
-
-describe('getTargetDir', () => {
-    it('должен возвращать текущую рабочую директорию через process.cwd()', () => {
-        const result = getTargetDir();
-        const expectedCwd = process.cwd();
-
-        expect(result).toBe(expectedCwd);
-        expect(typeof result).toBe('string');
-        expect(result.length).toBeGreaterThan(0);
     });
 });

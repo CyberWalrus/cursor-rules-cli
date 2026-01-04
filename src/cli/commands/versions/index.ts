@@ -7,11 +7,9 @@ import { getPackageVersion } from '../../../lib/version-manager/get-package-vers
 import { getVersionsWithRetry } from '../../../lib/version-manager/get-versions-with-retry';
 import { getPackageDir } from '../../main/get-package-dir';
 import { getTargetDir } from '../../main/get-target-dir';
+import type { VersionsCommandResult } from './types';
 
 const currentFilePath = typeof __filename !== 'undefined' ? __filename : fileURLToPath(import.meta.url);
-
-/** Результат выполнения команды просмотра версий */
-export type VersionsCommandResult = 'back-to-menu' | 'finish';
 
 /** Команда просмотра версий */
 export async function versionsCommand(): Promise<VersionsCommandResult> {

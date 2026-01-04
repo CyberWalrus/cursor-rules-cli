@@ -3,9 +3,10 @@ import { cancel, isCancel, log, outro, select, text } from '@clack/prompts';
 import { t } from '../../../lib/i18n';
 import { readUserConfig, writeUserConfig } from '../../../lib/user-config';
 import type { McpSettings, UserConfig, UserMetaInfo } from '../../../model';
+import type { ConfigCommandResult } from './types';
 
 /** Тип поля конфигурации для редактирования */
-type ConfigField = 'back-to-menu' | 'finish' | 'language' | 'mcp-settings' | 'meta-info';
+type ConfigField = 'back-to-menu' | 'finish' | 'github-token' | 'language' | 'mcp-settings' | 'meta-info';
 
 /** Тип поля метаинформации для редактирования */
 type MetaInfoField =
@@ -40,7 +41,6 @@ function formatValue(value: number | string | null | undefined): string {
 async function editMetaInfo(currentMetaInfo: UserMetaInfo | null | undefined): Promise<UserMetaInfo | undefined> {
     const metaInfo: UserMetaInfo = currentMetaInfo ? { ...currentMetaInfo } : {};
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const currentName = metaInfo.name ?? '';
         const currentAge = metaInfo.age?.toString() ?? '';
@@ -202,7 +202,6 @@ async function editMcpSettings(currentMcpSettings: McpSettings | null | undefine
               apiKey: '',
           };
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const currentApiKey = mcpSettings.apiKey ?? '';
         const currentAiModel = mcpSettings.aiModel ?? DEFAULT_AI_MODEL;
@@ -212,7 +211,7 @@ async function editMcpSettings(currentMcpSettings: McpSettings | null | undefine
             message: t('command.config.mcp-settings.select-field'),
             options: [
                 {
-                    label: `${t('command.config.mcp-settings.field.api-key')}: ${formatValue(currentApiKey)}`,
+                    label: `${t('command.config.mcp-settings.field.api-key')}: ${currentApiKey ? '(настроено)' : NOT_SET_LABEL}`,
                     value: 'api-key',
                 },
                 {
@@ -279,18 +278,33 @@ async function editMcpSettings(currentMcpSettings: McpSettings | null | undefine
     return mcpSettings;
 }
 
-/** Результат выполнения команды конфигурации */
-export type ConfigCommandResult = 'back-to-menu' | 'finish';
+/** Редактирует GitHub API токен */
+async function editGithubToken(currentToken: string | null | undefined): Promise<string | undefined> {
+    const tokenInput = await text({
+        initialValue: currentToken ?? '',
+        message: t('command.config.github-token.prompt'),
+    });
+
+    if (isCancel(tokenInput)) {
+        cancel(t('cli.interactive-menu.cancelled'));
+
+        return currentToken ?? undefined;
+    }
+
+    const value = tokenInput.trim();
+
+    return value === '' ? undefined : value;
+}
 
 /** Команда настройки глобальной конфигурации */
-// eslint-disable-next-line sonarjs/cognitive-complexity -- интерактивное меню требует множественных условий
+
 export async function configCommand(): Promise<ConfigCommandResult> {
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const currentConfig = await readUserConfig();
         const currentLanguage = currentConfig?.language ?? 'en';
         const currentMetaInfo = currentConfig?.metaInfo;
         const currentMcpSettings = currentConfig?.mcpSettings;
+        const currentGithubToken = currentConfig?.githubToken;
 
         const field = await select<ConfigField>({
             message: t('command.config.select-field'),
@@ -303,6 +317,10 @@ export async function configCommand(): Promise<ConfigCommandResult> {
                 {
                     label: `${t('command.config.field.mcp-settings')}: ${currentMcpSettings ? '(настроено)' : '(не настроено)'}`,
                     value: 'mcp-settings',
+                },
+                {
+                    label: `${t('command.config.field.github-token')}: ${currentGithubToken ? '(настроено)' : '(не настроено)'}`,
+                    value: 'github-token',
                 },
                 { label: t('command.config.field.back-to-menu'), value: 'back-to-menu' },
                 { label: t('command.config.field.finish'), value: 'finish' },
@@ -368,6 +386,17 @@ export async function configCommand(): Promise<ConfigCommandResult> {
 
             await writeUserConfig(config);
             log.success(t('command.config.mcp-settings.success'));
+        } else if (field === 'github-token') {
+            const githubToken = await editGithubToken(currentGithubToken);
+
+            const config: UserConfig = {
+                language: currentConfig?.language ?? 'en',
+                ...currentConfig,
+                githubToken,
+            };
+
+            await writeUserConfig(config);
+            log.success(t('command.config.github-token.success'));
         }
     }
 }

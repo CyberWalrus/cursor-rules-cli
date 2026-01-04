@@ -1,8 +1,6 @@
 import { getPackageVersion } from '../../lib/version-manager/get-package-version';
 import { notifyIfUpdateAvailable } from '../../lib/version-manager/notify-update';
-
-/** Имя пакета для проверки обновлений */
-const PACKAGE_NAME = 'cursor-rules-cli' as const;
+import { PACKAGE_NAME } from './constants';
 
 /** Проверяет и уведомляет о доступной новой версии */
 export async function ensureLatestVersion(packageDir: string): Promise<void> {
