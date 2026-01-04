@@ -147,7 +147,6 @@ async function getFileContent(
 export async function systemFilesCommand(): Promise<SystemFilesCommandResult> {
     const isGithubError = await checkGithubAvailability();
 
-    // eslint-disable-next-line no-constant-condition
     while (true) {
         const menuAction = await select<SystemFileMenuAction>({
             message: t('command.system-files.select-type'),
