@@ -1,6 +1,6 @@
 import { GITHUB_REPO } from '../../model';
 import { getLatestPromptsVersion, getLatestSystemRulesVersion } from '../github-fetcher';
-import { clearBackgroundError, getCachedVersions, hasBackgroundError } from './versions-cache';
+import { clearBackgroundError, getCachedVersions, hasBackgroundError } from './helpers';
 
 /** Получает версии с повторной попыткой при ошибке фоновой загрузки */
 export async function getVersionsWithRetry(): Promise<{
@@ -12,15 +12,22 @@ export async function getVersionsWithRetry(): Promise<{
     if (hasBackgroundError() || cached.promptsVersion === null || cached.systemRulesVersion === null) {
         clearBackgroundError();
 
-        const [promptsVersion, systemRulesVersion] = await Promise.all([
-            getLatestPromptsVersion(GITHUB_REPO),
-            getLatestSystemRulesVersion(GITHUB_REPO),
-        ]);
+        try {
+            const [promptsVersion, systemRulesVersion] = await Promise.all([
+                getLatestPromptsVersion(GITHUB_REPO),
+                getLatestSystemRulesVersion(GITHUB_REPO),
+            ]);
 
-        return {
-            promptsVersion,
-            systemRulesVersion,
-        };
+            return {
+                promptsVersion,
+                systemRulesVersion,
+            };
+        } catch {
+            return {
+                promptsVersion: null,
+                systemRulesVersion: null,
+            };
+        }
     }
 
     return {

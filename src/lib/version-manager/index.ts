@@ -5,5 +5,5 @@ export { getCurrentVersion } from './get-current-version';
 export { getNpmVersion } from './get-npm-version';
 export { getPackageVersion } from './get-package-version';
 export { getVersionsWithRetry } from './get-versions-with-retry';
+export { clearBackgroundError, getCachedVersions, hasBackgroundError, setCachedVersions } from './helpers';
 export { notifyIfUpdateAvailable } from './notify-update';
-export { clearBackgroundError, getCachedVersions, hasBackgroundError, setCachedVersions } from './versions-cache';

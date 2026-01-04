@@ -1,13 +1,7 @@
-/** Кэш версий для фоновой загрузки */
-type VersionsCache = {
-    error: boolean;
-    lastCheck: number | null;
-    promptsVersion: string | null;
-    systemRulesVersion: string | null;
-};
+import type { VersionsCache } from './types';
 
 let cache: VersionsCache = {
-    error: false,
+    isError: false,
     lastCheck: null,
     promptsVersion: null,
     systemRulesVersion: null,
@@ -28,10 +22,10 @@ export function setCachedVersions(versions: Partial<VersionsCache>): void {
 
 /** Проверяет, была ли ошибка при фоновой загрузке */
 export function hasBackgroundError(): boolean {
-    return cache.error;
+    return cache.isError;
 }
 
 /** Сбрасывает флаг ошибки */
 export function clearBackgroundError(): void {
-    cache.error = false;
+    cache.isError = false;
 }

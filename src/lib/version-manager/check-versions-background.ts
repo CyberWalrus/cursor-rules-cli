@@ -1,6 +1,6 @@
 import { GITHUB_REPO } from '../../model';
 import { getLatestPromptsVersion, getLatestSystemRulesVersion } from '../github-fetcher';
-import { setCachedVersions } from './versions-cache';
+import { setCachedVersions } from './helpers';
 
 /** Проверяет версии prompts и system-rules в фоне и сохраняет в кэш */
 export async function checkVersionsInBackground(): Promise<void> {
@@ -11,14 +11,14 @@ export async function checkVersionsInBackground(): Promise<void> {
         ]);
 
         setCachedVersions({
-            error: false,
+            isError: false,
             lastCheck: Date.now(),
             promptsVersion,
             systemRulesVersion,
         });
     } catch {
         setCachedVersions({
-            error: true,
+            isError: true,
             lastCheck: Date.now(),
         });
     }
