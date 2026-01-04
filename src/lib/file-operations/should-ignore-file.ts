@@ -1,4 +1,4 @@
-import { isMatch } from 'picomatch';
+import micromatch from 'micromatch';
 
 /** Проверяет, должен ли файл быть проигнорирован */
 export function shouldIgnoreFile(filePath: string, ignoreList: string[]): boolean {
@@ -14,8 +14,8 @@ export function shouldIgnoreFile(filePath: string, ignoreList: string[]): boolea
         .map((pattern) => pattern.slice(1));
     const positivePatterns = normalizedPatterns.filter((pattern) => !pattern.startsWith('!'));
 
-    const isMatchPositive = positivePatterns.some((pattern) => isMatch(normalizedPath, pattern));
-    const isMatchNegative = negativePatterns.some((pattern) => isMatch(normalizedPath, pattern));
+    const isMatchPositive = positivePatterns.some((pattern) => micromatch.isMatch(normalizedPath, pattern));
+    const isMatchNegative = negativePatterns.some((pattern) => micromatch.isMatch(normalizedPath, pattern));
 
     if (isMatchNegative) {
         return false;

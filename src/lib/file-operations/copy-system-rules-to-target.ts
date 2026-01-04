@@ -9,19 +9,21 @@ import { pathExists } from './path-exists';
 async function copyDirectoryRecursive(sourceDir: string, targetDir: string): Promise<void> {
     const entries = await readdir(sourceDir, { withFileTypes: true });
 
-    for (const entry of entries) {
-        const sourcePath = join(sourceDir, entry.name);
-        const targetPath = join(targetDir, entry.name);
+    await Promise.all(
+        entries.map(async (entry) => {
+            const sourcePath = join(sourceDir, entry.name);
+            const targetPath = join(targetDir, entry.name);
 
-        if (entry.isDirectory()) {
-            await mkdir(targetPath, { recursive: true });
-            await copyDirectoryRecursive(sourcePath, targetPath);
-        } else if (entry.isFile()) {
-            const targetFileDir = dirname(targetPath);
-            await mkdir(targetFileDir, { recursive: true });
-            await cp(sourcePath, targetPath, { force: true });
-        }
-    }
+            if (entry.isDirectory()) {
+                await mkdir(targetPath, { recursive: true });
+                await copyDirectoryRecursive(sourcePath, targetPath);
+            } else if (entry.isFile()) {
+                const targetFileDir = dirname(targetPath);
+                await mkdir(targetFileDir, { recursive: true });
+                await cp(sourcePath, targetPath, { force: true });
+            }
+        }),
+    );
 }
 
 /** Копирует системные правила из временной директории в целевую */

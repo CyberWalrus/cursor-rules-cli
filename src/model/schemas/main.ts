@@ -69,6 +69,7 @@ export const mcpSettingsSchema = z.object({
 /** Схема валидации глобальной конфигурации пользователя */
 export const userConfigSchema = z
     .object({
+        githubToken: z.string().min(1, 'GitHub token cannot be empty').optional(),
         language: z.enum(['en', 'ru'], { message: 'Language must be "en" or "ru"' }),
         mcpSettings: mcpSettingsSchema.optional(),
         metaInfo: userMetaInfoSchema.optional(),

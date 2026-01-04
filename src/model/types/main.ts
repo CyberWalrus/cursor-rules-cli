@@ -124,6 +124,8 @@ export type UserConfig = {
     [key: string]: unknown;
     /** Язык интерфейса */
     language: 'en' | 'ru';
+    /** GitHub API токен */
+    githubToken?: string;
     /** Настройки MCP серверов */
     mcpSettings?: McpSettings;
     /** Метаинформация пользователя */

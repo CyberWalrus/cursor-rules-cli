@@ -6,7 +6,7 @@ export default defineConfig({
     bundle: true,
     clean: true,
     dts: false,
-    entry: ['src/cli.ts'],
+    entry: ['src/index.ts'],
     esbuildOptions(options) {
         return {
             ...options,

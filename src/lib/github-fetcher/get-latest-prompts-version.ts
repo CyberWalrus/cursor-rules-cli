@@ -1,4 +1,5 @@
 import { t } from '../i18n';
+import { getGithubToken } from '../user-config';
 
 /** Получает последнюю версию промптов из GitHub репозитория. Возвращает null при сетевых ошибках */
 export async function getLatestPromptsVersion(repo: string): Promise<string | null> {
@@ -6,7 +7,7 @@ export async function getLatestPromptsVersion(repo: string): Promise<string | nu
         throw new Error('repo is required');
     }
 
-    const token = process.env.GITHUB_TOKEN;
+    const token = await getGithubToken();
     const headers: Record<string, string> = {
         'User-Agent': 'cursor-rules-cli',
         ...(token !== undefined && { Authorization: `Bearer ${token}` }),

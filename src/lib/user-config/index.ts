@@ -1,5 +1,6 @@
 export { fillMissingMcpSettings } from './fill-missing-mcp-settings';
 export { fillMissingMetaInfo } from './fill-missing-meta-info';
+export { getGithubToken } from './get-github-token';
 export { getUserConfigDir } from './get-user-config-dir';
 export { readUserConfig } from './read-user-config';
 export { validateMcpSettings } from './validate-mcp-settings';
